@@ -28,9 +28,17 @@ package org.graphwalker.core.model;
 
 import org.graphwalker.core.common.Objects;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
-import static org.graphwalker.core.common.Objects.*;
+import static org.graphwalker.core.common.Objects.isNotNull;
+import static org.graphwalker.core.common.Objects.unmodifiableList;
+import static org.graphwalker.core.common.Objects.unmodifiableMap;
 import static org.graphwalker.core.model.Edge.RuntimeEdge;
 import static org.graphwalker.core.model.Vertex.RuntimeVertex;
 
@@ -254,7 +262,7 @@ public class Model extends BuilderBase<Model, Model.RuntimeModel> {
     private final Map<String, List<RuntimeVertex>> sharedStateCache;
 
     private RuntimeModel(Model model) {
-      super(model.getId(), model.getName(), model.getActions(), model.getRequirements(), model.getProperties());
+      super(model.getId(), model.getName(), model.getDescription(), model.getActions(), model.getRequirements(), model.getProperties());
       this.vertices = BuilderFactory.build(model.getVertices());
       this.edges = BuilderFactory.build(model.getEdges());
       this.edgesByNameCache = createEdgesByNameCache();

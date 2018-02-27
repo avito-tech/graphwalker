@@ -101,7 +101,7 @@ public class Vertex extends CachedBuilder<Vertex, Vertex.RuntimeVertex> {
     private final String sharedState;
 
     private RuntimeVertex(Vertex vertex) {
-      super(vertex.getId(), vertex.getName(), vertex.getRequirements(), vertex.getProperties());
+      super(vertex.getId(), vertex.getName(), vertex.getDescription(), vertex.getRequirements(), vertex.getProperties());
       this.sharedState = vertex.getSharedState();
     }
 

@@ -59,6 +59,13 @@ public interface Element {
    */
   boolean hasName();
 
+  /**
+   * Commentary to the node.
+   *
+   * @return element's text description
+   */
+  String getDescription();
+
   Set<Requirement> getRequirements();
 
   boolean hasRequirements();

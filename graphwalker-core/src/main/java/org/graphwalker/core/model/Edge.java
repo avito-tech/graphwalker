@@ -32,7 +32,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.graphwalker.core.common.Objects.*;
+import static org.graphwalker.core.common.Objects.isNotNull;
+import static org.graphwalker.core.common.Objects.isNotNullOrEmpty;
+import static org.graphwalker.core.common.Objects.unmodifiableList;
 import static org.graphwalker.core.model.Vertex.RuntimeVertex;
 
 /**
@@ -246,7 +248,7 @@ public class Edge extends CachedBuilder<Edge, Edge.RuntimeEdge> {
     private final Integer dependency;
 
     private RuntimeEdge(Edge edge) {
-      super(edge.getId(), edge.getName(), edge.getActions(), edge.getRequirements(), edge.getProperties());
+      super(edge.getId(), edge.getName(), edge.getDescription(), edge.getActions(), edge.getRequirements(), edge.getProperties());
       this.sourceVertex = build(edge.getSourceVertex());
       this.targetVertex = build(edge.getTargetVertex());
       this.guard = edge.getGuard();

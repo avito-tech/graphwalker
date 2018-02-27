@@ -58,7 +58,7 @@ public class Classification extends CachedBuilder<Classification, Classification
     private final List<RuntimeClassification> classifications;
 
     private RuntimeClassification(Classification classification) {
-      super(classification.getId(), classification.getName());
+      super(classification.getId(), classification.getName(), classification.getDescription());
       this.classifications = BuilderFactory.build(classification.getClassifications());
     }
 

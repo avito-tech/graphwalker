@@ -28,9 +28,19 @@ package org.graphwalker.core.model;
 
 import org.graphwalker.core.common.Objects;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 
-import static org.graphwalker.core.common.Objects.*;
+import static org.graphwalker.core.common.Objects.isNotNullOrEmpty;
+import static org.graphwalker.core.common.Objects.isNull;
+import static org.graphwalker.core.common.Objects.unmodifiableList;
+import static org.graphwalker.core.common.Objects.unmodifiableMap;
+import static org.graphwalker.core.common.Objects.unmodifiableSet;
 
 /**
  * @author Nils Olsson
@@ -39,25 +49,27 @@ public abstract class RuntimeBase implements Element {
 
   private final String id;
   private final String name;
+  private final String description;
   private final List<Action> actions;
   private final Set<Requirement> requirements;
   private final Map<String, Object> properties;
 
-  protected RuntimeBase(String id, String name) {
-    this(id, name, new ArrayList<>(), new HashSet<>());
+  protected RuntimeBase(String id, String name, String description) {
+    this(id, name, description, new ArrayList<>(), new HashSet<>());
   }
 
-  protected RuntimeBase(String id, String name, Set<Requirement> requirements, Map<String, Object> properties) {
-    this(id, name, new ArrayList<>(), requirements, properties);
+  protected RuntimeBase(String id, String name, String description, Set<Requirement> requirements, Map<String, Object> properties) {
+    this(id, name, description, new ArrayList<>(), requirements, properties);
   }
 
-  protected RuntimeBase(String id, String name, List<Action> actions, Set<Requirement> requirements) {
-    this(id, name, actions, requirements, new HashMap<>());
+  protected RuntimeBase(String id, String name, String description, List<Action> actions, Set<Requirement> requirements) {
+    this(id, name, description, actions, requirements, new HashMap<>());
   }
 
-  protected RuntimeBase(String id, String name, List<Action> actions, Set<Requirement> requirements, Map<String, Object> properties) {
+  protected RuntimeBase(String id, String name, String description, List<Action> actions, Set<Requirement> requirements, Map<String, Object> properties) {
     this.id = getIdOrDefault(id);
     this.name = name;
+    this.description = description;
     this.actions = unmodifiableList(actions);
     this.requirements = unmodifiableSet(requirements);
     this.properties = unmodifiableMap(properties);
@@ -89,6 +101,11 @@ public abstract class RuntimeBase implements Element {
   @Override
   public boolean hasName() {
     return isNotNullOrEmpty(name);
+  }
+
+  @Override
+  public String getDescription() {
+    return description == null ? "" : description;
   }
 
   @Override

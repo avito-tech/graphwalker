@@ -28,6 +28,8 @@ package org.graphwalker.core.model;
 
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static org.graphwalker.core.common.Objects.isNull;
 
@@ -65,6 +67,12 @@ public abstract class CachedBuilder<B, T> extends BuilderBase<B, T> {
   }
 
   @Override
+  public B setDescription(String description) {
+    invalidateCache();
+    return super.setDescription(unwrap(description).trim());
+  }
+
+  @Override
   public B addRequirement(Requirement requirement) {
     invalidateCache();
     return super.addRequirement(requirement);
@@ -87,4 +95,14 @@ public abstract class CachedBuilder<B, T> extends BuilderBase<B, T> {
     invalidateCache();
     return super.setProperty(key, value);
   }
+
+  private static String unwrap(String comment) {
+    Matcher m = COMMENT_PATTERN.matcher(comment);
+    if (m.matches()) {
+      return m.group(1);
+    }
+    return comment;
+  }
+
+  private static final Pattern COMMENT_PATTERN = Pattern.compile("/\\*(.*?)\\*/");
 }

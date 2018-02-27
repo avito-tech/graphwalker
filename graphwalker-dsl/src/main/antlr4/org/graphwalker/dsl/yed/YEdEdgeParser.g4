@@ -17,6 +17,7 @@ field
  | {!$parse::fields.contains("reqtags")}? reqtags {$parse::fields.add("reqtags");}
  | {!$parse::fields.contains("weight")}? weight {$parse::fields.add("weight");}
  | {!$parse::fields.contains("dependency")}? dependency {$parse::fields.add("dependency");}
+ | {!$parse::fields.contains("description")}? description {$parse::fields.add("description");}
  | WHITESPACE
  ;
 
@@ -62,4 +63,8 @@ dependency
  
 weight
  : WEIGHT WHITESPACE* ASSIGN WHITESPACE* Value
+ ;
+
+description
+ : (COMMENT)+
  ;

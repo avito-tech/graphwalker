@@ -66,7 +66,7 @@ LetterOrDigit
  ;
 
 COMMENT
- : '/*' .*? '*/' -> skip
+ : '/*' .*? '*/'
  ;
 
 LINE_COMMENT

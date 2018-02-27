@@ -26,18 +26,9 @@ package org.graphwalker.java.source;
  * #L%
  */
 
-import japa.parser.ASTHelper;
-import japa.parser.JavaParser;
-import japa.parser.ast.CompilationUnit;
-import japa.parser.ast.ImportDeclaration;
-import japa.parser.ast.PackageDeclaration;
-import japa.parser.ast.body.ClassOrInterfaceDeclaration;
-import japa.parser.ast.body.MethodDeclaration;
-import japa.parser.ast.body.ModifierSet;
-import japa.parser.ast.comments.LineComment;
-import japa.parser.ast.expr.*;
-import japa.parser.ast.visitor.VoidVisitorAdapter;
 import org.graphwalker.core.machine.Context;
+import org.graphwalker.core.model.Edge.RuntimeEdge;
+import org.graphwalker.core.model.Vertex.RuntimeVertex;
 import org.graphwalker.io.factory.ContextFactory;
 import org.graphwalker.io.factory.ContextFactoryScanner;
 import org.graphwalker.java.source.cache.CacheEntry;
@@ -49,12 +40,34 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Modifier;
 import java.nio.charset.Charset;
-import java.nio.file.*;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.StandardOpenOption;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import japa.parser.ASTHelper;
+import japa.parser.JavaParser;
+import japa.parser.ast.CompilationUnit;
+import japa.parser.ast.ImportDeclaration;
+import japa.parser.ast.PackageDeclaration;
+import japa.parser.ast.body.ClassOrInterfaceDeclaration;
+import japa.parser.ast.body.MethodDeclaration;
+import japa.parser.ast.body.ModifierSet;
+import japa.parser.ast.comments.LineComment;
+import japa.parser.ast.expr.AnnotationExpr;
+import japa.parser.ast.expr.MemberValuePair;
+import japa.parser.ast.expr.NameExpr;
+import japa.parser.ast.expr.NormalAnnotationExpr;
+import japa.parser.ast.expr.StringLiteralExpr;
+import japa.parser.ast.visitor.VoidVisitorAdapter;
+
+import static java.util.Collections.singletonList;
 import static org.graphwalker.core.model.Model.RuntimeModel;
 
 /**
@@ -186,12 +199,20 @@ public final class CodeGenerator extends VoidVisitorAdapter<ChangeContext> {
       if (isValidName(methodName)) {
         MethodDeclaration method = new MethodDeclaration(Modifier.INTERFACE, ASTHelper.VOID_TYPE, methodName);
         List<AnnotationExpr> annotations = new ArrayList<>();
-        if (changeContext.isVertex(methodName)) {
-          List<MemberValuePair> memberValuePairs = new ArrayList<>();
+        List<RuntimeVertex> vertices = changeContext.getModel().findVertices(methodName);
+        if (vertices != null) {
+          String description = vertices.isEmpty() ? "" : vertices.iterator().next().getDescription();
+          List<MemberValuePair> memberValuePairs = singletonList(new MemberValuePair("value", new StringLiteralExpr(description)));
           annotations.add(new NormalAnnotationExpr(ASTHelper.createNameExpr("Vertex"), memberValuePairs));
         } else {
-          List<MemberValuePair> memberValuePairs = new ArrayList<>();
-          annotations.add(new NormalAnnotationExpr(ASTHelper.createNameExpr("Edge"), memberValuePairs));
+          List<RuntimeEdge> edges = changeContext.getModel().findEdges(methodName);
+          if (edges != null) {
+            String description = edges.isEmpty() ? "" : edges.iterator().next().getDescription();
+            List<MemberValuePair> memberValuePairs = singletonList(new MemberValuePair("value", new StringLiteralExpr(description)));
+            annotations.add(new NormalAnnotationExpr(ASTHelper.createNameExpr("Edge"), memberValuePairs));
+          } else {
+            throw new IllegalStateException("No vertices or edges were found for method: \"" + methodName + "\"");
+          }
         }
         method.setAnnotations(annotations);
         ASTHelper.addMember(body, method);

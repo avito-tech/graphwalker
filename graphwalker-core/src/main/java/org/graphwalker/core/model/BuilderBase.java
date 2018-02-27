@@ -38,6 +38,7 @@ public abstract class BuilderBase<B, T> implements Builder<T> {
 
   private String id;
   private String name;
+  private String description;
   private Set<Requirement> requirements = new HashSet<>();
   private Map<String, Object> properties = new HashMap<>();
 
@@ -55,9 +56,19 @@ public abstract class BuilderBase<B, T> implements Builder<T> {
     return name;
   }
 
+  public String getDescription() {
+    return description;
+  }
+
   @SuppressWarnings("unchecked")
   public B setName(String name) {
     this.name = name;
+    return (B) this;
+  }
+
+  @SuppressWarnings("unchecked")
+  public B setDescription(String description) {
+    this.description = description;
     return (B) this;
   }
 

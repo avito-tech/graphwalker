@@ -5,7 +5,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.graphwalker</groupId>
   <artifactId>graphwalker-project</artifactId>
-  <version>4.0.0-SNAPSHOT</version>
+  <version>4.0.1</version>
   <packaging>pom</packaging>
 
   <name>GraphWalker Project</name>
@@ -26,8 +26,8 @@
   </licenses>
 
   <organization>
-    <name>GraphWalker</name>
-    <url>http://graphwalker.org</url>
+    <name>Avito</name>
+    <url>http://avito.ru</url>
   </organization>
 
   <developers>
@@ -286,6 +286,7 @@
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-source-plugin</artifactId>
+            <version>3.0.1</version>
             <executions>
               <execution>
                 <id>attach-sources</id>
@@ -309,22 +310,6 @@
                 <goals>
                   <goal>jar</goal>
                 </goals>
-              </execution>
-            </executions>
-          </plugin>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-gpg-plugin</artifactId>
-            <executions>
-              <execution>
-                <id>sign-artifacts</id>
-                <phase>verify</phase>
-                <goals>
-                  <goal>sign</goal>
-                </goals>
-                <configuration>
-                  <keyname>GraphWalker</keyname>
-                </configuration>
               </execution>
             </executions>
           </plugin>

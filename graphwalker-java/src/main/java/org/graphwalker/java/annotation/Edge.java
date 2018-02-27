@@ -38,4 +38,9 @@ import java.lang.annotation.Target;
 @Target(ElementType.METHOD)
 public @interface Edge {
 
+  /**
+   * @return text of edge's description
+   */
+  String value() default "";
+
 }

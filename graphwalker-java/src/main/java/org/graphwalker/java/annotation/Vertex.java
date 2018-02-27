@@ -38,4 +38,9 @@ import java.lang.annotation.Target;
 @Target(ElementType.METHOD)
 public @interface Vertex {
 
+  /**
+   * @return text of vertex's description
+   */
+  String value() default "";
+
 }

@@ -26,12 +26,14 @@ package org.graphwalker.java.source;
  * #L%
  */
 
-import static org.graphwalker.core.model.Model.RuntimeModel;
+import org.graphwalker.core.model.Element;
 
-import japa.parser.ast.body.MethodDeclaration;
 import java.util.HashSet;
 import java.util.Set;
-import org.graphwalker.core.model.Element;
+
+import japa.parser.ast.body.MethodDeclaration;
+
+import static org.graphwalker.core.model.Model.RuntimeModel;
 
 /**
  * @author Nils Olsson
@@ -49,6 +51,10 @@ public final class ChangeContext {
 
   public Set<String> getMethodNames() {
     return methodNames;
+  }
+
+  public RuntimeModel getModel() {
+    return model;
   }
 
   public void addMethodDeclaration(MethodDeclaration methodDeclaration) {
@@ -70,7 +76,4 @@ public final class ChangeContext {
     return methodNames;
   }
 
-  public boolean isVertex(String name) {
-    return null != model.findVertices(name);
-  }
 }

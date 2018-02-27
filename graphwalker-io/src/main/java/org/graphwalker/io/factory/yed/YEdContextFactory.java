@@ -26,22 +26,44 @@ package org.graphwalker.io.factory.yed;
  * #L%
  */
 
-import com.yworks.xml.graphml.*;
+import com.yworks.xml.graphml.ArcEdgeDocument;
+import com.yworks.xml.graphml.BezierEdgeDocument;
+import com.yworks.xml.graphml.EdgeLabelType;
+import com.yworks.xml.graphml.GenericEdgeDocument;
+import com.yworks.xml.graphml.GenericGroupNodeDocument;
+import com.yworks.xml.graphml.GenericNodeDocument;
+import com.yworks.xml.graphml.GroupNodeDocument;
+import com.yworks.xml.graphml.ImageNodeDocument;
+import com.yworks.xml.graphml.NodeLabelType;
+import com.yworks.xml.graphml.PolyLineEdgeDocument;
+import com.yworks.xml.graphml.QuadCurveEdgeDocument;
+import com.yworks.xml.graphml.ShapeNodeDocument;
+import com.yworks.xml.graphml.SplineEdgeDocument;
+import com.yworks.xml.graphml.TableNodeDocument;
 import com.yworks.xml.graphml.impl.EdgeLabelTypeImpl;
 import com.yworks.xml.graphml.impl.NodeLabelTypeImpl;
+
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
-import org.graphdrawing.graphml.xmlns.*;
+import org.graphdrawing.graphml.xmlns.DataType;
+import org.graphdrawing.graphml.xmlns.GraphType;
+import org.graphdrawing.graphml.xmlns.GraphmlDocument;
+import org.graphdrawing.graphml.xmlns.KeyType;
 import org.graphdrawing.graphml.xmlns.NodeType;
 import org.graphdrawing.graphml.xmlns.impl.DataTypeImpl;
 import org.graphdrawing.graphml.xmlns.impl.KeyForTypeImpl;
 import org.graphdrawing.graphml.xmlns.impl.KeyTypeImpl;
 import org.graphwalker.core.machine.Context;
-import org.graphwalker.core.model.*;
+import org.graphwalker.core.model.Action;
+import org.graphwalker.core.model.Edge;
+import org.graphwalker.core.model.Guard;
+import org.graphwalker.core.model.Model;
+import org.graphwalker.core.model.Requirement;
+import org.graphwalker.core.model.Vertex;
 import org.graphwalker.dsl.antlr.yed.YEdDescriptiveErrorListener;
 import org.graphwalker.dsl.yed.YEdEdgeParser;
 import org.graphwalker.dsl.yed.YEdLabelLexer;
@@ -60,7 +82,16 @@ import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Deque;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 
 /**
@@ -338,6 +369,9 @@ public final class YEdContextFactory implements ContextFactory {
                     if (null != field.blocked()) {
                       vertex.setProperty("blocked", true);
                     }
+                    if (null != field.description()) {
+                      vertex.setDescription(field.description().getText());
+                    }
                   }
                   elements.put(node.getId(), vertex);
                   vertex.setId(node.getId());
@@ -462,7 +496,10 @@ public final class YEdContextFactory implements ContextFactory {
                 }
                 if (null != field.dependency() && null != field.dependency().Value()) {
                     edge.setDependency(Integer.parseInt((field.dependency().Value().getText())));
-                  }
+                }
+                if (null != field.description()) {
+                    edge.setDescription(field.description().getText());
+                }
               }
               if (null != edge.getTargetVertex()) {
                 if (null != startVertex &&
