@@ -105,7 +105,7 @@ public abstract class CachedBuilder<B, T> extends BuilderBase<B, T> {
   }
 
   private static String unquote(String comment) {
-    return comment.replaceAll("\"", "\\\"");
+    return comment.replace("\\", "\\\\").replaceAll("\"", "\\\\\"");
   }
 
   private static final Pattern COMMENT_PATTERN = Pattern.compile("/\\*(.*?)\\*/");

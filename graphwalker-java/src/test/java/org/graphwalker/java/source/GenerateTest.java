@@ -201,7 +201,7 @@ public class GenerateTest {
         "    @Vertex(value = \"Comment 1\")\n" +
         "    void vertex1();\n" +
         "\n" +
-        "    @Vertex(value = \"Comment 2\")\n" +
+        "    @Vertex(value = \"Comment \\\"2\\\"\\\\\")\n" +
         "    void vertex2();\n" +
         "}\n"
     ));
