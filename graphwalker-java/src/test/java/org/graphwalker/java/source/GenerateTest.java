@@ -195,7 +195,7 @@ public class GenerateTest {
         "@Model(file = \"org/graphwalker/java/graphml/MyModel.graphml\")\n" +
         "public interface MyModel {\n" +
         "\n" +
-        "    @Edge(value = \"Comment 1-2\")\n" +
+        "    @Edge(value = \"Comment\\n1-2\")\n" +
         "    void edge12();\n" +
         "\n" +
         "    @Vertex(value = \"Comment 1\")\n" +

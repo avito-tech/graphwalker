@@ -69,7 +69,7 @@ public abstract class CachedBuilder<B, T> extends BuilderBase<B, T> {
   @Override
   public B setDescription(String description) {
     invalidateCache();
-    return super.setDescription(description != null ? unquote(unwrap(description)).trim() : "");
+    return super.setDescription(description != null ? unwrap(inline(unquote(description))).trim() : "");
   }
 
   @Override
@@ -96,16 +96,20 @@ public abstract class CachedBuilder<B, T> extends BuilderBase<B, T> {
     return super.setProperty(key, value);
   }
 
+  private static String unquote(String comment) {
+    return comment.replace("\\", "\\\\").replaceAll("\"", "\\\\\"");
+  }
+
+  private static String inline(String comment) {
+    return comment.replaceAll("(\\r|\\n|\\r\\n)+", "\\\\n");
+  }
+
   private static String unwrap(String comment) {
     Matcher m = COMMENT_PATTERN.matcher(comment);
     if (m.matches()) {
       return m.group(1);
     }
     return comment;
-  }
-
-  private static String unquote(String comment) {
-    return comment.replace("\\", "\\\\").replaceAll("\"", "\\\\\"");
   }
 
   private static final Pattern COMMENT_PATTERN = Pattern.compile("/\\*(.*?)\\*/");
