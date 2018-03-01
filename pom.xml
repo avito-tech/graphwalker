@@ -59,18 +59,16 @@
   </scm>
 
   <distributionManagement>
-    <site>
-      <id>${project.artifactId}-site</id>
-      <url>http://graphwalker.org/archive/site/</url>
-    </site>
-    <snapshotRepository>
-      <id>ossrh</id>
-      <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-    </snapshotRepository>
     <repository>
-      <id>ossrh</id>
-      <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+      <id>central</id>
+      <name>artifactory.msk.avito.ru-releases</name>
+      <url>http://artifactory.msk.avito.ru/artifactory/graphwalker-local</url>
     </repository>
+    <snapshotRepository>
+      <id>snapshots</id>
+      <name>artifactory.msk.avito.ru-snapshots</name>
+      <url>http://artifactory.msk.avito.ru/artifactory/graphwalker-local</url>
+    </snapshotRepository>
   </distributionManagement>
 
   <properties>
