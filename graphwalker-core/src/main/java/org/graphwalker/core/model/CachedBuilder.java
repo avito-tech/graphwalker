@@ -85,6 +85,18 @@ public abstract class CachedBuilder<B, T> extends BuilderBase<B, T> {
   }
 
   @Override
+  public B setIndegrees(Set<Indegree> indegrees) {
+    invalidateCache();
+    return super.setIndegrees(indegrees);
+  }
+
+  @Override
+  public B setOutdegrees(Set<Outdegree> outdegrees) {
+    invalidateCache();
+    return super.setOutdegrees(outdegrees);
+  }
+
+  @Override
   public B setProperties(Map<String, Object> properties) {
     invalidateCache();
     return super.setProperties(properties);

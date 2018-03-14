@@ -26,6 +26,8 @@ package org.graphwalker.io.factory.yed;
  * #L%
  */
 
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Multimap;
 import com.yworks.xml.graphml.ArcEdgeDocument;
 import com.yworks.xml.graphml.BezierEdgeDocument;
 import com.yworks.xml.graphml.EdgeLabelType;
@@ -46,6 +48,7 @@ import com.yworks.xml.graphml.impl.NodeLabelTypeImpl;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
+import org.antlr.v4.runtime.ParserRuleContext;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
@@ -61,7 +64,9 @@ import org.graphwalker.core.machine.Context;
 import org.graphwalker.core.model.Action;
 import org.graphwalker.core.model.Edge;
 import org.graphwalker.core.model.Guard;
+import org.graphwalker.core.model.Indegree;
 import org.graphwalker.core.model.Model;
+import org.graphwalker.core.model.Outdegree;
 import org.graphwalker.core.model.Requirement;
 import org.graphwalker.core.model.Vertex;
 import org.graphwalker.dsl.antlr.yed.YEdDescriptiveErrorListener;
@@ -85,6 +90,7 @@ import java.nio.file.Paths;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Deque;
 import java.util.HashMap;
@@ -149,6 +155,22 @@ public final class YEdContextFactory implements ContextFactory {
     return read(document, FilenameUtils.getBaseName(path.toString()));
   }
 
+  public Context read(List<Path> paths) {
+    List<GraphmlDocument> documents = new ArrayList<>();
+    try {
+      for (Path path : paths) {
+        documents.add(GraphmlDocument.Factory.parse(ResourceUtils.getResourceAsStream(path.toString())));
+      }
+    } catch (XmlException e) {
+      logger.error(e.getMessage());
+      throw new ContextFactoryException("The file appears not to be valid yEd formatted.");
+    } catch (IOException | ResourceNotFoundException e) {
+      logger.error(e.getMessage());
+      throw new ContextFactoryException("Could not read the file.");
+    }
+    return read(FilenameUtils.getBaseName(paths.get(0).toString()), documents);
+  }
+
   private Context read(String graphmlStr) {
     GraphmlDocument document = null;
     try {
@@ -166,8 +188,46 @@ public final class YEdContextFactory implements ContextFactory {
     Map<String, Vertex> elements = new HashMap<>();
     Model model = new Model();
     try {
-      Vertex startVertex = addVertices(model, document, elements);
+      Vertex startVertex = addVertices(model, document, elements).start;
       startEdge = addEdges(model, document, elements, startVertex);
+    } catch (XmlException e) {
+      logger.error(e.getMessage());
+      throw new ContextFactoryException("The file seems not to be of valid yEd format.");
+    }
+
+    model.setName(name);
+    context.setModel(model.build());
+    if (null != startEdge) {
+      context.setNextElement(startEdge);
+    }
+
+    return context;
+  }
+
+  private Context read(String name, List<GraphmlDocument> documents) {
+    Context context = new YEdContext();
+    Edge startEdge = null;
+    Map<String, Vertex> elements = new HashMap<>();
+    Model model = new Model();
+    Multimap<String, Vertex> indegrees = ArrayListMultimap.create(), outdegrees = ArrayListMultimap.create();
+    try {
+      for (GraphmlDocument document : documents) {
+        AddResult<Vertex> addResult = addVertices(model, document, elements, indegrees, outdegrees);
+        Vertex startVertex = addResult.start;
+        Edge edge = addEdges(model, document, elements, startVertex);
+        if (edge != null) {
+          startEdge = edge;
+        }
+      }
+      for (Map.Entry<String, Collection<Vertex>> indegreeEntry : indegrees.asMap().entrySet()) {
+        String edgeName = indegreeEntry.getKey();
+        for (Vertex out : outdegrees.get(edgeName)) {
+          for (Vertex in : indegreeEntry.getValue()) {
+            model.addEdge(new Edge().setSourceVertex(out).setTargetVertex(in).setName(edgeName));
+          }
+        }
+      }
+
     } catch (XmlException e) {
       logger.error(e.getMessage());
       throw new ContextFactoryException("The file seems not to be of valid yEd format.");
@@ -290,8 +350,23 @@ public final class YEdContextFactory implements ContextFactory {
     }
   }
 
-  private Vertex addVertices(Model model, GraphmlDocument document, Map<String, Vertex> elements) throws XmlException {
-    Vertex startVertex = null;
+  private static class AddResult<T> {
+    final Set<T> elements = new HashSet<>();
+    T start = null;
+  }
+
+  private AddResult<Vertex> addVertices(Model model, GraphmlDocument document, Map<String, Vertex> elements) throws XmlException {
+    return addVertices(model, document, elements, ArrayListMultimap.create(), ArrayListMultimap.create());
+  }
+
+  private AddResult<Vertex> addVertices(
+    Model model,
+    GraphmlDocument document,
+    Map<String, Vertex> elements,
+    Multimap<String, Vertex> indegrees,
+    Multimap<String, Vertex> outdegrees) throws XmlException {
+
+    AddResult<Vertex> addResult = new AddResult<>();
     Deque<XmlObject> workQueue = new ArrayDeque<>();
     workQueue.addAll(Arrays.asList(document.selectPath(NAMESPACE + "$this/xq:graphml/xq:graph/xq:node")));
 
@@ -351,7 +426,7 @@ public final class YEdContextFactory implements ContextFactory {
                 if (null != parseContext.start()) {
                   elements.put(node.getId(), vertex);
                   vertex.setId(node.getId());
-                  startVertex = vertex;
+                  addResult.start = vertex;
                 } else {
                   for (YEdVertexParser.FieldContext field : parseContext.field()) {
                     if (null != field.names()) {
@@ -360,8 +435,20 @@ public final class YEdContextFactory implements ContextFactory {
                     if (null != field.shared() && null != field.shared().Identifier()) {
                       vertex.setSharedState(field.shared().Identifier().getText());
                     }
+                    if (null != field.indegrees()) {
+                      vertex.setIndegrees(convertVertexRequirement(field.indegrees().indegreeList().indegree(), Indegree.class));
+                      for (YEdVertexParser.IndegreeContext indegreeContext : field.indegrees().indegreeList().indegree()) {
+                        indegrees.put(indegreeContext.getText(), vertex);
+                      }
+                    }
+                    if (null != field.outdegrees()) {
+                      vertex.setOutdegrees(convertVertexRequirement(field.outdegrees().outdegreeList().outdegree(), Outdegree.class));
+                      for (YEdVertexParser.OutdegreeContext outdegreeContext : field.outdegrees().outdegreeList().outdegree()) {
+                        outdegrees.put(outdegreeContext.getText(), vertex);
+                      }
+                    }
                     if (null != field.reqtags()) {
-                      vertex.setRequirements(convertVertexRequirement(field.reqtags().reqtagList().reqtag()));
+                      vertex.setRequirements(convertVertexRequirement(field.reqtags().reqtagList().reqtag(), Requirement.class));
                     }
                     if (null != field.actions()) {
                       model.addActions(convertVertexAction(field.actions().action()));
@@ -376,6 +463,7 @@ public final class YEdContextFactory implements ContextFactory {
                   elements.put(node.getId(), vertex);
                   vertex.setId(node.getId());
                   model.addVertex(vertex);
+                  addResult.elements.add(vertex);
                 }
               }
             }
@@ -383,7 +471,7 @@ public final class YEdContextFactory implements ContextFactory {
         }
       }
     }
-    return startVertex;
+    return addResult;
   }
 
   private boolean isSupportedNode(String xml) {
@@ -572,10 +660,14 @@ public final class YEdContextFactory implements ContextFactory {
     return requirements;
   }
 
-  private Set<Requirement> convertVertexRequirement(List<YEdVertexParser.ReqtagContext> reqtagContexts) {
-    Set<Requirement> requirements = new HashSet<>();
-    for (YEdVertexParser.ReqtagContext reqtagContext : reqtagContexts) {
-      requirements.add(new Requirement(reqtagContext.getText()));
+  private <T extends ParserRuleContext, R> Set<R> convertVertexRequirement(List<T> contexts, Class<R> type) {
+    Set<R> requirements = new HashSet<>();
+    for (T context : contexts) {
+      try {
+        requirements.add(type.getConstructor(String.class).newInstance(context.getText()));
+      } catch (Exception e) {
+        throw new RuntimeException(e);
+      }
     }
     return requirements;
   }

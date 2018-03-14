@@ -13,6 +13,8 @@ parse
 field
  : {!$parse::fields.contains("names")}? names {$parse::fields.add("names");}
  | {!$parse::fields.contains("shared")}? shared {$parse::fields.add("shared");}
+ | {!$parse::fields.contains("outdegrees")}? outdegrees {$parse::fields.add("outdegrees");}
+ | {!$parse::fields.contains("indegrees")}? indegrees {$parse::fields.add("indegrees");}
  | {!$parse::fields.contains("blocked")}? blocked {$parse::fields.add("blocked");}
  | {!$parse::fields.contains("actions")}? actions {$parse::fields.add("actions");}
  | {!$parse::fields.contains("reqtags")}? reqtags {$parse::fields.add("reqtags");}
@@ -52,11 +54,35 @@ reqtags
  : REQTAG WHITESPACE* (COLON | ASSIGN) WHITESPACE* reqtagList
  ;
 
+outdegrees
+ : OUTDEGREE WHITESPACE* (COLON | ASSIGN) WHITESPACE* outdegreeList SEMICOLON
+ ;
+
+indegrees
+ : INDEGREE WHITESPACE* (COLON | ASSIGN) WHITESPACE* indegreeList SEMICOLON
+ ;
+
 reqtagList
  : (reqtag WHITESPACE* COMMA WHITESPACE*)* reqtag
  ;
 
+outdegreeList
+ : (outdegree WHITESPACE* COMMA WHITESPACE*)* outdegree
+ ;
+
+indegreeList
+ : (indegree WHITESPACE* COMMA WHITESPACE*)* indegree
+ ;
+
 reqtag
+ : ~(COMMA)+
+ ;
+
+outdegree
+ : ~(COMMA)+
+ ;
+
+indegree
  : ~(COMMA)+
  ;
 

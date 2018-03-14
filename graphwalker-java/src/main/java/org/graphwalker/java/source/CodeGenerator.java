@@ -26,11 +26,14 @@ package org.graphwalker.java.source;
  * #L%
  */
 
+import org.apache.commons.collections4.set.ListOrderedSet;
 import org.graphwalker.core.machine.Context;
 import org.graphwalker.core.model.Edge.RuntimeEdge;
 import org.graphwalker.core.model.Vertex.RuntimeVertex;
 import org.graphwalker.io.factory.ContextFactory;
 import org.graphwalker.io.factory.ContextFactoryScanner;
+import org.graphwalker.io.factory.yed.YEdContextFactory;
+import org.graphwalker.java.source.cache.Cache;
 import org.graphwalker.java.source.cache.CacheEntry;
 import org.graphwalker.java.source.cache.SimpleCache;
 import org.slf4j.Logger;
@@ -45,11 +48,11 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
-import java.nio.file.StandardOpenOption;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 import japa.parser.ASTHelper;
 import japa.parser.JavaParser;
@@ -67,8 +70,12 @@ import japa.parser.ast.expr.NormalAnnotationExpr;
 import japa.parser.ast.expr.StringLiteralExpr;
 import japa.parser.ast.visitor.VoidVisitorAdapter;
 
+import static java.nio.file.StandardOpenOption.CREATE;
+import static java.nio.file.StandardOpenOption.TRUNCATE_EXISTING;
 import static java.util.Collections.singletonList;
 import static org.graphwalker.core.model.Model.RuntimeModel;
+
+//import org.apache.commons.collections4.set.ListOrderedSet;
 
 /**
  * @author Nils Olsson
@@ -78,39 +85,135 @@ public final class CodeGenerator extends VoidVisitorAdapter<ChangeContext> {
   private static final Logger logger = LoggerFactory.getLogger(CodeGenerator.class);
   private static CodeGenerator generator = new CodeGenerator();
 
-  public static void generate(final Path input, final Path output) {
-    final SimpleCache cache = new SimpleCache(output);
-    try {
-      Files.walkFileTree(input, new SimpleFileVisitor<Path>() {
-        @Override
-        public FileVisitResult visitFile(Path file, BasicFileAttributes attributes) throws IOException {
-          if (!cache.contains(file) || isModified(file)) {
-            try {
-              ContextFactory factory = ContextFactoryScanner.get(file);
-              List<Context> contexts = factory.create(file);
-              for (Context context : contexts) {
-                SourceFile sourceFile = new SourceFile(context.getModel().getName(), file, input, output);
-                write(context, sourceFile);
-                cache.add(file, new CacheEntry(file.toFile().lastModified(), true));
+  private static class SearchForLinkedFileVisitor extends SimpleFileVisitor<Path> {
+
+    private final Path input, output;
+    private final SimpleCache cache;
+    private final ListOrderedSet<Path> linkedFiles = new ListOrderedSet<>();
+
+    public SearchForLinkedFileVisitor(Path input, Path output) {
+      this.input = input;
+      this.output = output;
+      this.cache = new SimpleCache(output.resolve("link"));
+    }
+
+    /**
+     * @return unmodifiable view of files to linked in a single context.
+     */
+    public List<Path> getLinkedFiles() {
+      return linkedFiles.asList();
+    }
+
+    @Override
+    public FileVisitResult visitFile(Path file, BasicFileAttributes attributes) throws IOException {
+      if (!cache.contains(file) || isModified(file, cache)) {
+        try {
+          ContextFactory factory = ContextFactoryScanner.get(file);
+          List<Context> contexts = factory.create(file);
+
+          for (Context context : contexts) {
+            for (RuntimeVertex vertex : context.getModel().getVertices()) {
+              if (vertex.getIndegrees().isEmpty() && vertex.getOutdegrees().isEmpty()) {
+                continue;
               }
-            } catch (Throwable t) {
-              logger.error(t.getMessage());
-              cache.add(file, new CacheEntry(file.toFile().lastModified(), false));
+              // if file contains INDEGREE/OUTDEGREE, mark it
+              if (context.getNextElement() != null) {
+                linkedFiles.add(0, file);
+              } else {
+                linkedFiles.add(file);
+              }
+              return FileVisitResult.CONTINUE;
             }
           }
-          return FileVisitResult.CONTINUE;
-        }
+          // otherwise remove previously marked file
+          linkedFiles.remove(file);
+          cache.add(file, new CacheEntry(file.toFile().lastModified(), true));
 
-        private boolean isModified(Path file) throws IOException {
-          return !Files.getLastModifiedTime(file).equals(cache.get(file).getLastModifiedTime());
-        }
-
-        @Override
-        public FileVisitResult visitFileFailed(Path file, IOException exc) throws IOException {
+        } catch (Throwable t) {
+          logger.error(t.getMessage());
           cache.add(file, new CacheEntry(file.toFile().lastModified(), false));
-          return FileVisitResult.CONTINUE;
         }
-      });
+      }
+      return FileVisitResult.CONTINUE;
+    }
+
+    @Override
+    public FileVisitResult visitFileFailed(Path file, IOException exc) throws IOException {
+      cache.add(file, new CacheEntry(file.toFile().lastModified(), false));
+      return FileVisitResult.CONTINUE;
+    }
+  }
+
+  private static class MergeFileVisitor extends SimpleFileVisitor<Path> {
+
+    private final Path input, output;
+    private final List<Path> linkedFiles;
+    private final SimpleCache cache;
+
+    public MergeFileVisitor(Path input, Path output, List<Path> linkedFiles) {
+      this.input = input;
+      this.output = output;
+      this.linkedFiles = linkedFiles;
+      this.cache = new SimpleCache(output);
+    }
+
+    @Override
+    public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
+      Objects.requireNonNull(dir);
+      Objects.requireNonNull(attrs);
+
+      if (!linkedFiles.isEmpty()) {
+        Path entry = linkedFiles.get(0);
+        try {
+          ContextFactory factory = ContextFactoryScanner.get(entry);
+          Context context = ((YEdContextFactory) factory).read(linkedFiles);
+
+          SourceFile sourceFile = new SourceFile(context.getModel().getName(), entry, input, output);
+          write(context, sourceFile);
+          cache.add(entry, new CacheEntry(entry.toFile().lastModified(), true));
+        } catch (Throwable t) {
+          logger.error(t.getMessage());
+          cache.add(entry, new CacheEntry(entry.toFile().lastModified(), false));
+        }
+      }
+      return FileVisitResult.CONTINUE;
+    }
+
+    @Override
+    public FileVisitResult visitFile(Path file, BasicFileAttributes attributes) throws IOException {
+      if ((!cache.contains(file) || isModified(file, cache)) && !linkedFiles.contains(file)) {
+        try {
+          ContextFactory factory = ContextFactoryScanner.get(file);
+          List<Context> contexts = factory.create(file);
+          for (Context context : contexts) {
+            SourceFile sourceFile = new SourceFile(context.getModel().getName(), file, input, output);
+            write(context, sourceFile);
+            cache.add(file, new CacheEntry(file.toFile().lastModified(), true));
+          }
+        } catch (Throwable t) {
+          logger.error(t.getMessage());
+          cache.add(file, new CacheEntry(file.toFile().lastModified(), false));
+        }
+      }
+      return FileVisitResult.CONTINUE;
+    }
+
+    @Override
+    public FileVisitResult visitFileFailed(Path file, IOException exc) throws IOException {
+      cache.add(file, new CacheEntry(file.toFile().lastModified(), false));
+      return FileVisitResult.CONTINUE;
+    }
+  }
+
+  private static boolean isModified(Path file, Cache<Path, CacheEntry> cache) throws IOException {
+    return !Files.getLastModifiedTime(file).equals(cache.get(file).getLastModifiedTime());
+  }
+
+  public static void generate(final Path input, final Path output) {
+    SearchForLinkedFileVisitor searchForLinkedFileVisitor = new SearchForLinkedFileVisitor(input, output);
+    try {
+      Files.walkFileTree(input, searchForLinkedFileVisitor);
+      Files.walkFileTree(input, new MergeFileVisitor(input, output, searchForLinkedFileVisitor.getLinkedFiles()));
     } catch (IOException e) {
       logger.error(e.getMessage());
       throw new CodeGeneratorException(e);
@@ -122,9 +225,7 @@ public final class CodeGenerator extends VoidVisitorAdapter<ChangeContext> {
       RuntimeModel model = context.getModel();
       String source = generator.generate(file, model);
       Files.createDirectories(file.getOutputPath().getParent());
-      Files.write(file.getOutputPath(), source.getBytes(Charset.forName("UTF-8"))
-        , StandardOpenOption.CREATE
-        , StandardOpenOption.TRUNCATE_EXISTING);
+      Files.write(file.getOutputPath(), source.getBytes(Charset.forName("UTF-8")), CREATE, TRUNCATE_EXISTING);
     } catch (Throwable t) {
       logger.error(t.getMessage());
       throw new CodeGeneratorException(t);

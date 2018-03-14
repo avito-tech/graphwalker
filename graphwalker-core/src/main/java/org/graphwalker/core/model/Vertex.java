@@ -28,6 +28,8 @@ package org.graphwalker.core.model;
 
 import org.graphwalker.core.common.Objects;
 
+import java.util.Set;
+
 import static org.graphwalker.core.common.Objects.isNotNullOrEmpty;
 
 /**
@@ -79,6 +81,11 @@ public class Vertex extends CachedBuilder<Vertex, Vertex.RuntimeVertex> {
     return this;
   }
 
+  @Override
+  public String toString() {
+    return "Vertex(" + super.getName() + ")";
+  }
+
   /**
    * Creates an immutable vertex from this vertex.
    *
@@ -100,9 +107,22 @@ public class Vertex extends CachedBuilder<Vertex, Vertex.RuntimeVertex> {
 
     private final String sharedState;
 
+    private final Set<Indegree> indegrees;
+    private final Set<Outdegree> outdegrees;
+
     private RuntimeVertex(Vertex vertex) {
       super(vertex.getId(), vertex.getName(), vertex.getDescription(), vertex.getRequirements(), vertex.getProperties());
       this.sharedState = vertex.getSharedState();
+      this.indegrees = vertex.getIndegrees();
+      this.outdegrees = vertex.getOutdegrees();
+    }
+
+    public Set<Indegree> getIndegrees() {
+      return indegrees;
+    }
+
+    public Set<Outdegree> getOutdegrees() {
+      return outdegrees;
     }
 
     /**

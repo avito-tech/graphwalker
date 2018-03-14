@@ -39,6 +39,8 @@ public abstract class BuilderBase<B, T> implements Builder<T> {
   private String id;
   private String name;
   private String description;
+  private Set<Indegree> indegrees = new HashSet<>();
+  private Set<Outdegree> outdegrees = new HashSet<>();
   private Set<Requirement> requirements = new HashSet<>();
   private Map<String, Object> properties = new HashMap<>();
 
@@ -85,6 +87,26 @@ public abstract class BuilderBase<B, T> implements Builder<T> {
   @SuppressWarnings("unchecked")
   public B setRequirements(Set<Requirement> requirements) {
     this.requirements = new HashSet<>(requirements);
+    return (B) this;
+  }
+
+  public Set<Indegree> getIndegrees() {
+    return indegrees;
+  }
+
+  public Set<Outdegree> getOutdegrees() {
+    return outdegrees;
+  }
+
+  @SuppressWarnings("unchecked")
+  public B setIndegrees(Set<Indegree> indegrees) {
+    this.indegrees = new HashSet<>(indegrees);
+    return (B) this;
+  }
+
+  @SuppressWarnings("unchecked")
+  public B setOutdegrees(Set<Outdegree> outdegrees) {
+    this.outdegrees = new HashSet<>(outdegrees);
     return (B) this;
   }
 

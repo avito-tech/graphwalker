@@ -8,6 +8,8 @@ COMMA     : ',';
 ASSIGN    : '=';
 BLOCKED   : 'BLOCKED';
 SHARED    : 'SHARED';
+OUTDEGREE : 'OUTDEGREE';
+INDEGREE  : 'INDEGREE';
 INIT      : 'INIT';
 START     : [Ss][Tt][Aa][Rr][Tt];
 REQTAG    : 'REQTAG';
