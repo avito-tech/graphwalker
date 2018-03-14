@@ -135,6 +135,23 @@ public final class YEdContextFactory implements ContextFactory {
     return contexts;
   }
 
+  @Override
+  public Context create(List<Path> paths) {
+    List<GraphmlDocument> documents = new ArrayList<>();
+    try {
+      for (Path path : paths) {
+        documents.add(GraphmlDocument.Factory.parse(ResourceUtils.getResourceAsStream(path.toString())));
+      }
+    } catch (XmlException e) {
+      logger.error(e.getMessage());
+      throw new ContextFactoryException("The file appears not to be valid yEd formatted.");
+    } catch (IOException | ResourceNotFoundException e) {
+      logger.error(e.getMessage());
+      throw new ContextFactoryException("Could not read the file.");
+    }
+    return read(FilenameUtils.getBaseName(paths.get(0).toString()), documents);
+  }
+
   public List<Context> create(String graphmlStr) {
     List<Context> contexts = new ArrayList<>();
     contexts.add(read(graphmlStr));
@@ -153,22 +170,6 @@ public final class YEdContextFactory implements ContextFactory {
       throw new ContextFactoryException("Could not read the file.");
     }
     return read(document, FilenameUtils.getBaseName(path.toString()));
-  }
-
-  public Context read(List<Path> paths) {
-    List<GraphmlDocument> documents = new ArrayList<>();
-    try {
-      for (Path path : paths) {
-        documents.add(GraphmlDocument.Factory.parse(ResourceUtils.getResourceAsStream(path.toString())));
-      }
-    } catch (XmlException e) {
-      logger.error(e.getMessage());
-      throw new ContextFactoryException("The file appears not to be valid yEd formatted.");
-    } catch (IOException | ResourceNotFoundException e) {
-      logger.error(e.getMessage());
-      throw new ContextFactoryException("Could not read the file.");
-    }
-    return read(FilenameUtils.getBaseName(paths.get(0).toString()), documents);
   }
 
   private Context read(String graphmlStr) {

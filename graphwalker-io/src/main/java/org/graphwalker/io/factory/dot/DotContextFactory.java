@@ -26,21 +26,11 @@ package org.graphwalker.io.factory.dot;
  * #L%
  */
 
-import java.io.*;
-import java.nio.file.DirectoryStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang3.NotImplementedException;
 import org.graphwalker.core.machine.Context;
 import org.graphwalker.core.model.Action;
 import org.graphwalker.core.model.Edge;
@@ -53,6 +43,20 @@ import org.graphwalker.io.factory.ContextFactory;
 import org.graphwalker.io.factory.ContextFactoryException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.file.DirectoryStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * @author Kristian Karl
@@ -86,6 +90,11 @@ public final class DotContextFactory implements ContextFactory {
       contexts.add(read(path));
     }
     return contexts;
+  }
+
+  @Override
+  public Context create(List<Path> paths) throws IOException {
+    throw new NotImplementedException("Currently only YEdContextFactory supports graph partitioning");
   }
 
   private Context read(Path path) {

@@ -26,9 +26,20 @@ package org.graphwalker.io.factory.json;
  * #L%
  */
 
-import static org.graphwalker.core.common.Objects.isNull;
-
 import com.google.gson.Gson;
+
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang3.NotImplementedException;
+import org.graphwalker.core.machine.Context;
+import org.graphwalker.core.model.Element;
+import org.graphwalker.core.model.Model;
+import org.graphwalker.dsl.antlr.generator.GeneratorFactory;
+import org.graphwalker.io.common.ResourceUtils;
+import org.graphwalker.io.factory.ContextFactory;
+import org.graphwalker.io.factory.ContextFactoryException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -43,16 +54,8 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import org.apache.commons.io.FilenameUtils;
-import org.graphwalker.core.machine.Context;
-import org.graphwalker.core.model.Element;
-import org.graphwalker.core.model.Model;
-import org.graphwalker.dsl.antlr.generator.GeneratorFactory;
-import org.graphwalker.io.common.ResourceUtils;
-import org.graphwalker.io.factory.ContextFactory;
-import org.graphwalker.io.factory.ContextFactoryException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import static org.graphwalker.core.common.Objects.isNull;
 
 /**
  * Created by krikar on 9/24/14.
@@ -116,6 +119,11 @@ public final class JsonContextFactory implements ContextFactory {
       contexts.addAll(read(path));
     }
     return contexts;
+  }
+
+  @Override
+  public Context create(List<Path> paths) throws IOException {
+    throw new NotImplementedException("Currently only YEdContextFactory supports graph partitioning");
   }
 
   private List<Context> read(Path file) {

@@ -26,11 +26,12 @@ package org.graphwalker.io.factory;
  * #L%
  */
 
+import org.graphwalker.core.machine.Context;
+
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Set;
-import org.graphwalker.core.machine.Context;
 
 /**
  * @author Nils Olsson
@@ -38,6 +39,8 @@ import org.graphwalker.core.machine.Context;
 public interface ContextFactory {
 
   List<Context> create(Path path) throws IOException;
+
+  Context create(List<Path> paths) throws IOException;
 
   String getAsString(List<Context> contexts);
 

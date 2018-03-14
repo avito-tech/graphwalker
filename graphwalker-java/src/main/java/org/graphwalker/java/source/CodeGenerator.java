@@ -32,7 +32,6 @@ import org.graphwalker.core.model.Edge.RuntimeEdge;
 import org.graphwalker.core.model.Vertex.RuntimeVertex;
 import org.graphwalker.io.factory.ContextFactory;
 import org.graphwalker.io.factory.ContextFactoryScanner;
-import org.graphwalker.io.factory.yed.YEdContextFactory;
 import org.graphwalker.java.source.cache.Cache;
 import org.graphwalker.java.source.cache.CacheEntry;
 import org.graphwalker.java.source.cache.SimpleCache;
@@ -75,8 +74,6 @@ import static java.nio.file.StandardOpenOption.TRUNCATE_EXISTING;
 import static java.util.Collections.singletonList;
 import static org.graphwalker.core.model.Model.RuntimeModel;
 
-//import org.apache.commons.collections4.set.ListOrderedSet;
-
 /**
  * @author Nils Olsson
  */
@@ -87,13 +84,10 @@ public final class CodeGenerator extends VoidVisitorAdapter<ChangeContext> {
 
   private static class SearchForLinkedFileVisitor extends SimpleFileVisitor<Path> {
 
-    private final Path input, output;
     private final SimpleCache cache;
     private final ListOrderedSet<Path> linkedFiles = new ListOrderedSet<>();
 
-    public SearchForLinkedFileVisitor(Path input, Path output) {
-      this.input = input;
-      this.output = output;
+    public SearchForLinkedFileVisitor(Path output) {
       this.cache = new SimpleCache(output.resolve("link"));
     }
 
@@ -144,13 +138,13 @@ public final class CodeGenerator extends VoidVisitorAdapter<ChangeContext> {
     }
   }
 
-  private static class MergeFileVisitor extends SimpleFileVisitor<Path> {
+  private static class MergeLinkedFileVisitor extends SimpleFileVisitor<Path> {
 
     private final Path input, output;
     private final List<Path> linkedFiles;
     private final SimpleCache cache;
 
-    public MergeFileVisitor(Path input, Path output, List<Path> linkedFiles) {
+    public MergeLinkedFileVisitor(Path input, Path output, List<Path> linkedFiles) {
       this.input = input;
       this.output = output;
       this.linkedFiles = linkedFiles;
@@ -166,7 +160,7 @@ public final class CodeGenerator extends VoidVisitorAdapter<ChangeContext> {
         Path entry = linkedFiles.get(0);
         try {
           ContextFactory factory = ContextFactoryScanner.get(entry);
-          Context context = ((YEdContextFactory) factory).read(linkedFiles);
+          Context context = factory.create(linkedFiles);
 
           SourceFile sourceFile = new SourceFile(context.getModel().getName(), entry, input, output);
           write(context, sourceFile);
@@ -210,10 +204,10 @@ public final class CodeGenerator extends VoidVisitorAdapter<ChangeContext> {
   }
 
   public static void generate(final Path input, final Path output) {
-    SearchForLinkedFileVisitor searchForLinkedFileVisitor = new SearchForLinkedFileVisitor(input, output);
+    SearchForLinkedFileVisitor searchForLinkedFileVisitor = new SearchForLinkedFileVisitor(output);
     try {
       Files.walkFileTree(input, searchForLinkedFileVisitor);
-      Files.walkFileTree(input, new MergeFileVisitor(input, output, searchForLinkedFileVisitor.getLinkedFiles()));
+      Files.walkFileTree(input, new MergeLinkedFileVisitor(input, output, searchForLinkedFileVisitor.getLinkedFiles()));
     } catch (IOException e) {
       logger.error(e.getMessage());
       throw new CodeGeneratorException(e);

@@ -27,16 +27,9 @@ package org.graphwalker.io.factory.java;
  */
 
 import com.google.common.collect.ImmutableList;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang3.NotImplementedException;
 import org.apache.commons.lang3.StringUtils;
 import org.graphwalker.core.machine.Context;
 import org.graphwalker.core.model.Action;
@@ -46,6 +39,16 @@ import org.graphwalker.io.factory.ContextFactory;
 import org.graphwalker.io.factory.ContextFactoryException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * @author Kristian Karl
@@ -69,6 +72,11 @@ public final class JavaContextFactory implements ContextFactory {
   @Override
   public List<Context> create(Path path) {
     throw new ContextFactoryException("Creating a context from a java file is not supported.");
+  }
+
+  @Override
+  public Context create(List<Path> paths) throws IOException {
+    throw new NotImplementedException("Currently only YEdContextFactory supports graph partitioning");
   }
 
   public static final List<String>
