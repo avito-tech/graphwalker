@@ -17,12 +17,13 @@
     <node id="n0">
       <data key="d6">
         <y:ShapeNode>
-          <y:Geometry height="53.94400000000002" width="143.008" x="203.85199999999998" y="250.49999999999997"/>
+          <y:Geometry height="75.94400000000002" width="153.008" x="203.85199999999998" y="250.49999999999997"/>
           <y:Fill color="#FFCC00" transparent="false"/>
           <y:BorderStyle color="#000000" type="line" width="1.0"/>
-          <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="51.478515625" horizontalTextPosition="center" iconTextGap="4" modelName="custom" textColor="#000000" verticalTextPosition="bottom" visible="true" width="104.845703125" x="19.08114843750002" y="1.2327421875000084">vertex2 
+          <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="67.3046875" horizontalTextPosition="center" iconTextGap="4" modelName="custom" textColor="#000000" verticalTextPosition="bottom" visible="true" width="122.16015625" x="15.423921875000019" y="4.319656250000008">vertex2 
 /* Comment "2"\*/
-INDEGREE:edge12;<y:LabelModel>
+OUTDEGREE : edge21;
+INDEGREE : edge12;<y:LabelModel>
               <y:SmartNodeLabelModel distance="4.0"/>
             </y:LabelModel>
             <y:ModelParameter>

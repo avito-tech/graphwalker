@@ -79,11 +79,11 @@ reqtag
  ;
 
 outdegree
- : ~(COMMA)+
+ : ~(COMMA | SEMICOLON | WHITESPACE)+
  ;
 
 indegree
- : ~(COMMA)+
+ : ~(COMMA | SEMICOLON | WHITESPACE)+
  ;
 
 description

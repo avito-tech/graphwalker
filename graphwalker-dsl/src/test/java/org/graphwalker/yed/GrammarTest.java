@@ -72,7 +72,8 @@ public class GrammarTest {
       " SHARED: A4",
       "REQTAG=R1",
       "REQTAG = R1",
-      "REQTAG= R1,R2 , R3, R4"
+      "REQTAG= R1,R2 , R3, R4",
+      "OUTDEGREE : e_SideBar;\nINDEGREE : e_ClickSources;"
   );
 
   private List<String> edges = Arrays.asList(

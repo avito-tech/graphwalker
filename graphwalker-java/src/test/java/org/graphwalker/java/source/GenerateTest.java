@@ -255,6 +255,9 @@ public class GenerateTest {
         "    @Edge(value = \"\")\n" +
         "    void edge12();\n" +
         "\n" +
+        "    @Edge(value = \"\")\n" +
+        "    void edge21();\n" +
+        "\n" +
         "    @Vertex(value = \"Comment 1\")\n" +
         "    void vertex1();\n" +
         "\n" +
