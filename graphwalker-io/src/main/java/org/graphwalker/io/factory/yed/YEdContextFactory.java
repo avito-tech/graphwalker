@@ -27,6 +27,8 @@ package org.graphwalker.io.factory.yed;
  */
 
 import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.BiMap;
+import com.google.common.collect.HashBiMap;
 import com.google.common.collect.Multimap;
 import com.yworks.xml.graphml.ArcEdgeDocument;
 import com.yworks.xml.graphml.BezierEdgeDocument;
@@ -63,12 +65,14 @@ import org.graphdrawing.graphml.xmlns.impl.KeyTypeImpl;
 import org.graphwalker.core.machine.Context;
 import org.graphwalker.core.model.Action;
 import org.graphwalker.core.model.Edge;
+import org.graphwalker.core.model.Edge.RuntimeEdge;
 import org.graphwalker.core.model.Guard;
 import org.graphwalker.core.model.Indegree;
 import org.graphwalker.core.model.Model;
 import org.graphwalker.core.model.Outdegree;
 import org.graphwalker.core.model.Requirement;
 import org.graphwalker.core.model.Vertex;
+import org.graphwalker.core.model.Vertex.RuntimeVertex;
 import org.graphwalker.dsl.antlr.yed.YEdDescriptiveErrorListener;
 import org.graphwalker.dsl.yed.YEdEdgeParser;
 import org.graphwalker.dsl.yed.YEdLabelLexer;
@@ -80,6 +84,7 @@ import org.graphwalker.io.factory.ContextFactoryException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.awt.Color;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -91,13 +96,20 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import static java.awt.Color.GREEN;
+import static java.awt.Color.YELLOW;
+import static java.lang.Integer.parseInt;
+import static java.lang.String.format;
+import static java.util.Collections.emptyList;
 
 
 /**
@@ -144,7 +156,7 @@ public final class YEdContextFactory implements ContextFactory {
       }
     } catch (XmlException e) {
       logger.error(e.getMessage());
-      throw new ContextFactoryException("The file appears not to be valid yEd formatted.");
+      throw new ContextFactoryException("Create. The file appears not to be valid yEd formatted.");
     } catch (IOException | ResourceNotFoundException e) {
       logger.error(e.getMessage());
       throw new ContextFactoryException("Could not read the file.");
@@ -164,7 +176,7 @@ public final class YEdContextFactory implements ContextFactory {
       document = GraphmlDocument.Factory.parse(ResourceUtils.getResourceAsStream(path.toString()));
     } catch (XmlException e) {
       logger.error(e.getMessage());
-      throw new ContextFactoryException("The file appears not to be valid yEd formatted.");
+      throw new ContextFactoryException("Read path. The file " + path + " appears not to be valid yEd formatted.");
     } catch (IOException | ResourceNotFoundException e) {
       logger.error(e.getMessage());
       throw new ContextFactoryException("Could not read the file.");
@@ -178,7 +190,7 @@ public final class YEdContextFactory implements ContextFactory {
       document = GraphmlDocument.Factory.parse(graphmlStr);
     } catch (XmlException e) {
       logger.error(e.getMessage());
-      throw new ContextFactoryException("The file appears not to be valid yEd formatted.");
+      throw new ContextFactoryException("Read xml. The file appears not to be valid yEd formatted.");
     }
     return read(document, "");
   }
@@ -193,7 +205,7 @@ public final class YEdContextFactory implements ContextFactory {
       startEdge = addEdges(model, document, elements, startVertex);
     } catch (XmlException e) {
       logger.error(e.getMessage());
-      throw new ContextFactoryException("The file seems not to be of valid yEd format.");
+      throw new ContextFactoryException("Read by name. The file seems not to be of valid yEd format.");
     }
 
     model.setName(name);
@@ -224,14 +236,14 @@ public final class YEdContextFactory implements ContextFactory {
         String edgeName = indegreeEntry.getKey();
         for (Vertex out : outdegrees.get(edgeName)) {
           for (Vertex in : indegreeEntry.getValue()) {
-            model.addEdge(new Edge().setSourceVertex(out).setTargetVertex(in).setName(edgeName));
+            model.addEdge(new Edge().setSourceVertex(out).setTargetVertex(in).setName(edgeName).setDescription(""));
           }
         }
       }
 
     } catch (XmlException e) {
       logger.error(e.getMessage());
-      throw new ContextFactoryException("The file seems not to be of valid yEd format.");
+      throw new ContextFactoryException("Read documents. The file seems not to be of valid yEd format.");
     }
 
     model.setName(name);
@@ -241,6 +253,75 @@ public final class YEdContextFactory implements ContextFactory {
     }
 
     return context;
+  }
+
+  private static void appendVertex(StringBuilder str, String id, String name, Color col) {
+    String newLine = System.lineSeparator();
+    str.append("    <node id=\"" + id + "\">").append(newLine);
+    str.append("      <data key=\"d0\" >").append(newLine);
+    str.append("        <y:ShapeNode >").append(newLine);
+    str.append("          <y:Geometry  x=\"241.875\" y=\"158.701171875\" width=\"95.0\" height=\"30.0\"/>").append(newLine);
+    str.append("          <y:Fill color=\"" + format("#%02x%02x%02x", col.getRed(), col.getGreen(), col.getBlue()) + "\"  transparent=\"false\"/>").append(newLine);
+    str.append("          <y:BorderStyle type=\"line\" width=\"1.0\" color=\"#000000\" />").append(newLine);
+    str.append("          <y:NodeLabel x=\"1.5\" y=\"5.6494140625\" width=\"92.0\" height=\"18.701171875\" "
+      + "visible=\"true\" alignment=\"center\" fontFamily=\"Dialog\" fontSize=\"12\" "
+      + "fontStyle=\"plain\" textColor=\"#000000\" modelName=\"internal\" modelPosition=\"c\" " + "autoSizePolicy=\"content\">"
+      + name);
+    str.append("</y:NodeLabel>").append(newLine);
+    str.append("          <y:Shape type=\"rectangle\"/>").append(newLine);
+    str.append("        </y:ShapeNode>").append(newLine);
+    str.append("      </data>").append(newLine);
+    str.append("    </node>").append(newLine);
+  }
+
+  private static void appendEdge(StringBuilder str, String id, String srcId, String destId,
+                                 String name, Guard guard, List<Action> actions, int dependency) {
+    String newLine = System.lineSeparator();
+    str.append("    <edge id=\"" + id + "\" source=\"" + srcId + "\" target=\"" + destId + "\">").append(newLine);
+    str.append("      <data key=\"d1\" >").append(newLine);
+    str.append("        <y:PolyLineEdge >").append(newLine);
+    str.append("          <y:Path sx=\"-23.75\" sy=\"15.0\" tx=\"-23.75\" ty=\"-15.0\">").append(newLine);
+    str.append("            <y:Point x=\"273.3125\" y=\"95.0\"/>").append(newLine);
+    str.append("            <y:Point x=\"209.5625\" y=\"95.0\"/>").append(newLine);
+    str.append("            <y:Point x=\"209.5625\" y=\"143.701171875\"/>").append(newLine);
+    str.append("            <y:Point x=\"265.625\" y=\"143.701171875\"/>").append(newLine);
+    str.append("          </y:Path>").append(newLine);
+    str.append("          <y:LineStyle type=\"line\" width=\"1.0\" color=\"#000000\" />").append(newLine);
+    str.append("          <y:Arrows source=\"none\" target=\"standard\"/>").append(newLine);
+    if (!name.isEmpty()) {
+      String label = name;
+
+      if (guard != null) {
+        label += newLine + "[" + guard.getScript() + "]";
+      }
+      if (actions != null && !actions.isEmpty()) {
+        label += newLine + "/";
+        for (Action action : actions) {
+          label += action.getScript();
+        }
+      }
+
+      if (dependency != 0) {
+        label += "\ndependency=" + dependency;
+      }
+
+      label = label.replaceAll("&", "&amp;");
+      label = label.replaceAll("<", "&lt;");
+      label = label.replaceAll(">", "&gt;");
+      label = label.replaceAll("'", "&apos;");
+      label = label.replaceAll("\"", "&quot;");
+
+      str.append("          <y:EdgeLabel x=\"-148.25\" y=\"30.000000000000014\" width=\"169.0\" height=\"18.701171875\" "
+        + "visible=\"true\" alignment=\"center\" fontFamily=\"Dialog\" fontSize=\"12\" "
+        + "fontStyle=\"plain\" textColor=\"#000000\" modelName=\"free\" modelPosition=\"anywhere\" "
+        + "preferredPlacement=\"on_edge\" distance=\"2.0\" ratio=\"0.5\">" + label);
+      str.append("</y:EdgeLabel>").append(newLine);
+    }
+
+    str.append("          <y:BendStyle smoothed=\"false\"/>").append(newLine);
+    str.append("        </y:PolyLineEdge>").append(newLine);
+    str.append("      </data>").append(newLine);
+    str.append("    </edge>").append(newLine);
   }
 
   @Override
@@ -258,80 +339,84 @@ public final class YEdContextFactory implements ContextFactory {
       str.append("  <key id=\"d1\" for=\"edge\" yfiles.type=\"edgegraphics\"/>").append(newLine);
       str.append("  <graph id=\"G\" edgedefault=\"directed\">").append(newLine);
 
-      for (Vertex.RuntimeVertex v : context.getModel().getVertices()) {
-        str.append("    <node id=\"" + v.getId() + "\">").append(newLine);
-        str.append("      <data key=\"d0\" >").append(newLine);
-        str.append("        <y:ShapeNode >").append(newLine);
-        str.append("          <y:Geometry  x=\"241.875\" y=\"158.701171875\" width=\"95.0\" height=\"30.0\"/>").append(newLine);
-        str.append("          <y:Fill color=\"#CCCCFF\"  transparent=\"false\"/>").append(newLine);
-        str.append("          <y:BorderStyle type=\"line\" width=\"1.0\" color=\"#000000\" />").append(newLine);
-        str.append("          <y:NodeLabel x=\"1.5\" y=\"5.6494140625\" width=\"92.0\" height=\"18.701171875\" "
-          + "visible=\"true\" alignment=\"center\" fontFamily=\"Dialog\" fontSize=\"12\" "
-          + "fontStyle=\"plain\" textColor=\"#000000\" modelName=\"internal\" modelPosition=\"c\" " + "autoSizePolicy=\"content\">"
-          + v.getName());
+      BiMap<RuntimeVertex, String> uniqueVertices = HashBiMap.create();
+      BiMap<RuntimeEdge, String> uniqueEdges = HashBiMap.create();
 
-        str.append("</y:NodeLabel>").append(newLine);
-        str.append("          <y:Shape type=\"rectangle\"/>").append(newLine);
-        str.append("        </y:ShapeNode>").append(newLine);
-        str.append("      </data>").append(newLine);
-        str.append("    </node>").append(newLine);
+      // nodes' ids in yEd have format like "n9::n3::n2" / "n2::n1" / "n1", where only last part should be changed
+      // http://www.catonmat.net/blog/my-favorite-regex/
+      Pattern p = Pattern.compile("^([ -~]*)(\\d+)$");
+      for (RuntimeVertex v : context.getModel().getVertices()) {
+        String id = v.getId();
+        Matcher m = p.matcher(id);
+        if (m.find()) {
+          String letter = m.group(1);
+          int digit = parseInt(m.group(2));
+          while (uniqueVertices.containsValue(letter + digit)) {
+            digit += 1_000;
+          }
+          uniqueVertices.put(v, letter + digit);
+        } else {
+          uniqueVertices.forcePut(v, v.getId());
+        }
+      }
+      for (RuntimeEdge e : context.getModel().getEdges()) {
+        String id = e.getId();
+        Matcher m = p.matcher(id);
+        if (m.find()) {
+          String letter = m.group(1);
+          int digit = parseInt(m.group(2));
+          while (uniqueEdges.containsValue(letter + digit)) {
+            digit += 1_000;
+          }
+          uniqueEdges.put(e, letter + digit);
+        } else {
+          uniqueEdges.forcePut(e, e.getId());
+        }
       }
 
-      for (Edge.RuntimeEdge e : context.getModel().getEdges()) {
-        Vertex.RuntimeVertex src = e.getSourceVertex();
-        Vertex.RuntimeVertex dest = e.getTargetVertex();
+      if (context.getNextElement() != null
+        && context.getNextElement() instanceof RuntimeEdge
+        && ((RuntimeEdge) context.getNextElement()).getTargetVertex() != null) {
+        int n = 0, e = 0;
+        while (uniqueVertices.containsValue("n" + n)) {
+          n++;
+        }
+        while (uniqueEdges.containsValue("e" + e)) {
+          e++;
+        }
+        appendVertex(str, "n" + n, "Start", GREEN);
+        appendEdge(str, "e" + e, "n" + n, uniqueVertices.get(((RuntimeEdge) context.getNextElement()).getTargetVertex()),
+          context.getNextElement().getName(),
+          null,
+          emptyList(),
+          0);
+      }
+
+      for (RuntimeVertex v : context.getModel().getVertices()) {
+        String id = uniqueVertices.get(v);
+        appendVertex(str, id, v.getName(), YELLOW);
+      }
+
+      for (RuntimeEdge e : context.getModel().getEdges()) {
+        RuntimeVertex src = e.getSourceVertex();
+        RuntimeVertex dest = e.getTargetVertex();
 
         if (src == null || dest == null) {
           continue;
         }
 
-        str.append("    <edge id=\"" + e.getId() + "\" source=\"" + src.getId() + "\" target=\"" + dest.getId() + "\">").append(newLine);
-        str.append("      <data key=\"d1\" >").append(newLine);
-        str.append("        <y:PolyLineEdge >").append(newLine);
-        str.append("          <y:Path sx=\"-23.75\" sy=\"15.0\" tx=\"-23.75\" ty=\"-15.0\">").append(newLine);
-        str.append("            <y:Point x=\"273.3125\" y=\"95.0\"/>").append(newLine);
-        str.append("            <y:Point x=\"209.5625\" y=\"95.0\"/>").append(newLine);
-        str.append("            <y:Point x=\"209.5625\" y=\"143.701171875\"/>").append(newLine);
-        str.append("            <y:Point x=\"265.625\" y=\"143.701171875\"/>").append(newLine);
-        str.append("          </y:Path>").append(newLine);
-        str.append("          <y:LineStyle type=\"line\" width=\"1.0\" color=\"#000000\" />").append(newLine);
-        str.append("          <y:Arrows source=\"none\" target=\"standard\"/>").append(newLine);
+        String id = uniqueEdges.get(e);
+        String srcId = uniqueVertices.get(src);
+        String destId = uniqueVertices.get(dest);
+        appendEdge(str, id, srcId, destId,
+          e.getName(),
+          e.hasGuard() ? e.getGuard() : null,
+          e.hasActions() ? e.getActions() : emptyList(),
+          e.getDependency());
 
-        if (!e.getName().isEmpty()) {
-          String label = e.getName();
-          
-          if (e.hasGuard()) {
-            label += newLine + "[" + e.getGuard().getScript() + "]";
-          }
-          if (e.hasActions()) {
-            label += newLine + "/";
-            for (Action action : e.getActions()) {
-              label += action.getScript();
-            }
-          }
-          
-          if (e.getDependency()!=0) {
-        	  	label +=  "\ndependency=" + e.getDependency();
-          }
-          
-          label = label.replaceAll("&", "&amp;");
-          label = label.replaceAll("<", "&lt;");
-          label = label.replaceAll(">", "&gt;");
-          label = label.replaceAll("'", "&apos;");
-          label = label.replaceAll("\"", "&quot;");
-
-          str.append("          <y:EdgeLabel x=\"-148.25\" y=\"30.000000000000014\" width=\"169.0\" height=\"18.701171875\" "
-            + "visible=\"true\" alignment=\"center\" fontFamily=\"Dialog\" fontSize=\"12\" "
-            + "fontStyle=\"plain\" textColor=\"#000000\" modelName=\"free\" modelPosition=\"anywhere\" "
-            + "preferredPlacement=\"on_edge\" distance=\"2.0\" ratio=\"0.5\">" + label);
-          str.append("</y:EdgeLabel>").append(newLine);
+        if (e.getName() == null) {
+          throw new IllegalStateException("Edge between " + e.getSourceVertex() + " and " + e.getTargetVertex() + " has no Text property");
         }
-
-        str.append("          <y:BendStyle smoothed=\"false\"/>").append(newLine);
-        str.append("        </y:PolyLineEdge>").append(newLine);
-        str.append("      </data>").append(newLine);
-        str.append("    </edge>").append(newLine);
-
       }
 
       str.append("  </graph>").append(newLine);
@@ -345,6 +430,7 @@ public final class YEdContextFactory implements ContextFactory {
   @Override
   public void write(List<Context> contexts, Path path) throws IOException {
     File folder = path.toFile().getAbsoluteFile();
+    folder.mkdirs();
     Path graphmlFile = Paths.get(folder.toString(), contexts.get(0).getModel().getName() + ".graphml");
     try (OutputStream outputStream = Files.newOutputStream(graphmlFile)) {
       outputStream.write(String.valueOf(getAsString(contexts)).getBytes());
@@ -505,7 +591,7 @@ public final class YEdContextFactory implements ContextFactory {
     if (document.getGraphml() != null) {
       return Arrays.asList(document.getGraphml().getKeyArray());
     }
-    return Collections.emptyList();
+    return emptyList();
   }
 
   private Edge addEdges(Model model, GraphmlDocument document, Map<String, Vertex> elements, Vertex startVertex) throws XmlException {
@@ -584,7 +670,7 @@ public final class YEdContextFactory implements ContextFactory {
                   edge.setWeight(Double.parseDouble(field.weight().Value().getText()));
                 }
                 if (null != field.dependency() && null != field.dependency().Value()) {
-                    edge.setDependency(Integer.parseInt((field.dependency().Value().getText())));
+                  edge.setDependency(parseInt((field.dependency().Value().getText())));
                 }
                 if (null != field.description()) {
                     edge.setDescription(field.description().getText());

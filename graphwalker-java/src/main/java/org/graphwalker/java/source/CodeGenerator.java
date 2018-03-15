@@ -69,6 +69,8 @@ import japa.parser.ast.expr.NormalAnnotationExpr;
 import japa.parser.ast.expr.StringLiteralExpr;
 import japa.parser.ast.visitor.VoidVisitorAdapter;
 
+import static java.nio.file.FileVisitResult.CONTINUE;
+import static java.nio.file.FileVisitResult.SKIP_SUBTREE;
 import static java.nio.file.StandardOpenOption.CREATE;
 import static java.nio.file.StandardOpenOption.TRUNCATE_EXISTING;
 import static java.util.Collections.singletonList;
@@ -99,6 +101,15 @@ public final class CodeGenerator extends VoidVisitorAdapter<ChangeContext> {
     }
 
     @Override
+    public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
+      if (dir.toFile().getName().equals("link")) {
+        return SKIP_SUBTREE;
+      } else {
+        return CONTINUE;
+      }
+    }
+
+    @Override
     public FileVisitResult visitFile(Path file, BasicFileAttributes attributes) throws IOException {
       if (!cache.contains(file) || isModified(file, cache)) {
         try {
@@ -116,7 +127,7 @@ public final class CodeGenerator extends VoidVisitorAdapter<ChangeContext> {
               } else {
                 linkedFiles.add(file);
               }
-              return FileVisitResult.CONTINUE;
+              return CONTINUE;
             }
           }
           // otherwise remove previously marked file
@@ -128,13 +139,13 @@ public final class CodeGenerator extends VoidVisitorAdapter<ChangeContext> {
           cache.add(file, new CacheEntry(file.toFile().lastModified(), false));
         }
       }
-      return FileVisitResult.CONTINUE;
+      return CONTINUE;
     }
 
     @Override
     public FileVisitResult visitFileFailed(Path file, IOException exc) throws IOException {
       cache.add(file, new CacheEntry(file.toFile().lastModified(), false));
-      return FileVisitResult.CONTINUE;
+      return CONTINUE;
     }
   }
 
@@ -156,7 +167,7 @@ public final class CodeGenerator extends VoidVisitorAdapter<ChangeContext> {
       Objects.requireNonNull(dir);
       Objects.requireNonNull(attrs);
 
-      if (!linkedFiles.isEmpty()) {
+      if (input.equals(dir) && !linkedFiles.isEmpty()) {
         Path entry = linkedFiles.get(0);
         try {
           ContextFactory factory = ContextFactoryScanner.get(entry);
@@ -164,13 +175,14 @@ public final class CodeGenerator extends VoidVisitorAdapter<ChangeContext> {
 
           SourceFile sourceFile = new SourceFile(context.getModel().getName(), entry, input, output);
           write(context, sourceFile);
+          factory.write(singletonList(context), dir.resolve("link"));
           cache.add(entry, new CacheEntry(entry.toFile().lastModified(), true));
         } catch (Throwable t) {
           logger.error(t.getMessage());
           cache.add(entry, new CacheEntry(entry.toFile().lastModified(), false));
         }
       }
-      return FileVisitResult.CONTINUE;
+      return CONTINUE;
     }
 
     @Override
@@ -189,13 +201,13 @@ public final class CodeGenerator extends VoidVisitorAdapter<ChangeContext> {
           cache.add(file, new CacheEntry(file.toFile().lastModified(), false));
         }
       }
-      return FileVisitResult.CONTINUE;
+      return CONTINUE;
     }
 
     @Override
     public FileVisitResult visitFileFailed(Path file, IOException exc) throws IOException {
       cache.add(file, new CacheEntry(file.toFile().lastModified(), false));
-      return FileVisitResult.CONTINUE;
+      return CONTINUE;
     }
   }
 
