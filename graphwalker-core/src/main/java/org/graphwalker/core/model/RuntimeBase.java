@@ -172,4 +172,8 @@ public abstract class RuntimeBase implements Element {
            Objects.equals(properties, that.properties);
   }
 
+  @Override
+  public String toString() {
+    return id + ":" + name;
+  }
 }

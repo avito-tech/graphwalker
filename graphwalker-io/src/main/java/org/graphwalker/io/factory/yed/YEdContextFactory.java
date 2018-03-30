@@ -405,6 +405,10 @@ public final class YEdContextFactory implements ContextFactory {
           continue;
         }
 
+        if (e.getName() == null) {
+          throw new IllegalStateException("Edge between " + e.getSourceVertex().getId() + " and " + e.getTargetVertex() + " has no Text property");
+        }
+
         String id = uniqueEdges.get(e);
         String srcId = uniqueVertices.get(src);
         String destId = uniqueVertices.get(dest);
@@ -413,10 +417,6 @@ public final class YEdContextFactory implements ContextFactory {
           e.hasGuard() ? e.getGuard() : null,
           e.hasActions() ? e.getActions() : emptyList(),
           e.getDependency());
-
-        if (e.getName() == null) {
-          throw new IllegalStateException("Edge between " + e.getSourceVertex() + " and " + e.getTargetVertex() + " has no Text property");
-        }
       }
 
       str.append("  </graph>").append(newLine);
