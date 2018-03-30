@@ -118,16 +118,15 @@ public final class CodeGenerator extends VoidVisitorAdapter<ChangeContext> {
 
           for (Context context : contexts) {
             for (RuntimeVertex vertex : context.getModel().getVertices()) {
-              if (vertex.getIndegrees().isEmpty() && vertex.getOutdegrees().isEmpty()) {
-                continue;
+              if (vertex.hasIndegrees() || vertex.hasOutdegrees()) {
+                // if file contains INDEGREE/OUTDEGREE, mark it
+                if (context.getNextElement() != null) {
+                  linkedFiles.add(0, file);
+                } else {
+                  linkedFiles.add(file);
+                }
+                return CONTINUE;
               }
-              // if file contains INDEGREE/OUTDEGREE, mark it
-              if (context.getNextElement() != null) {
-                linkedFiles.add(0, file);
-              } else {
-                linkedFiles.add(file);
-              }
-              return CONTINUE;
             }
           }
           // otherwise remove previously marked file

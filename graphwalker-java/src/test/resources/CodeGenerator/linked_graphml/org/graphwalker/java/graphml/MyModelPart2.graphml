@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<graphml xmlns="http://graphml.graphdrawing.org/xmlns" xmlns:java="http://www.yworks.com/xml/yfiles-common/1.0/java" xmlns:sys="http://www.yworks.com/xml/yfiles-common/markup/primitives/2.0" xmlns:x="http://www.yworks.com/xml/yfiles-common/markup/2.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:y="http://www.yworks.com/xml/graphml" xmlns:yed="http://www.yworks.com/xml/yed/3" xsi:schemaLocation="http://graphml.graphdrawing.org/xmlns http://www.yworks.com/xml/schema/graphml/1.1/ygraphml.xsd">
+<graphml xmlns="http://graphml.graphdrawing.org/xmlns"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:y="http://www.yworks.com/xml/graphml"
+  xsi:schemaLocation="http://graphml.graphdrawing.org/xmlns http://www.yworks.com/xml/schema/graphml/1.1/ygraphml.xsd">
   <!--Created by yEd 3.17.2-->
   <key attr.name="Description" attr.type="string" for="graph" id="d0"/>
   <key for="port" id="d1" yfiles.type="portgraphics"/>
@@ -37,7 +39,8 @@ INDEGREE : edge12;<y:LabelModel>
     <node id="n1">
       <data key="d6">
         <y:ShapeNode>
-          <y:Geometry height="37.94400000000002" width="106.00800000000001" x="227.35199999999998" y="442.5"/>
+          <y:Geometry height="37.94400000000002" width="106.00800000000001" x="227.35199999999998"
+            y="465.5" />
           <y:Fill color="#FFCC00" transparent="false"/>
           <y:BorderStyle color="#000000" type="line" width="1.0"/>
           <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="35.65234375" horizontalTextPosition="center" iconTextGap="4" modelName="custom" textColor="#000000" verticalTextPosition="bottom" visible="true" width="92.46484375" x="6.771578125000019" y="1.14582812499998">vertex3 
@@ -53,7 +56,6 @@ INDEGREE : edge12;<y:LabelModel>
       </data>
     </node>
     <edge id="e0" source="n0" target="n1">
-      <data key="d9"/>
       <data key="d10">
         <y:BezierEdge>
           <y:Path sx="0.0" sy="0.0" tx="0.0" ty="0.0">
@@ -61,7 +63,13 @@ INDEGREE : edge12;<y:LabelModel>
           </y:Path>
           <y:LineStyle color="#000000" type="line" width="1.0"/>
           <y:Arrows source="none" target="standard"/>
-          <y:EdgeLabel alignment="center" configuration="AutoFlippingLabel" distance="2.0" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="19.826171875" horizontalTextPosition="center" iconTextGap="4" modelName="custom" preferredPlacement="anywhere" ratio="0.5" textColor="#000000" verticalTextPosition="bottom" visible="true" width="43.69140625" x="-65.59110649741382" y="60.59299638364331">edge23<y:LabelModel>
+          <y:EdgeLabel alignment="center" configuration="AutoFlippingLabel" distance="2.0"
+            fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false"
+            hasLineColor="false" height="19.826171875" horizontalTextPosition="center"
+            iconTextGap="4" modelName="custom" preferredPlacement="anywhere" ratio="0.5"
+            textColor="#000000" verticalTextPosition="bottom" visible="true" width="43.69140625"
+            x="-65.97866445701737" y="59.135297881917666">edge23
+            <y:LabelModel>
               <y:SmartEdgeLabelModel autoRotationEnabled="false" defaultAngle="0.0" defaultDistance="10.0"/>
             </y:LabelModel>
             <y:ModelParameter>
@@ -73,7 +81,6 @@ INDEGREE : edge12;<y:LabelModel>
       </data>
     </edge>
     <edge id="e1" source="n1" target="n0">
-      <data key="d9"/>
       <data key="d10">
         <y:BezierEdge>
           <y:Path sx="0.0" sy="0.0" tx="0.0" ty="0.0">
@@ -81,7 +88,13 @@ INDEGREE : edge12;<y:LabelModel>
           </y:Path>
           <y:LineStyle color="#000000" type="line" width="1.0"/>
           <y:Arrows source="none" target="standard"/>
-          <y:EdgeLabel alignment="center" configuration="AutoFlippingLabel" distance="2.0" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="19.826171875" horizontalTextPosition="center" iconTextGap="4" modelName="custom" preferredPlacement="anywhere" ratio="0.5" textColor="#000000" verticalTextPosition="bottom" visible="true" width="43.69140625" x="25.086374211930433" y="-74.83531359159446">edge32<y:LabelModel>
+          <y:EdgeLabel alignment="center" configuration="AutoFlippingLabel" distance="2.0"
+            fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false"
+            hasLineColor="false" height="19.826171875" horizontalTextPosition="center"
+            iconTextGap="4" modelName="custom" preferredPlacement="anywhere" ratio="0.5"
+            textColor="#000000" verticalTextPosition="bottom" visible="true" width="43.69140625"
+            x="26.238266091141895" y="-99.16357420361828">edge32
+            <y:LabelModel>
               <y:SmartEdgeLabelModel autoRotationEnabled="false" defaultAngle="0.0" defaultDistance="10.0"/>
             </y:LabelModel>
             <y:ModelParameter>

@@ -50,7 +50,6 @@ import com.yworks.xml.graphml.impl.NodeLabelTypeImpl;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
-import org.antlr.v4.runtime.ParserRuleContext;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
@@ -67,9 +66,7 @@ import org.graphwalker.core.model.Action;
 import org.graphwalker.core.model.Edge;
 import org.graphwalker.core.model.Edge.RuntimeEdge;
 import org.graphwalker.core.model.Guard;
-import org.graphwalker.core.model.Indegree;
 import org.graphwalker.core.model.Model;
-import org.graphwalker.core.model.Outdegree;
 import org.graphwalker.core.model.Requirement;
 import org.graphwalker.core.model.Vertex;
 import org.graphwalker.core.model.Vertex.RuntimeVertex;
@@ -222,7 +219,8 @@ public final class YEdContextFactory implements ContextFactory {
     Edge startEdge = null;
     Map<String, Vertex> elements = new HashMap<>();
     Model model = new Model();
-    Multimap<String, Vertex> indegrees = ArrayListMultimap.create(), outdegrees = ArrayListMultimap.create();
+    Multimap<String, IndegreeVertex> indegrees = ArrayListMultimap.create();
+    Multimap<String, Vertex> outdegrees = ArrayListMultimap.create();
     try {
       for (GraphmlDocument document : documents) {
         AddResult<Vertex> addResult = addVertices(model, document, elements, indegrees, outdegrees);
@@ -232,11 +230,17 @@ public final class YEdContextFactory implements ContextFactory {
           startEdge = edge;
         }
       }
-      for (Map.Entry<String, Collection<Vertex>> indegreeEntry : indegrees.asMap().entrySet()) {
+      for (Map.Entry<String, Collection<IndegreeVertex>> indegreeEntry : indegrees.asMap().entrySet()) {
         String edgeName = indegreeEntry.getKey();
         for (Vertex out : outdegrees.get(edgeName)) {
-          for (Vertex in : indegreeEntry.getValue()) {
-            model.addEdge(new Edge().setSourceVertex(out).setTargetVertex(in).setName(edgeName).setDescription(""));
+          for (IndegreeVertex in : indegreeEntry.getValue()) {
+            Edge edge = new Edge()
+              .setSourceVertex(out)
+              .setTargetVertex(in.getVertex())
+              .setName(edgeName)
+              .setDescription(in.getDescription())
+              .setGuard(in.getGuard());
+            model.addEdge(edge);
           }
         }
       }
@@ -450,7 +454,7 @@ public final class YEdContextFactory implements ContextFactory {
     Model model,
     GraphmlDocument document,
     Map<String, Vertex> elements,
-    Multimap<String, Vertex> indegrees,
+    Multimap<String, IndegreeVertex> indegrees,
     Multimap<String, Vertex> outdegrees) throws XmlException {
 
     AddResult<Vertex> addResult = new AddResult<>();
@@ -523,19 +527,26 @@ public final class YEdContextFactory implements ContextFactory {
                       vertex.setSharedState(field.shared().Identifier().getText());
                     }
                     if (null != field.indegrees()) {
-                      vertex.setIndegrees(convertVertexRequirement(field.indegrees().indegreeList().indegree(), Indegree.class));
+                      vertex.setIndegrees(true);
                       for (YEdVertexParser.IndegreeContext indegreeContext : field.indegrees().indegreeList().indegree()) {
-                        indegrees.put(indegreeContext.getText(), vertex);
+                        indegrees.put(
+                          indegreeContext.element().getText(),
+                          new IndegreeVertex(
+                            vertex,
+                            indegreeContext.description() != null ? indegreeContext.description().getText() : "",
+                            indegreeContext.guard() != null ? new Guard(indegreeContext.guard().getText()) : null
+                          )
+                        );
                       }
                     }
                     if (null != field.outdegrees()) {
-                      vertex.setOutdegrees(convertVertexRequirement(field.outdegrees().outdegreeList().outdegree(), Outdegree.class));
+                      vertex.setOutdegrees(true);
                       for (YEdVertexParser.OutdegreeContext outdegreeContext : field.outdegrees().outdegreeList().outdegree()) {
-                        outdegrees.put(outdegreeContext.getText(), vertex);
+                        outdegrees.put(outdegreeContext.element().getText(), vertex);
                       }
                     }
                     if (null != field.reqtags()) {
-                      vertex.setRequirements(convertVertexRequirement(field.reqtags().reqtagList().reqtag(), Requirement.class));
+                      vertex.setRequirements(convertVertexRequirement(field.reqtags().reqtagList().reqtag()));
                     }
                     if (null != field.actions()) {
                       model.addActions(convertVertexAction(field.actions().action()));
@@ -747,14 +758,10 @@ public final class YEdContextFactory implements ContextFactory {
     return requirements;
   }
 
-  private <T extends ParserRuleContext, R> Set<R> convertVertexRequirement(List<T> contexts, Class<R> type) {
-    Set<R> requirements = new HashSet<>();
-    for (T context : contexts) {
-      try {
-        requirements.add(type.getConstructor(String.class).newInstance(context.getText()));
-      } catch (Exception e) {
-        throw new RuntimeException(e);
-      }
+  private Set<Requirement> convertVertexRequirement(List<YEdVertexParser.ReqtagContext> reqtagContexts) {
+    Set<Requirement> requirements = new HashSet<>();
+    for (YEdVertexParser.ReqtagContext reqtagContext : reqtagContexts) {
+      requirements.add(new Requirement(reqtagContext.getText()));
     }
     return requirements;
   }

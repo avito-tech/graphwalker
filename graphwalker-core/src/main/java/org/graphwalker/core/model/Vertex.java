@@ -28,8 +28,6 @@ package org.graphwalker.core.model;
 
 import org.graphwalker.core.common.Objects;
 
-import java.util.Set;
-
 import static org.graphwalker.core.common.Objects.isNotNullOrEmpty;
 
 /**
@@ -107,21 +105,21 @@ public class Vertex extends CachedBuilder<Vertex, Vertex.RuntimeVertex> {
 
     private final String sharedState;
 
-    private final Set<Indegree> indegrees;
-    private final Set<Outdegree> outdegrees;
+    private final boolean indegrees;
+    private final boolean outdegrees;
 
     private RuntimeVertex(Vertex vertex) {
       super(vertex.getId(), vertex.getName(), vertex.getDescription(), vertex.getRequirements(), vertex.getProperties());
       this.sharedState = vertex.getSharedState();
-      this.indegrees = vertex.getIndegrees();
-      this.outdegrees = vertex.getOutdegrees();
+      this.indegrees = vertex.hasIndegrees();
+      this.outdegrees = vertex.hasOutdegrees();
     }
 
-    public Set<Indegree> getIndegrees() {
+    public boolean hasIndegrees() {
       return indegrees;
     }
 
-    public Set<Outdegree> getOutdegrees() {
+    public boolean hasOutdegrees() {
       return outdegrees;
     }
 

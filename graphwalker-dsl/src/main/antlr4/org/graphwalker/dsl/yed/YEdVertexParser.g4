@@ -79,11 +79,24 @@ reqtag
  ;
 
 outdegree
- : ~(COMMA | SEMICOLON | WHITESPACE)+
+ : element
  ;
 
 indegree
+ : element WHITESPACE* description? WHITESPACE* guard?
+ | element WHITESPACE* guard? WHITESPACE* description?
+ | description WHITESPACE* element? WHITESPACE* guard?
+ | description WHITESPACE* guard? WHITESPACE* element?
+ | guard WHITESPACE* description? WHITESPACE* element?
+ | guard WHITESPACE* element? WHITESPACE* description?
+ ;
+
+element
  : ~(COMMA | SEMICOLON | WHITESPACE)+
+ ;
+
+guard
+ : NestedBrackets
  ;
 
 description

@@ -26,10 +26,6 @@ package org.graphwalker.yed;
  * #L%
  */
 
-import static org.hamcrest.core.Is.is;
-
-import java.util.Arrays;
-import java.util.List;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
@@ -38,6 +34,11 @@ import org.graphwalker.dsl.yed.YEdLabelLexer;
 import org.graphwalker.dsl.yed.YEdVertexParser;
 import org.junit.Assert;
 import org.junit.Test;
+
+import java.util.Arrays;
+import java.util.List;
+
+import static org.hamcrest.core.Is.is;
 
 /**
  * @author Nils Olsson
@@ -73,7 +74,8 @@ public class GrammarTest {
       "REQTAG=R1",
       "REQTAG = R1",
       "REQTAG= R1,R2 , R3, R4",
-      "OUTDEGREE : e_SideBar;\nINDEGREE : e_ClickSources;"
+    "OUTDEGREE : e_SideBar;\nINDEGREE : e_ClickSources;",
+    "INDEGREE: /* comment 1 */ e_SideBar, e_ClickBtn /* comment 2 */ [loggedIn == true];\nOUTDEGREE: e_ClickSources;"
   );
 
   private List<String> edges = Arrays.asList(
@@ -126,7 +128,7 @@ public class GrammarTest {
       CommonTokenStream tokens = new CommonTokenStream(lexer);
       YEdVertexParser parser = new YEdVertexParser(tokens);
       parser.parse();
-      Assert.assertThat("Could not parse: " + vertex, parser.getNumberOfSyntaxErrors(), is(0));
+      Assert.assertThat("Parse syntax errors in vertex " + vertex, parser.getNumberOfSyntaxErrors(), is(0));
     }
   }
 
@@ -138,7 +140,7 @@ public class GrammarTest {
       CommonTokenStream tokens = new CommonTokenStream(lexer);
       YEdEdgeParser parser = new YEdEdgeParser(tokens);
       parser.parse();
-      Assert.assertThat("Could not parse: " + edge, parser.getNumberOfSyntaxErrors(), is(0));
+      Assert.assertThat("Parse syntax errors in edge " + edge, parser.getNumberOfSyntaxErrors(), is(0));
     }
   }
 }
