@@ -38,8 +38,11 @@ public class Guard {
 
   private final String script;
 
+  /**
+   * @param script with or without surrounding breaks
+   */
   public Guard(String script) {
-    this.script = script;
+    this.script = script != null ? script.trim().replaceAll("^\\[", "").replaceAll("]$", "") : null;
   }
 
   public String getScript() {

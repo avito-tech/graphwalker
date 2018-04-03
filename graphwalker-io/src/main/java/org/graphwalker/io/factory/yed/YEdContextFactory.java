@@ -102,6 +102,7 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static java.awt.Color.BLACK;
 import static java.awt.Color.GREEN;
 import static java.awt.Color.MAGENTA;
 import static java.awt.Color.RED;
@@ -301,8 +302,10 @@ public final class YEdContextFactory implements ContextFactory {
 
   private static void appendEdge(StringBuilder str, String id, String srcId, String destId,
                                  String name, Guard guard, List<Action> actions, int dependency,
-                                 String description) {
+                                 String description, Color col) {
     String newLine = System.lineSeparator();
+    String colorCode = format("#%02x%02x%02x", col.getRed(), col.getGreen(), col.getBlue());
+
     str.append("    <edge id=\"" + id + "\" source=\"" + srcId + "\" target=\"" + destId + "\">").append(newLine);
     str.append("      <data key=\"d1\" >").append(newLine);
     str.append("        <y:PolyLineEdge >").append(newLine);
@@ -312,7 +315,7 @@ public final class YEdContextFactory implements ContextFactory {
     str.append("            <y:Point x=\"209.5625\" y=\"143.701171875\"/>").append(newLine);
     str.append("            <y:Point x=\"265.625\" y=\"143.701171875\"/>").append(newLine);
     str.append("          </y:Path>").append(newLine);
-    str.append("          <y:LineStyle type=\"line\" width=\"1.0\" color=\"#000000\" />").append(newLine);
+    str.append("          <y:LineStyle type=\"line\" width=\"1.0\" color=\"" + colorCode + "\" />").append(newLine);
     str.append("          <y:Arrows source=\"none\" target=\"standard\"/>").append(newLine);
     if (!name.isEmpty()) {
       String label = name;
@@ -345,7 +348,7 @@ public final class YEdContextFactory implements ContextFactory {
 
       str.append("          <y:EdgeLabel x=\"-148.25\" y=\"30.000000000000014\" width=\"169.0\" height=\"18.701171875\" "
         + "visible=\"true\" alignment=\"center\" fontFamily=\"Dialog\" fontSize=\"12\" "
-        + "fontStyle=\"plain\" textColor=\"#000000\" modelName=\"free\" modelPosition=\"anywhere\" "
+        + "fontStyle=\"plain\" textColor=\"" + colorCode + "\" modelName=\"free\" modelPosition=\"anywhere\" "
         + "preferredPlacement=\"on_edge\" distance=\"2.0\" ratio=\"0.5\">" + label);
       str.append("</y:EdgeLabel>").append(newLine);
     }
@@ -427,7 +430,8 @@ public final class YEdContextFactory implements ContextFactory {
           ((RuntimeEdge) context.getNextElement()).getGuard(),
           context.getNextElement().getActions(),
           0,
-          context.getNextElement().getDescription());
+          context.getNextElement().getDescription(),
+          BLACK);
       }
 
       Set<RuntimeVertex> hasNoInput = new HashSet<>(context.getModel().getVertices());
@@ -444,19 +448,28 @@ public final class YEdContextFactory implements ContextFactory {
         hasNoInput.remove(dest);
         hasNoOutput.remove(src);
 
+        String edgeName;
+        Color color;
         if (e.getName() == null) {
-          throw new IllegalStateException("Edge between " + e.getSourceVertex().getId() + " and " + e.getTargetVertex() + " has no Text property");
+          logger.warn("Edge between {} and {} (marked with \"red\" color) has no Text property. It invalidates the model!",
+            e.getSourceVertex().getId(), e.getTargetVertex());
+          edgeName = "(No text specified!)";
+          color = RED;
+        } else {
+          edgeName = e.getName();
+          color = BLACK;
         }
 
         String id = uniqueEdges.get(e);
         String srcId = uniqueVertices.get(src);
         String destId = uniqueVertices.get(dest);
         appendEdge(str, id, srcId, destId,
-          e.getName(),
+          edgeName,
           e.hasGuard() ? e.getGuard() : null,
           e.hasActions() ? e.getActions() : emptyList(),
           e.getDependency(),
-          e.getDescription());
+          e.getDescription(),
+          color);
       }
 
       for (RuntimeVertex v : context.getModel().getVertices()) {
@@ -717,9 +730,7 @@ public final class YEdContextFactory implements ContextFactory {
                   edge.setName(field.names().getText());
                 }
                 if (null != field.guard()) {
-                  // TODO: Fix this in the parser
-                  String text = field.guard().getText().trim();
-                  edge.setGuard(new Guard(text.substring(1, text.length() - 1)));
+                  edge.setGuard(new Guard(field.guard().getText()));
                 }
                 if (null != field.actions()) {
                   edge.addActions(convertEdgeAction(field.actions().action()));
