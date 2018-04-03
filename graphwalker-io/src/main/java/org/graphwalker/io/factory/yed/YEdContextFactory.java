@@ -259,18 +259,37 @@ public final class YEdContextFactory implements ContextFactory {
     return context;
   }
 
-  private static void appendVertex(StringBuilder str, String id, String name, Color col) {
+  private static void appendVertex(StringBuilder str, String id, String name, String description,
+                                   List<Action> actions, Color col) {
+
+    double scale = !actions.isEmpty() || (description != null && description.length() >= 50) ? 1.7 : 1.0;
+
     String newLine = System.lineSeparator();
     str.append("    <node id=\"" + id + "\">").append(newLine);
     str.append("      <data key=\"d0\" >").append(newLine);
     str.append("        <y:ShapeNode >").append(newLine);
-    str.append("          <y:Geometry  x=\"241.875\" y=\"158.701171875\" width=\"95.0\" height=\"30.0\"/>").append(newLine);
+    str.append("          <y:Geometry  x=\"250.000\" y=\"150.000\" width=\"" + scale * 250.0 + "\" height=\"" + scale * 60 + "\"/>").append(newLine);
     str.append("          <y:Fill color=\"" + format("#%02x%02x%02x", col.getRed(), col.getGreen(), col.getBlue()) + "\"  transparent=\"false\"/>").append(newLine);
     str.append("          <y:BorderStyle type=\"line\" width=\"1.0\" color=\"#000000\" />").append(newLine);
-    str.append("          <y:NodeLabel x=\"1.5\" y=\"5.6494140625\" width=\"92.0\" height=\"18.701171875\" "
+    str.append("          <y:NodeLabel x=\"1.5\" y=\"5.500\" width=\"100.0\" height=\"20.000\" "
       + "visible=\"true\" alignment=\"center\" fontFamily=\"Dialog\" fontSize=\"12\" "
-      + "fontStyle=\"plain\" textColor=\"#000000\" modelName=\"internal\" modelPosition=\"c\" " + "autoSizePolicy=\"content\">"
+      + "fontStyle=\"plain\" textColor=\"#000000\" modelName=\"internal\" modelPosition=\"c\" autoSizePolicy=\"content\">"
       + name);
+
+    if (description != null && !description.trim().isEmpty()) {
+      String formattedDescription = description
+        .replaceAll("([^\\\\])\\\\n", "$1\n")
+        .replace("\\\\n", "\\n");
+      str.append(newLine + "/* " + formattedDescription + " */");
+    }
+
+    if (!actions.isEmpty()) {
+      str.append(newLine + "INIT: ");
+      for (int i = 0; i < actions.size(); i++) {
+        str.append(actions.get(i).getScript() + (i < actions.size() - 1 ? ", " : ";"));
+      }
+    }
+
     str.append("</y:NodeLabel>").append(newLine);
     str.append("          <y:Shape type=\"rectangle\"/>").append(newLine);
     str.append("        </y:ShapeNode>").append(newLine);
@@ -279,7 +298,8 @@ public final class YEdContextFactory implements ContextFactory {
   }
 
   private static void appendEdge(StringBuilder str, String id, String srcId, String destId,
-                                 String name, Guard guard, List<Action> actions, int dependency) {
+                                 String name, Guard guard, List<Action> actions, int dependency,
+                                 String description) {
     String newLine = System.lineSeparator();
     str.append("    <edge id=\"" + id + "\" source=\"" + srcId + "\" target=\"" + destId + "\">").append(newLine);
     str.append("      <data key=\"d1\" >").append(newLine);
@@ -295,14 +315,20 @@ public final class YEdContextFactory implements ContextFactory {
     if (!name.isEmpty()) {
       String label = name;
 
-      if (guard != null) {
-        label += newLine + "[" + guard.getScript() + "]";
-      }
       if (actions != null && !actions.isEmpty()) {
-        label += newLine + "/";
+        label += " /";
         for (Action action : actions) {
           label += action.getScript();
         }
+      }
+      if (guard != null) {
+        label += newLine + "[" + guard.getScript() + "]";
+      }
+      if (description != null && !description.trim().isEmpty()) {
+        String formattedDescription = description
+          .replaceAll("([^\\\\])\\\\n", "$1\n")
+          .replace("\\\\n", "\\n");
+        label += newLine + "/* " + formattedDescription + " */";
       }
 
       if (dependency != 0) {
@@ -335,10 +361,15 @@ public final class YEdContextFactory implements ContextFactory {
       String newLine = System.lineSeparator();
       StringBuilder str = new StringBuilder();
 
-      str.append("<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>").append(newLine);
-      str.append("<graphml xmlns=\"http://graphml.graphdrawing.org/xmlns\"  " + "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" "
-        + "xsi:schemaLocation=\"http://graphml.graphdrawing.org/xmlns " + "http://www.yworks.com/xml/schema/graphml/1.0/ygraphml.xsd\" "
-        + "xmlns:y=\"http://www.yworks.com/xml/graphml\">").append(newLine);
+      str.append("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>").append(newLine);
+      str.append("<graphml xmlns=\"http://graphml.graphdrawing.org/xmlns\" "
+        + "xmlns:java=\"http://www.yworks.com/xml/yfiles-common/1.0/java\" "
+        + "xmlns:sys=\"http://www.yworks.com/xml/yfiles-common/markup/primitives/2.0\" "
+        + "xmlns:x=\"http://www.yworks.com/xml/yfiles-common/markup/2.0\" "
+        + "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" "
+        + "xmlns:y=\"http://www.yworks.com/xml/graphml\" "
+        + "xmlns:yed=\"http://www.yworks.com/xml/yed/3\" "
+        + "xsi:schemaLocation=\"http://graphml.graphdrawing.org/xmlns http://www.yworks.com/xml/schema/graphml/1.1/ygraphml.xsd\">").append(newLine);
       str.append("  <key id=\"d0\" for=\"node\" yfiles.type=\"nodegraphics\"/>").append(newLine);
       str.append("  <key id=\"d1\" for=\"edge\" yfiles.type=\"edgegraphics\"/>").append(newLine);
       str.append("  <graph id=\"G\" edgedefault=\"directed\">").append(newLine);
@@ -388,17 +419,18 @@ public final class YEdContextFactory implements ContextFactory {
         while (uniqueEdges.containsValue("e" + e)) {
           e++;
         }
-        appendVertex(str, "n" + n, "Start", GREEN);
+        appendVertex(str, "n" + n, "Start", null, emptyList(), GREEN);
         appendEdge(str, "e" + e, "n" + n, uniqueVertices.get(((RuntimeEdge) context.getNextElement()).getTargetVertex()),
           context.getNextElement().getName(),
-          null,
-          emptyList(),
-          0);
+          ((RuntimeEdge) context.getNextElement()).getGuard(),
+          context.getNextElement().getActions(),
+          0,
+          context.getNextElement().getDescription());
       }
 
       for (RuntimeVertex v : context.getModel().getVertices()) {
         String id = uniqueVertices.get(v);
-        appendVertex(str, id, v.getName(), YELLOW);
+        appendVertex(str, id, v.getName(), v.getDescription(), v.getActions(), YELLOW);
       }
 
       for (RuntimeEdge e : context.getModel().getEdges()) {
@@ -420,7 +452,8 @@ public final class YEdContextFactory implements ContextFactory {
           e.getName(),
           e.hasGuard() ? e.getGuard() : null,
           e.hasActions() ? e.getActions() : emptyList(),
-          e.getDependency());
+          e.getDependency(),
+          e.getDescription());
       }
 
       str.append("  </graph>").append(newLine);
