@@ -103,6 +103,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static java.awt.Color.GREEN;
+import static java.awt.Color.MAGENTA;
+import static java.awt.Color.RED;
 import static java.awt.Color.YELLOW;
 import static java.lang.Integer.parseInt;
 import static java.lang.String.format;
@@ -428,10 +430,8 @@ public final class YEdContextFactory implements ContextFactory {
           context.getNextElement().getDescription());
       }
 
-      for (RuntimeVertex v : context.getModel().getVertices()) {
-        String id = uniqueVertices.get(v);
-        appendVertex(str, id, v.getName(), v.getDescription(), v.getActions(), YELLOW);
-      }
+      Set<RuntimeVertex> hasNoInput = new HashSet<>(context.getModel().getVertices());
+      Set<RuntimeVertex> hasNoOutput = new HashSet<>(context.getModel().getVertices());
 
       for (RuntimeEdge e : context.getModel().getEdges()) {
         RuntimeVertex src = e.getSourceVertex();
@@ -440,6 +440,9 @@ public final class YEdContextFactory implements ContextFactory {
         if (src == null || dest == null) {
           continue;
         }
+
+        hasNoInput.remove(dest);
+        hasNoOutput.remove(src);
 
         if (e.getName() == null) {
           throw new IllegalStateException("Edge between " + e.getSourceVertex().getId() + " and " + e.getTargetVertex() + " has no Text property");
@@ -454,6 +457,23 @@ public final class YEdContextFactory implements ContextFactory {
           e.hasActions() ? e.getActions() : emptyList(),
           e.getDependency(),
           e.getDescription());
+      }
+
+      for (RuntimeVertex v : context.getModel().getVertices()) {
+        String id = uniqueVertices.get(v);
+        Color color;
+        if (hasNoInput.contains(v)) {
+          logger.warn("Vertex " + v + " has no input edges (marked with \"magenta\" color). " +
+            "It could not be tested!");
+          color = MAGENTA;
+        } else if (hasNoOutput.contains(v)) {
+          logger.warn("Vertex " + v + " has no output edges (marked with \"red\" color). " +
+            "Most of path generating techniques will not work correctly with that graph!");
+          color = RED;
+        } else {
+          color = YELLOW;
+        }
+        appendVertex(str, id, v.getName(), v.getDescription(), v.getActions(), color);
       }
 
       str.append("  </graph>").append(newLine);
