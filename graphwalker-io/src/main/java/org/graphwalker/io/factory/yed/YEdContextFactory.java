@@ -91,7 +91,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Deque;
 import java.util.HashMap;
@@ -109,6 +108,7 @@ import static java.awt.Color.RED;
 import static java.awt.Color.YELLOW;
 import static java.lang.Integer.parseInt;
 import static java.lang.String.format;
+import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 
 
@@ -120,7 +120,7 @@ public final class YEdContextFactory implements ContextFactory {
   private static final Logger logger = LoggerFactory.getLogger(YEdContextFactory.class);
   private static final String NAMESPACE = "declare namespace xq='http://graphml.graphdrawing.org/xmlns';";
   private static final String FILE_TYPE = "graphml";
-  private static final Set<String> SUPPORTED_TYPE = new HashSet<>(Arrays.asList("**/*.graphml"));
+  private static final Set<String> SUPPORTED_TYPE = new HashSet<>(asList("**/*.graphml"));
 
   @Override
   public Set<String> getSupportedFileTypes() {
@@ -152,7 +152,9 @@ public final class YEdContextFactory implements ContextFactory {
     List<GraphmlDocument> documents = new ArrayList<>();
     try {
       for (Path path : paths) {
-        documents.add(GraphmlDocument.Factory.parse(ResourceUtils.getResourceAsStream(path.toString())));
+        GraphmlDocument document = GraphmlDocument.Factory.parse(ResourceUtils.getResourceAsStream(path.toString()));
+        document.documentProperties().setSourceName(path.toFile().getName().replaceFirst("[.][^.]+$", ""));
+        documents.add(document);
       }
     } catch (XmlException e) {
       logger.error(e.getMessage());
@@ -359,6 +361,26 @@ public final class YEdContextFactory implements ContextFactory {
     str.append("    </edge>").append(newLine);
   }
 
+  private static class IndexedCollection<E> {
+
+    final Collection<E> items;
+
+    final int index;
+
+    public IndexedCollection(int index, E item) {
+      this.index = index;
+      this.items = item != null ? new ArrayList<>(asList(item)) : new ArrayList<>();
+    }
+
+    @Override
+    public String toString() {
+      return index >= 0 ? "n" + index + "::" : "";
+    }
+
+  }
+
+  static IndexedCollection<RuntimeVertex> NO_GROUP = new IndexedCollection<>(-1, null);
+
   @Override
   public String getAsString(List<Context> contexts) {
     StringBuilder graphmlStr = new StringBuilder();
@@ -382,9 +404,12 @@ public final class YEdContextFactory implements ContextFactory {
       BiMap<RuntimeVertex, String> uniqueVertices = HashBiMap.create();
       BiMap<RuntimeEdge, String> uniqueEdges = HashBiMap.create();
 
+      Map<String, IndexedCollection<RuntimeVertex>> groupedVertices = new HashMap<>();
+
       // nodes' ids in yEd have format like "n9::n3::n2" / "n2::n1" / "n1", where only last part should be changed
       // http://www.catonmat.net/blog/my-favorite-regex/
       Pattern p = Pattern.compile("^([ -~]*)(\\d+)$");
+      int g = 0;
       for (RuntimeVertex v : context.getModel().getVertices()) {
         String id = v.getId();
         Matcher m = p.matcher(id);
@@ -397,6 +422,13 @@ public final class YEdContextFactory implements ContextFactory {
           uniqueVertices.put(v, letter + digit);
         } else {
           uniqueVertices.forcePut(v, v.getId());
+        }
+        String groupName = v.getGroupName();
+        IndexedCollection<RuntimeVertex> group = groupedVertices.get(groupName);
+        if (group != null) {
+          group.items.add(v);
+        } else {
+          groupedVertices.put(groupName, new IndexedCollection<>(g++, v));
         }
       }
       for (RuntimeEdge e : context.getModel().getEdges()) {
@@ -425,11 +457,12 @@ public final class YEdContextFactory implements ContextFactory {
           e++;
         }
         appendVertex(str, "n" + n, "Start", null, emptyList(), GREEN);
-        appendEdge(str, "e" + e, "n" + n, uniqueVertices.get(((RuntimeEdge) context.getNextElement()).getTargetVertex()),
+        IndexedCollection<RuntimeVertex> destGroup = groupedVertices.getOrDefault(((RuntimeEdge) context.getNextElement()).getTargetVertex().getGroupName(), NO_GROUP);
+        appendEdge(str, "e" + e, "n" + n, destGroup + uniqueVertices.get(((RuntimeEdge) context.getNextElement()).getTargetVertex()),
           context.getNextElement().getName(),
           ((RuntimeEdge) context.getNextElement()).getGuard(),
           context.getNextElement().getActions(),
-          0,
+          ((RuntimeEdge) context.getNextElement()).getDependency(),
           context.getNextElement().getDescription(),
           BLACK);
       }
@@ -461,8 +494,8 @@ public final class YEdContextFactory implements ContextFactory {
         }
 
         String id = uniqueEdges.get(e);
-        String srcId = uniqueVertices.get(src);
-        String destId = uniqueVertices.get(dest);
+        String srcId = groupedVertices.getOrDefault(src.getGroupName(), NO_GROUP) + uniqueVertices.get(src);
+        String destId = groupedVertices.getOrDefault(dest.getGroupName(), NO_GROUP) + uniqueVertices.get(dest);
         appendEdge(str, id, srcId, destId,
           edgeName,
           e.hasGuard() ? e.getGuard() : null,
@@ -472,21 +505,61 @@ public final class YEdContextFactory implements ContextFactory {
           color);
       }
 
-      for (RuntimeVertex v : context.getModel().getVertices()) {
-        String id = uniqueVertices.get(v);
-        Color color;
-        if (hasNoInput.contains(v)) {
-          logger.warn("Vertex " + v + " has no input edges (marked with \"magenta\" color). " +
-            "It could not be tested!");
-          color = MAGENTA;
-        } else if (hasNoOutput.contains(v)) {
-          logger.warn("Vertex " + v + " has no output edges (marked with \"red\" color). " +
-            "Most of path generating techniques will not work correctly with that graph!");
-          color = RED;
-        } else {
-          color = YELLOW;
+      for (Map.Entry<String, IndexedCollection<RuntimeVertex>> group : groupedVertices.entrySet()) {
+        if (group.getKey() != null && true) {
+          str.append("<node id=\"" + "n" + group.getValue().index + "\" yfiles.foldertype=\"group\">").append(newLine);
+          str.append("<data key=\"d0\">").append(newLine);
+          str.append("  <y:ProxyAutoBoundsNode>").append(newLine);
+          str.append("    <y:Realizers active=\"0\">").append(newLine);
+          str.append("      <y:GroupNode>").append(newLine);
+          str.append("        <y:Geometry height=\"500.0\" width=\"561.25\" x=\"4000.0\" y=\"3000.0\"/>").append(newLine);
+          str.append("        <y:Fill color=\"#F2F0D8\" transparent=\"false\"/>").append(newLine);
+          str.append("        <y:BorderStyle color=\"#000000\" type=\"line\" width=\"1.0\"/>").append(newLine);
+          str.append("        <y:NodeLabel alignment=\"right\" autoSizePolicy=\"node_width\" backgroundColor=\"#404040\" borderDistance=\"0.0\" fontFamily=\"Dialog\" fontSize=\"16\" fontStyle=\"plain\" hasLineColor=\"false\" height=\"25.0\" horizontalTextPosition=\"center\" iconTextGap=\"4\" modelName=\"internal\" modelPosition=\"t\" textColor=\"#FFFFFF\" verticalTextPosition=\"bottom\" visible=\"true\" width=\"455.0\" x=\"0.0\" y=\"0.0\">" + group.getKey() + "</y:NodeLabel>").append(newLine);
+          str.append("        <y:Shape type=\"rectangle\"/>").append(newLine);
+          str.append("        <y:DropShadow color=\"#D2D2D2\" offsetX=\"4\" offsetY=\"4\"/>").append(newLine);
+          str.append("        <y:State closed=\"false\" closedHeight=\"50.0\" closedWidth=\"50.0\" innerGraphDisplayEnabled=\"false\"/>").append(newLine);
+          str.append("        <y:Insets bottom=\"15\" bottomF=\"15.0\" left=\"15\" leftF=\"15.0\" right=\"15\" rightF=\"15.0\" top=\"15\" topF=\"15.0\"/>").append(newLine);
+          str.append("        <y:BorderInsets bottom=\"0\" bottomF=\"0.0\" left=\"0\" leftF=\"0.0\" right=\"0\" rightF=\"0.0\" top=\"0\" topF=\"0.0\"/>").append(newLine);
+          str.append("      </y:GroupNode>").append(newLine);
+          str.append("      <y:GroupNode>").append(newLine);
+          str.append("        <y:Geometry height=\"50.0\" width=\"50.0\" x=\"0.0\" y=\"60.0\"/>").append(newLine);
+          str.append("        <y:Fill color=\"#F5F5F5\" transparent=\"false\"/>").append(newLine);
+          str.append("        <y:BorderStyle color=\"#000000\" type=\"dashed\" width=\"1.0\"/>").append(newLine);
+          str.append("        <y:NodeLabel alignment=\"right\" autoSizePolicy=\"node_width\" backgroundColor=\"#EBEBEB\" borderDistance=\"0.0\" fontFamily=\"Dialog\" fontSize=\"15\" fontStyle=\"plain\" hasLineColor=\"false\" height=\"24.0\" horizontalTextPosition=\"center\" iconTextGap=\"4\" modelName=\"internal\" modelPosition=\"t\" textColor=\"#000000\" verticalTextPosition=\"bottom\" visible=\"true\" width=\"60.0\" x=\"-4.0\" y=\"0.0\">" + group.getKey() + "</y:NodeLabel>").append(newLine);
+          str.append("        <y:Shape type=\"roundrectangle\"/>").append(newLine);
+          str.append("        <y:State closed=\"true\" closedHeight=\"50.0\" closedWidth=\"50.0\" innerGraphDisplayEnabled=\"false\"/>").append(newLine);
+          str.append("        <y:Insets bottom=\"5\" bottomF=\"5.0\" left=\"5\" leftF=\"5.0\" right=\"5\" rightF=\"5.0\" top=\"5\" topF=\"5.0\"/>").append(newLine);
+          str.append("        <y:BorderInsets bottom=\"0\" bottomF=\"0.0\" left=\"0\" leftF=\"0.0\" right=\"0\" rightF=\"0.0\" top=\"0\" topF=\"0.0\"/>").append(newLine);
+          str.append("      </y:GroupNode>").append(newLine);
+          str.append("    </y:Realizers>").append(newLine);
+          str.append("  </y:ProxyAutoBoundsNode>").append(newLine);
+          str.append("</data>").append(newLine);
+          str.append("<graph edgedefault=\"directed\" id=\"" + "n" + group.getValue().index + ":\">").append(newLine);
         }
-        appendVertex(str, id, v.getName(), v.getDescription(), v.getActions(), color);
+
+        for (RuntimeVertex v : group.getValue().items) {
+          String id = group.getKey() != null && true
+            ? "n" + group.getValue().index + "::" + uniqueVertices.get(v)
+            : uniqueVertices.get(v);
+          Color color;
+          if (hasNoInput.contains(v)) {
+            logger.warn("Vertex " + v + " has no input edges (marked with \"magenta\" color). " +
+              "It could not be tested!");
+            color = MAGENTA;
+          } else if (hasNoOutput.contains(v)) {
+            logger.warn("Vertex " + v + " has no output edges (marked with \"red\" color). " +
+              "Most of path generating techniques will not work correctly with that graph!");
+            color = RED;
+          } else {
+            color = YELLOW;
+          }
+          appendVertex(str, id, v.getName(), v.getDescription(), v.getActions(), color);
+        }
+        if (group.getKey() != null && true) {
+          str.append("</graph>").append(newLine);
+          str.append("</node>").append(newLine);
+        }
       }
 
       str.append("  </graph>").append(newLine);
@@ -525,7 +598,7 @@ public final class YEdContextFactory implements ContextFactory {
 
     AddResult<Vertex> addResult = new AddResult<>();
     Deque<XmlObject> workQueue = new ArrayDeque<>();
-    workQueue.addAll(Arrays.asList(document.selectPath(NAMESPACE + "$this/xq:graphml/xq:graph/xq:node")));
+    workQueue.addAll(asList(document.selectPath(NAMESPACE + "$this/xq:graphml/xq:graph/xq:node")));
 
     List<KeyType> keys = getKeyArray(document);
     Map<String, KeyType> propKeys = new HashMap<>();
@@ -541,10 +614,11 @@ public final class YEdContextFactory implements ContextFactory {
         NodeType node = (NodeType) object;
         if (0 < node.getGraphArray().length) {
           for (GraphType subgraph : node.getGraphArray()) {
-            workQueue.addAll(Arrays.asList(subgraph.getNodeArray()));
+            workQueue.addAll(asList(subgraph.getNodeArray()));
           }
         } else {
           Vertex vertex = new Vertex();
+          vertex.setGroupName(document.documentProperties().getSourceName());
           for (Map.Entry<String, KeyType> entry : propKeys.entrySet()) {
             KeyType value = entry.getValue();
             if (value.isSetDefault()) {
@@ -666,7 +740,7 @@ public final class YEdContextFactory implements ContextFactory {
 
   private List<KeyType> getKeyArray(GraphmlDocument document) {
     if (document.getGraphml() != null) {
-      return Arrays.asList(document.getGraphml().getKeyArray());
+      return asList(document.getGraphml().getKeyArray());
     }
     return emptyList();
   }

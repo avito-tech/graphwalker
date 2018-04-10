@@ -47,6 +47,8 @@ public class Vertex extends CachedBuilder<Vertex, Vertex.RuntimeVertex> {
 
   private String sharedState;
 
+  private String groupName;
+
   /**
    * Gets the name of the shared state.
    *
@@ -79,6 +81,10 @@ public class Vertex extends CachedBuilder<Vertex, Vertex.RuntimeVertex> {
     return this;
   }
 
+  public void setGroupName(String groupName) {
+    this.groupName = groupName;
+  }
+
   @Override
   public String toString() {
     return "Vertex(" + super.getName() + ")";
@@ -108,11 +114,14 @@ public class Vertex extends CachedBuilder<Vertex, Vertex.RuntimeVertex> {
     private final boolean indegrees;
     private final boolean outdegrees;
 
+    private String groupName;
+
     private RuntimeVertex(Vertex vertex) {
       super(vertex.getId(), vertex.getName(), vertex.getDescription(), vertex.getRequirements(), vertex.getProperties());
       this.sharedState = vertex.getSharedState();
       this.indegrees = vertex.hasIndegrees();
       this.outdegrees = vertex.hasOutdegrees();
+      this.groupName = vertex.groupName;
     }
 
     public boolean hasIndegrees() {
@@ -121,6 +130,10 @@ public class Vertex extends CachedBuilder<Vertex, Vertex.RuntimeVertex> {
 
     public boolean hasOutdegrees() {
       return outdegrees;
+    }
+
+    public String getGroupName() {
+      return groupName;
     }
 
     /**
