@@ -494,8 +494,13 @@ public final class YEdContextFactory implements ContextFactory {
         }
 
         String id = uniqueEdges.get(e);
-        String srcId = groupedVertices.getOrDefault(src.getGroupName(), NO_GROUP) + uniqueVertices.get(src);
-        String destId = groupedVertices.getOrDefault(dest.getGroupName(), NO_GROUP) + uniqueVertices.get(dest);
+        String srcId = uniqueVertices.get(src);
+        String destId = uniqueVertices.get(dest);
+        if (g > 1) {
+          srcId = groupedVertices.getOrDefault(src.getGroupName(), NO_GROUP) + srcId;
+          destId = groupedVertices.getOrDefault(dest.getGroupName(), NO_GROUP) + destId;
+        }
+
         appendEdge(str, id, srcId, destId,
           edgeName,
           e.hasGuard() ? e.getGuard() : null,
@@ -506,7 +511,7 @@ public final class YEdContextFactory implements ContextFactory {
       }
 
       for (Map.Entry<String, IndexedCollection<RuntimeVertex>> group : groupedVertices.entrySet()) {
-        if (group.getKey() != null && true) {
+        if (group.getKey() != null && g > 1) {
           str.append("<node id=\"" + "n" + group.getValue().index + "\" yfiles.foldertype=\"group\">").append(newLine);
           str.append("<data key=\"d0\">").append(newLine);
           str.append("  <y:ProxyAutoBoundsNode>").append(newLine);
@@ -539,7 +544,7 @@ public final class YEdContextFactory implements ContextFactory {
         }
 
         for (RuntimeVertex v : group.getValue().items) {
-          String id = group.getKey() != null && true
+          String id = group.getKey() != null && g > 1
             ? "n" + group.getValue().index + "::" + uniqueVertices.get(v)
             : uniqueVertices.get(v);
           Color color;
@@ -556,7 +561,7 @@ public final class YEdContextFactory implements ContextFactory {
           }
           appendVertex(str, id, v.getName(), v.getDescription(), v.getActions(), color);
         }
-        if (group.getKey() != null && true) {
+        if (group.getKey() != null && g > 1) {
           str.append("</graph>").append(newLine);
           str.append("</node>").append(newLine);
         }
