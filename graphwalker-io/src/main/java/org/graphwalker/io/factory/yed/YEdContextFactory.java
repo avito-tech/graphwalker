@@ -246,6 +246,9 @@ public final class YEdContextFactory implements ContextFactory {
               .setName(edgeName)
               .setDescription(in.getDescription())
               .setGuard(in.getGuard());
+            for (Action set : in.getVertex().getSetActions()) {
+              edge.addAction(set);
+            }
             model.addEdge(edge);
           }
         }
