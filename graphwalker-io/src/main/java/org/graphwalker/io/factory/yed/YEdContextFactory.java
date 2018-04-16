@@ -50,6 +50,7 @@ import com.yworks.xml.graphml.impl.NodeLabelTypeImpl;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
+import org.antlr.v4.runtime.tree.ParseTree;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
@@ -696,6 +697,9 @@ public final class YEdContextFactory implements ContextFactory {
                     if (null != field.actions()) {
                       model.addActions(convertVertexAction(field.actions().action()));
                     }
+                    if (null != field.sets()) {
+                      vertex.setSetActions(convertVertexAction(field.sets().set()));
+                    }
                     if (null != field.blocked()) {
                       vertex.setProperty("blocked", true);
                     }
@@ -798,11 +802,16 @@ public final class YEdContextFactory implements ContextFactory {
               parser.addErrorListener(YEdDescriptiveErrorListener.INSTANCE);
               YEdEdgeParser.ParseContext parseContext = parser.parse();
 
-              if (null != elements.get(edgeType.getSource())) {
-                edge.setSourceVertex(elements.get(edgeType.getSource()));
+              Vertex sourceVertex = elements.get(edgeType.getSource());
+              if (null != sourceVertex) {
+                edge.setSourceVertex(sourceVertex);
               }
-              if (null != elements.get(edgeType.getTarget())) {
-                edge.setTargetVertex(elements.get(edgeType.getTarget()));
+              Vertex targetVertex = elements.get(edgeType.getTarget());
+              if (null != targetVertex) {
+                edge.setTargetVertex(targetVertex);
+                for (Action set : targetVertex.getSetActions()) {
+                  edge.addAction(set);
+                }
               }
               for (YEdEdgeParser.FieldContext field : parseContext.field()) {
                 if (null != field.names()) {
@@ -885,10 +894,10 @@ public final class YEdContextFactory implements ContextFactory {
     return actions;
   }
 
-  private List<Action> convertVertexAction(List<YEdVertexParser.ActionContext> actionContexts) {
+  private <T extends ParseTree> List<Action> convertVertexAction(List<T> setContexts) {
     List<Action> actions = new ArrayList<>();
-    for (YEdVertexParser.ActionContext actionContext : actionContexts) {
-      actions.add(new Action(actionContext.getText()));
+    for (T context : setContexts) {
+      actions.add(new Action(context.getText()));
     }
     return actions;
   }

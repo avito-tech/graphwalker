@@ -17,6 +17,7 @@ field
  | {!$parse::fields.contains("indegrees")}? indegrees {$parse::fields.add("indegrees");}
  | {!$parse::fields.contains("blocked")}? blocked {$parse::fields.add("blocked");}
  | {!$parse::fields.contains("actions")}? actions {$parse::fields.add("actions");}
+ | {!$parse::fields.contains("sets")}? sets {$parse::fields.add("sets");}
  | {!$parse::fields.contains("reqtags")}? reqtags {$parse::fields.add("reqtags");}
  | {!$parse::fields.contains("description")}? description {$parse::fields.add("description");}
  | WHITESPACE
@@ -46,7 +47,15 @@ actions
  : INIT WHITESPACE* COLON WHITESPACE* (action)+
  ;
 
+sets
+ : SET WHITESPACE* COLON WHITESPACE* (set)+
+ ;
+
 action
+ : .+ SEMICOLON
+ ;
+
+set
  : .+ SEMICOLON
  ;
 

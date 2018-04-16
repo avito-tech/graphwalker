@@ -11,6 +11,7 @@ SHARED    : 'SHARED';
 OUTDEGREE : 'OUTDEGREE';
 INDEGREE  : 'INDEGREE';
 INIT      : 'INIT';
+SET       : 'SET' | 'Set' | 'set';
 START     : [Ss][Tt][Aa][Rr][Tt];
 REQTAG    : 'REQTAG';
 WEIGHT    : [Ww][Ee][Ii][Gg][Hh][Tt];

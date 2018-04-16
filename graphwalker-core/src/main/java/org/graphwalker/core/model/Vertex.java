@@ -28,7 +28,11 @@ package org.graphwalker.core.model;
 
 import org.graphwalker.core.common.Objects;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static org.graphwalker.core.common.Objects.isNotNullOrEmpty;
+import static org.graphwalker.core.common.Objects.unmodifiableList;
 
 /**
  * <h1>Vertex</h1>
@@ -48,6 +52,8 @@ public class Vertex extends CachedBuilder<Vertex, Vertex.RuntimeVertex> {
   private String sharedState;
 
   private String groupName;
+
+  private List<Action> setActions = new ArrayList<>();
 
   /**
    * Gets the name of the shared state.
@@ -83,6 +89,14 @@ public class Vertex extends CachedBuilder<Vertex, Vertex.RuntimeVertex> {
 
   public void setGroupName(String groupName) {
     this.groupName = groupName;
+  }
+
+  public List<Action> getSetActions() {
+    return unmodifiableList(setActions);
+  }
+
+  public void setSetActions(List<Action> setActions) {
+    this.setActions = setActions;
   }
 
   @Override
