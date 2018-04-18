@@ -67,6 +67,7 @@ import japa.parser.ast.expr.MemberValuePair;
 import japa.parser.ast.expr.NameExpr;
 import japa.parser.ast.expr.NormalAnnotationExpr;
 import japa.parser.ast.expr.StringLiteralExpr;
+import japa.parser.ast.type.Type;
 import japa.parser.ast.visitor.VoidVisitorAdapter;
 
 import static java.nio.file.FileVisitResult.CONTINUE;
@@ -303,13 +304,14 @@ public final class CodeGenerator extends VoidVisitorAdapter<ChangeContext> {
     ClassOrInterfaceDeclaration body = (ClassOrInterfaceDeclaration) compilationUnit.getTypes().get(0);
     for (String methodName : changeContext.getMethodNames()) {
       if (isValidName(methodName)) {
-        MethodDeclaration method = new MethodDeclaration(Modifier.INTERFACE, ASTHelper.VOID_TYPE, methodName);
-        List<AnnotationExpr> annotations = new ArrayList<>();
         List<RuntimeVertex> vertices = changeContext.getModel().findVertices(methodName);
+        List<AnnotationExpr> annotations = new ArrayList<>();
+        Type type;
         if (vertices != null) {
           String description = vertices.isEmpty() ? "" : vertices.iterator().next().getDescription();
           List<MemberValuePair> memberValuePairs = singletonList(new MemberValuePair("value", new StringLiteralExpr(description)));
           annotations.add(new NormalAnnotationExpr(ASTHelper.createNameExpr("Vertex"), memberValuePairs));
+          type = ASTHelper.BOOLEAN_TYPE;
         } else {
           List<RuntimeEdge> edges = changeContext.getModel().findEdges(methodName);
           if (edges != null) {
@@ -319,7 +321,9 @@ public final class CodeGenerator extends VoidVisitorAdapter<ChangeContext> {
           } else {
             throw new IllegalStateException("No vertices or edges were found for method: \"" + methodName + "\"");
           }
+          type = ASTHelper.VOID_TYPE;
         }
+        MethodDeclaration method = new MethodDeclaration(Modifier.INTERFACE, type, methodName);
         method.setAnnotations(annotations);
         ASTHelper.addMember(body, method);
       }

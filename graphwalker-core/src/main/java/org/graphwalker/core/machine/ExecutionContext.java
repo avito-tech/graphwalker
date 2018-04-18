@@ -45,6 +45,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Callable;
 
 import javax.script.Bindings;
 import javax.script.Compilable;
@@ -89,10 +90,14 @@ public abstract class ExecutionContext extends SimpleScriptContext implements Co
 
   private final Map<Requirement, RequirementStatus> requirements = new HashMap<>();
 
+  public void wait(Callable<Boolean> condition) throws Exception {
+    condition.call();
+  }
+
   public ExecutionContext() {
     ScriptEngine engine = getEngineByName();
     engine.setContext(this);
-    String script = "";
+    String script = "var Callable = Java.type(\"java.util.concurrent.Callable\");";
     Compilable compiler = (Compilable) engine;
     for (Method method : getClass().getMethods()) {
       String arguments = "";
@@ -102,8 +107,19 @@ public abstract class ExecutionContext extends SimpleScriptContext implements Co
         }
         arguments += Character.toChars(65 + i)[0];
       }
-      script += "function " + method.getName() + "(" + arguments;
-      script += ") { return impl." + method.getName() + "(" + arguments + ");};";
+
+      if (method.getName().startsWith("v_")) {
+        script += "var " + method.getName() + "Callable = Java.extend(Callable, {" +
+          "  call: function() {" +
+          "    return impl." + method.getName() + "(" + arguments + ");" +
+          "  }" +
+          "});";
+        script += "function " + method.getName() + "(" + arguments;
+        script += ") { return impl.wait(new " + method.getName() + "Callable()); };";
+      } else {
+        script += "function " + method.getName() + "(" + arguments;
+        script += ") { return impl." + method.getName() + "(" + arguments + ");};";
+      }
     }
     try {
       CompiledScript compiledScript = compiler.compile(script);
