@@ -88,39 +88,39 @@ public class GenerateTest {
     Assert.assertThat(sources.get(0), occurrencesOfString("@Edge()", 3));
     Assert.assertThat(sources.get(0), stringContainsInOrder(Arrays.asList(
       "void e_AddOwner();",
-      "void v_FindOwners();",
+      "boolean v_FindOwners();",
       "void e_Search();",
       "void e_FindOwners();",
-      "void v_NewOwner();"
+      "boolean v_NewOwner();"
     )));
 
     Assert.assertThat(sources.get(1), containsString("public interface NewOwner {"));
     Assert.assertThat(sources.get(1), occurrencesOfString("@Vertex()", 3));
     Assert.assertThat(sources.get(1), occurrencesOfString("@Edge()", 2));
     Assert.assertThat(sources.get(1), stringContainsInOrder(Arrays.asList(
-      "void v_OwnerInformation();",
+      "boolean v_OwnerInformation();",
       "void e_CorrectData();",
       "void e_IncorrectData();",
-      "void v_IncorrectData();",
-      "void v_NewOwner();"
+      "boolean v_IncorrectData();",
+      "boolean v_NewOwner();"
     )));
 
     Assert.assertThat(sources.get(2), containsString("public interface OwnerInformation {"));
     Assert.assertThat(sources.get(2), occurrencesOfString("@Vertex()", 5));
     Assert.assertThat(sources.get(2), occurrencesOfString("@Edge()", 9));
     Assert.assertThat(sources.get(2), stringContainsInOrder(Arrays.asList(
-      "void v_OwnerInformation();",
+      "boolean v_OwnerInformation();",
       "void e_UpdatePet();",
-      "void v_FindOwners();",
+      "boolean v_FindOwners();",
       "void e_EditPet();",
       "void e_AddNewPet();",
       "void e_AddVisit();",
       "void e_FindOwners();",
       "void e_AddPetSuccessfully();",
-      "void v_NewPet();",
+      "boolean v_NewPet();",
       "void e_VisitAddedSuccessfully();",
-      "void v_NewVisit();",
-      "void v_Pet();",
+      "boolean v_NewVisit();",
+      "boolean v_Pet();",
       "void e_AddPetFailed();",
       "void e_VisitAddedFailed();"
     )));
@@ -129,12 +129,12 @@ public class GenerateTest {
     Assert.assertThat(sources.get(3), occurrencesOfString("@Vertex()", 3));
     Assert.assertThat(sources.get(3), occurrencesOfString("@Edge()", 4));
     Assert.assertThat(sources.get(3), stringContainsInOrder(Arrays.asList(
-      "void v_FindOwners();",
+      "boolean v_FindOwners();",
       "void e_HomePage();",
       "void e_StartBrowser();",
       "void e_Veterinarians();",
       "void e_FindOwners();",
-      "void v_HomePage();"
+      "boolean v_HomePage();"
     )));
 
     Assert.assertThat(sources.get(4), containsString("public interface Veterinarians {"));
@@ -142,8 +142,8 @@ public class GenerateTest {
     Assert.assertThat(sources.get(4), occurrencesOfString("@Edge()", 1));
     Assert.assertThat(sources.get(4), stringContainsInOrder(Arrays.asList(
       "void e_Search();",
-      "void v_SearchResult();",
-      "void v_Veterinarians();"
+      "boolean v_SearchResult();",
+      "boolean v_Veterinarians();"
     )));
   }
 
@@ -199,10 +199,10 @@ public class GenerateTest {
         "    void edge12();\n" +
         "\n" +
         "    @Vertex(value = \"Comment 1\")\n" +
-        "    void vertex1();\n" +
+        "    boolean vertex1();\n" +
         "\n" +
         "    @Vertex(value = \"Comment \\\"2\\\"\\\\\")\n" +
-        "    void vertex2();\n" +
+        "    boolean vertex2();\n" +
         "}\n"
     ));
   }
@@ -265,13 +265,13 @@ public class GenerateTest {
         "    void edge21();\n" +
         "\n" +
         "    @Vertex(value = \"Comment 1\")\n" +
-        "    void vertex1();\n" +
+        "    boolean vertex1();\n" +
         "\n" +
         "    @Vertex(value = \"Comment 3\")\n" +
-        "    void vertex3();\n" +
+        "    boolean vertex3();\n" +
         "\n" +
         "    @Vertex(value = \"Comment \\\"2\\\"\\\\\")\n" +
-        "    void vertex2();\n" +
+        "    boolean vertex2();\n" +
         "}\n"
     ));
   }

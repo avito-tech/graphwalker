@@ -26,9 +26,6 @@ package org.graphwalker.java.test;
  * #L%
  */
 
-import java.io.IOException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import org.graphwalker.core.condition.EdgeCoverage;
 import org.graphwalker.core.condition.VertexCoverage;
 import org.graphwalker.core.generator.CombinedPath;
@@ -37,6 +34,10 @@ import org.graphwalker.core.machine.ExecutionContext;
 import org.graphwalker.core.model.Edge;
 import org.junit.Assert;
 import org.junit.Test;
+
+import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 /**
  * @author Kristian Karl
@@ -48,13 +49,15 @@ public class CombinedGeneratorTest extends ExecutionContext implements CombinedG
   public int count = 0;
 
   @Override
-  public void v_1() {
+  public boolean v_1() {
     count++;
+    return true;
   }
 
   @Override
-  public void v_2() {
+  public boolean v_2() {
     count++;
+    return true;
   }
 
   @Override

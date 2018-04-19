@@ -28,6 +28,7 @@ package org.graphwalker.java.test;
 
 import org.graphwalker.java.annotation.Edge;
 import org.graphwalker.java.annotation.Model;
+import org.graphwalker.java.annotation.Vertex;
 
 /**
  * @author Nils Olsson
@@ -47,9 +48,9 @@ public interface CombinedGeneratorModel {
   @Edge()
   void e_4();
 
-  @Edge()
-  void v_1();
+  @Vertex()
+  boolean v_1();
 
-  @Edge()
-  void v_2();
+  @Vertex()
+  boolean v_2();
 }

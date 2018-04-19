@@ -26,10 +26,6 @@ package org.graphwalker.websocket;
  * #L%
  */
 
-import static org.hamcrest.CoreMatchers.is;
-
-import java.io.IOException;
-import java.nio.file.Paths;
 import org.graphwalker.core.machine.ExecutionContext;
 import org.graphwalker.java.annotation.BeforeExecution;
 import org.graphwalker.java.annotation.GraphWalker;
@@ -40,6 +36,11 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.nio.file.Paths;
+
+import static org.hamcrest.CoreMatchers.is;
 
 /**
  * Created by krikar on 10/10/14.
@@ -86,9 +87,10 @@ public class WebSocketServerTest extends ExecutionContext implements WebSocketFl
   }
 
   @Override
-  public void v_MachineRunning() {
+  public boolean v_MachineRunning() {
     WebSocket socket = server.getSockets().iterator().next();
     Assert.assertNotNull(server.getMachines().get(socket));
+    return true;
   }
 
   @Override
@@ -97,12 +99,13 @@ public class WebSocketServerTest extends ExecutionContext implements WebSocketFl
   }
 
   @Override
-  public void v_EmptyMachine() {
+  public boolean v_EmptyMachine() {
     Assert.assertThat("Before we connected, we should have no connections", numberOfConnections, is(0));
     Assert.assertThat("We should now haw 1 connection", server.getSockets().size(), is(1));
     Assert.assertThat(server.getMachines().size(), is(1));
     WebSocket socket = server.getSockets().iterator().next();
     Assert.assertNull(server.getMachines().get(socket));
+    return true;
   }
 
   @Override
