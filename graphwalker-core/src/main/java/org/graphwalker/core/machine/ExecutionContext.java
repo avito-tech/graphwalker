@@ -56,6 +56,8 @@ import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 import javax.script.SimpleScriptContext;
 
+import jdk.internal.dynalink.beans.StaticClass;
+
 import static org.graphwalker.core.common.Objects.isNotNull;
 import static org.graphwalker.core.model.Edge.RuntimeEdge;
 import static org.graphwalker.core.model.Model.RuntimeModel;
@@ -339,7 +341,7 @@ public abstract class ExecutionContext extends SimpleScriptContext implements Co
         if (isVariable(key, methods)) {
           if (global.get(key) instanceof Double) {
             keys.put(key, Long.toString(Math.round((double) global.get(key))));
-          } else {
+          } else if (!(global.get(key) instanceof StaticClass)) {
             keys.put(key, global.get(key).toString());
           }
         }
