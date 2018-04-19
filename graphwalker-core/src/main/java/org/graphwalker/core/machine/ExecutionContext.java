@@ -91,7 +91,9 @@ public abstract class ExecutionContext extends SimpleScriptContext implements Co
   private final Map<Requirement, RequirementStatus> requirements = new HashMap<>();
 
   public void wait(Callable<Boolean> condition) throws Exception {
-    condition.call();
+    if (!condition.call()) {
+      throw new VertexConditionException();
+    }
   }
 
   public ExecutionContext() {
