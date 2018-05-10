@@ -27,7 +27,9 @@ package org.graphwalker.core.model;
  */
 
 import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 
 /**
  * <h1>Path</h1>
@@ -46,5 +48,47 @@ public class Path<E extends Element> extends ArrayDeque<E> {
 
   public Path(Collection<E> collection) {
     super(collection);
+  }
+
+  @Override
+  public int hashCode() {
+    return new ArrayList<>(this).hashCode();
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    } else if (!(obj instanceof Path)) {
+      return false;
+    } else {
+      return new ArrayList<>(this).equals(new ArrayList<Path>((Path) obj));
+    }
+  }
+
+  @Override
+  public String toString() {
+    Iterator<E> it = this.iterator();
+    if (!it.hasNext()) {
+      return "[]";
+    } else {
+      StringBuilder sb = new StringBuilder();
+      sb.append('[');
+
+      while (true) {
+        E e = it.next();
+
+        boolean isVertex = e instanceof Vertex.RuntimeVertex;
+        if (isVertex) {
+          sb.append(e.toString());
+        }
+
+        if (!it.hasNext()) {
+          return sb.append(']').toString();
+        } else if (isVertex) {
+          sb.append('-').append('>');
+        }
+      }
+    }
   }
 }

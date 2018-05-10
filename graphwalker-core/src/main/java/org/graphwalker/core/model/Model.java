@@ -275,6 +275,20 @@ public class Model extends BuilderBase<Model, Model.RuntimeModel> {
       this.sharedStateCache = createSharedStateCache();
     }
 
+    private RuntimeModel(RuntimeModel model, List<RuntimeEdge> edges) {
+      super(model.getId(), model.getName(), model.getDescription(), model.getActions(), model.getRequirements(), model.getProperties());
+      this.vertices = model.getVertices();
+      this.edges = edges;
+      this.edgesByNameCache = createEdgesByNameCache();
+      this.verticesByNameCache = createVerticesByNameCache();
+      this.inEdgesByVertexCache = createInEdgesByVertexCache();
+      this.outEdgesByVertexCache = createOutEdgesByVertexCache();
+      this.elementsCache = createElementCache();
+      this.elementsByNameCache = createElementsByNameCache();
+      this.elementsByElementCache = createElementsByElementCache(elementsCache, outEdgesByVertexCache);
+      this.sharedStateCache = createSharedStateCache();
+    }
+
     /**
      * Gets the list of vertices of the model.
      *
@@ -359,6 +373,10 @@ public class Model extends BuilderBase<Model, Model.RuntimeModel> {
      */
     public List<RuntimeEdge> getEdges() {
       return edges;
+    }
+
+    public RuntimeModel withEdges(List<RuntimeEdge> edges) {
+      return new RuntimeModel(this, edges);
     }
 
     /**
