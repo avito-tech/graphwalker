@@ -36,7 +36,7 @@ public class YenTest {
   private static final Edge dz = new Edge().setName("dz").setId("dz").setSourceVertex(d).setTargetVertex(z).setWeight(1.);
   private static final Edge ef = new Edge().setName("ef").setId("ef").setSourceVertex(e).setTargetVertex(f).setWeight(4.);
   private static final Edge fz = new Edge().setName("fz").setId("fz").setSourceVertex(f).setTargetVertex(z).setWeight(4.);
-  private static final Edge gz = new Edge().setName("gz").setId("gz").setSourceVertex(g).setTargetVertex(z).setWeight(2.);
+  private static final Edge gz = new Edge().setName("gz").setId("gz").setSourceVertex(g).setTargetVertex(z).setWeight(3.);
 
   private static final Model.RuntimeModel model = new Model()
     .addEdge(ab)

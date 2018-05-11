@@ -17,7 +17,7 @@ import java.util.PriorityQueue;
 import static java.util.Objects.requireNonNull;
 import static org.graphwalker.core.model.Model.RuntimeModel;
 
-class Yen {
+public class Yen implements Algorithm {
 
   private final RuntimeModel model;
   private final List<RuntimeEdge> modifiableEdges;
