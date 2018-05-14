@@ -28,10 +28,12 @@ package org.graphwalker.core.model;
 
 import org.graphwalker.core.common.Objects;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import static java.math.BigDecimal.ROUND_HALF_DOWN;
 import static org.graphwalker.core.common.Objects.isNotNull;
 import static org.graphwalker.core.common.Objects.isNotNullOrEmpty;
 import static org.graphwalker.core.common.Objects.unmodifiableList;
@@ -339,6 +341,11 @@ public class Edge extends CachedBuilder<Edge, Edge.RuntimeEdge> {
              Objects.equals(guard, that.guard) &&
              Objects.equals(weight, that.weight) &&
              Objects.equals(dependency, that.dependency);
+    }
+
+    @Override
+    public String toString() {
+      return super.getId() + ":" + super.getName() + "[" + new BigDecimal(getWeight()).setScale(3, ROUND_HALF_DOWN) + "]";
     }
 
     /**

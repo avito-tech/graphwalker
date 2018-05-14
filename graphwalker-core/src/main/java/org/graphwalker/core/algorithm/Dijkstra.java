@@ -65,11 +65,7 @@ public class Dijkstra implements Algorithm {
     for (RuntimeEdge edge : edges) {
       if (edge.getSourceVertex().equals(node)
         && edge.getTargetVertex().equals(target)) {
-        Double weight = edge.getWeight();
-        if (weight < 0) {
-          throw new IllegalStateException("Dijkstra algorithm operates only on non-negative values");
-        }
-        return weight.intValue();
+        return 1;
       }
     }
     throw new RuntimeException("Should not happen");

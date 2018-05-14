@@ -51,13 +51,14 @@ import io.jenetics.SwapMutator;
 import io.jenetics.engine.Engine;
 import io.jenetics.engine.EvolutionResult;
 import io.jenetics.engine.EvolutionStatistics;
-import io.jenetics.engine.Limits;
 import io.jenetics.stat.DoubleMomentStatistics;
 import io.jenetics.util.ISeq;
 import io.jenetics.util.RandomRegistry;
 
+import static io.jenetics.engine.Limits.bySteadyFitness;
 import static java.lang.Integer.MAX_VALUE;
 import static java.lang.Math.max;
+import static java.lang.Math.pow;
 
 /**
  * Path with ability to pick n-th of possible to be generated.
@@ -100,13 +101,97 @@ public class ShortestNthPath extends PathGeneratorBase<ReachedStopCondition> {
   }
 
   /**
+   * Selects k paths with max weight.
+   *
+   * @implSpec {@code sum(weight * (n-i))}
+   */
+  public static class Smoke extends FitnessFunction {
+
+    public Smoke(int size) {
+      super(size);
+    }
+
+    @Override
+    public double value(List<Path<Element>> sizedPaths) {
+      double weight = 0.;
+      for (int i = 0; i < size; i++) {
+        weight += 1. * (size - i) * weight(sizedPaths.get(i));
+      }
+
+      return weight;
+    }
+  }
+
+  /**
+   * Selects k paths with all high probability edges and min distance.
+   *
+   * @implSpec {@code sum((hasNoEdgeWithWeightLessThan(threshold) ? 1 : 0) * (n-i) / distance)}
+   */
+  public static class HappyPath extends FitnessFunction {
+
+    private final double happyThreshold;
+
+    public HappyPath(int size, double happyThreshold) {
+      super(size);
+      if (happyThreshold > 1 || happyThreshold < 0) {
+        throw new IllegalArgumentException("Threshold should be in range [0; 1]");
+      }
+      this.happyThreshold = happyThreshold;
+    }
+
+    @Override
+    public double value(List<Path<Element>> sizedPaths) {
+      double value = 0.;
+      for (int i = 0; i < size; i++) {
+        if (hasNoEdgeWithWeightLessThan(sizedPaths.get(i), happyThreshold)) {
+          value += 1. * (size - i) / distance(sizedPaths.get(i)) * pow(weight(sizedPaths.get(i)), .25);
+        }
+      }
+
+      return value;
+    }
+  }
+
+  /**
+   * Selects k paths with max covered vertices.
+   *
+   * @implSpec {@code sum(vertices * (n-i) * weight)}
+   */
+  public static class Regression extends FitnessFunction {
+
+    public Regression(int size) {
+      super(size);
+    }
+
+    @Override
+    public double value(List<Path<Element>> sizedPaths) {
+      Set<RuntimeVertex> vertices = new HashSet<>();
+
+      for (Path<Element> path : sizedPaths) {
+        for (Element element : path) {
+          if (element instanceof RuntimeVertex) {
+            vertices.add((RuntimeVertex) element);
+          }
+        }
+      }
+
+      double pathsOrderingBonus = 0;
+      for (int i = 0; i < size; i++) {
+        pathsOrderingBonus += weight(sizedPaths.get(i)) * (size - i);
+      }
+
+      return vertices.size() * pathsOrderingBonus;
+    }
+  }
+
+  /**
    * Selects routes with most different edges.
    *
-   * @implSpec {@code sum((n-i)*length) / max(0.5, foundDuplicates)}
+   * @implSpec {@code sum((n-i)*weight) / max(0.5, foundDuplicates)}
    */
-  public static class HavingMostDifferentEdges extends FitnessFunction {
+  public static class Sanity extends FitnessFunction {
 
-    public HavingMostDifferentEdges(int size) {
+    public Sanity(int size) {
       super(size);
     }
 
@@ -125,13 +210,67 @@ public class ShortestNthPath extends PathGeneratorBase<ReachedStopCondition> {
         }
       }
 
-      int pathsOrderingBonus = 0;
+      double pathsOrderingBonus = 0;
       for (int i = 0; i < size; i++) {
-        pathsOrderingBonus += sizedPaths.get(i).size() * (size - i);
+        pathsOrderingBonus += weight(sizedPaths.get(i)) * (size - i);
       }
 
       return pathsOrderingBonus / max(0.5, duplicates);
     }
+  }
+
+  /**
+   * Selects k paths with lowest distance.
+   *
+   * @implSpec {@code sum((n-i)/distance)}
+   */
+  public static class ShortestPaths extends FitnessFunction {
+
+    public ShortestPaths(int size) {
+      super(size);
+    }
+
+    @Override
+    public double value(List<Path<Element>> sizedPaths) {
+
+      double pathsOrderingBonus = 0;
+      for (int i = 0; i < size; i++) {
+        pathsOrderingBonus += 1. * (size - i) / distance(sizedPaths.get(i)) * pow(weight(sizedPaths.get(i)), .25);
+      }
+
+      return pathsOrderingBonus;
+    }
+  }
+
+  private static double weight(Path<Element> path) {
+    double weight = 1.;
+    for (Element element : path) {
+      if (element instanceof RuntimeEdge) {
+        weight *= ((RuntimeEdge) element).getWeight();
+      }
+    }
+    return weight;
+  }
+
+  private static boolean hasNoEdgeWithWeightLessThan(Path<Element> path, double weight) {
+    for (Element element : path) {
+      if (element instanceof RuntimeEdge) {
+        if (((RuntimeEdge) element).getWeight() < weight) {
+          return false;
+        }
+      }
+    }
+    return true;
+  }
+
+  private static int distance(Path<Element> path) {
+    int distance = 0;
+    for (Element element : path) {
+      if (element instanceof RuntimeEdge) {
+        distance++;
+      }
+    }
+    return distance;
   }
 
   private final FitnessFunction ff;
@@ -201,12 +340,10 @@ public class ShortestNthPath extends PathGeneratorBase<ReachedStopCondition> {
       EvolutionStatistics.ofNumber();
 
     final EvolutionResult<EnumGene<Path<Element>>, Double> result = engine.stream()
-      .limit(Limits.bySteadyFitness(100))
+      .limit(bySteadyFitness(100))
       .limit(2500)
       .peek(statistics)
       .collect(EvolutionResult.toBestEvolutionResult());
-
-    // System.out.println(result.getBestPhenotype());
 
     paths.clear();
     paths.addAll(result.getBestPhenotype().getGenotype().getChromosome()

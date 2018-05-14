@@ -112,12 +112,12 @@ public class Yen implements Algorithm {
         double thisWeight = 0, otherWeight = 0;
         for (Element element : elements) {
           if (element instanceof RuntimeEdge) {
-            thisWeight += ((RuntimeEdge) element).getWeight();
+            thisWeight += 1.0;
           }
         }
         for (Element element : other) {
           if (element instanceof RuntimeEdge) {
-            otherWeight += ((RuntimeEdge) element).getWeight();
+            otherWeight += 1.0;
           }
         }
         return Double.compare(thisWeight, otherWeight);

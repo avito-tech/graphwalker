@@ -25,18 +25,18 @@ public class YenTest {
   private static final Vertex g = new Vertex().setName("g").setId("g");
   private static final Vertex z = new Vertex().setName("z").setId("z");
 
-  private static final Edge ab = new Edge().setName("ab").setId("ab").setSourceVertex(a).setTargetVertex(b).setWeight(1.);
-  private static final Edge ag = new Edge().setName("ag").setId("ag").setSourceVertex(a).setTargetVertex(g).setWeight(8.);
-  private static final Edge ae = new Edge().setName("ae").setId("ae").setSourceVertex(a).setTargetVertex(e).setWeight(1.);
-  private static final Edge bc = new Edge().setName("bc").setId("bc").setSourceVertex(b).setTargetVertex(c).setWeight(1.);
-  private static final Edge be = new Edge().setName("be").setId("be").setSourceVertex(b).setTargetVertex(e).setWeight(1.);
-  private static final Edge bf = new Edge().setName("bf").setId("bf").setSourceVertex(b).setTargetVertex(f).setWeight(2.);
-  private static final Edge cd = new Edge().setName("cd").setId("cd").setSourceVertex(c).setTargetVertex(d).setWeight(1.);
-  private static final Edge df = new Edge().setName("df").setId("df").setSourceVertex(d).setTargetVertex(f).setWeight(1.);
-  private static final Edge dz = new Edge().setName("dz").setId("dz").setSourceVertex(d).setTargetVertex(z).setWeight(1.);
-  private static final Edge ef = new Edge().setName("ef").setId("ef").setSourceVertex(e).setTargetVertex(f).setWeight(4.);
-  private static final Edge fz = new Edge().setName("fz").setId("fz").setSourceVertex(f).setTargetVertex(z).setWeight(4.);
-  private static final Edge gz = new Edge().setName("gz").setId("gz").setSourceVertex(g).setTargetVertex(z).setWeight(3.);
+  private static final Edge ab = new Edge().setName("ab").setId("ab").setSourceVertex(a).setTargetVertex(b);
+  private static final Edge ag = new Edge().setName("ag").setId("ag").setSourceVertex(a).setTargetVertex(g);
+  private static final Edge ae = new Edge().setName("ae").setId("ae").setSourceVertex(a).setTargetVertex(e);
+  private static final Edge bc = new Edge().setName("bc").setId("bc").setSourceVertex(b).setTargetVertex(c);
+  private static final Edge be = new Edge().setName("be").setId("be").setSourceVertex(b).setTargetVertex(e);
+  private static final Edge bf = new Edge().setName("bf").setId("bf").setSourceVertex(b).setTargetVertex(f);
+  private static final Edge cd = new Edge().setName("cd").setId("cd").setSourceVertex(c).setTargetVertex(d);
+  private static final Edge df = new Edge().setName("df").setId("df").setSourceVertex(d).setTargetVertex(f);
+  private static final Edge dz = new Edge().setName("dz").setId("dz").setSourceVertex(d).setTargetVertex(z);
+  private static final Edge ef = new Edge().setName("ef").setId("ef").setSourceVertex(e).setTargetVertex(f);
+  private static final Edge fz = new Edge().setName("fz").setId("fz").setSourceVertex(f).setTargetVertex(z);
+  private static final Edge gz = new Edge().setName("gz").setId("gz").setSourceVertex(g).setTargetVertex(z);
 
   private static final Model.RuntimeModel model = new Model()
     .addEdge(ab)
