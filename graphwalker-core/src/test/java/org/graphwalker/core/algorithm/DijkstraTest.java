@@ -29,17 +29,17 @@ public class DijkstraTest {
   private static final Model model = new Model().addEdge(e1).addEdge(e2).addEdge(e3).addEdge(e4).addEdge(e5);
 
   @Test
-  public void shortestDistance() throws Exception {
+  public void shortestDistance() {
     Dijkstra dijkstra = new Dijkstra(model.build());
     dijkstra.execute(v00.build());
 
     Path<Element> path = dijkstra.getPath(v31.build());
     System.out.println(path);
-    assertThat(path, hasSize(4 + 3));
+    assertThat(path, hasSize(3 + 2));
   }
 
   @Test
-  public void noDistance() throws Exception {
+  public void noDistance() {
     Dijkstra dijkstra = new Dijkstra(model.build());
     dijkstra.execute(v00.build());
     assertThat(dijkstra.getPath(v00.build()), is(equalTo(null)));
