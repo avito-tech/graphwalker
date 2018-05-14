@@ -1,5 +1,6 @@
 package org.graphwalker.core.algorithm;
 
+import org.graphwalker.core.common.Objects;
 import org.graphwalker.core.model.Edge.RuntimeEdge;
 import org.graphwalker.core.model.Element;
 import org.graphwalker.core.model.Model;
@@ -15,12 +16,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static java.util.Objects.requireNonNull;
+
 /**
  * @author Ivan Bonkin
  */
 public class Dijkstra implements Algorithm {
 
-  private final List<RuntimeVertex> nodes;
   private final List<RuntimeEdge> edges;
   private Set<RuntimeVertex> settledNodes;
   private Set<RuntimeVertex> unSettledNodes;
@@ -29,7 +31,6 @@ public class Dijkstra implements Algorithm {
 
   public Dijkstra(Model.RuntimeModel model) {
     // create a copy of the array so that we can operate on this array
-    this.nodes = new ArrayList<>(model.getVertices());
     this.edges = new ArrayList<>(model.getEdges());
   }
 
@@ -63,8 +64,8 @@ public class Dijkstra implements Algorithm {
 
   private int getDistance(RuntimeVertex node, RuntimeVertex target) {
     for (RuntimeEdge edge : edges) {
-      if (edge.getSourceVertex().equals(node)
-        && edge.getTargetVertex().equals(target)) {
+      if (Objects.equals(edge.getSourceVertex(), node)
+        && Objects.equals(edge.getTargetVertex(), target)) {
         return 1;
       }
     }
@@ -74,8 +75,7 @@ public class Dijkstra implements Algorithm {
   private List<RuntimeVertex> getNeighbors(RuntimeVertex node) {
     List<RuntimeVertex> neighbors = new ArrayList<RuntimeVertex>();
     for (RuntimeEdge edge : edges) {
-      if (edge.getSourceVertex().equals(node)
-        && !isSettled(edge.getTargetVertex())) {
+      if (Objects.equals(edge.getSourceVertex(), node) && !isSettled(edge.getTargetVertex())) {
         neighbors.add(edge.getTargetVertex());
       }
     }
@@ -97,6 +97,7 @@ public class Dijkstra implements Algorithm {
   }
 
   private boolean isSettled(RuntimeVertex vertex) {
+    requireNonNull(vertex);
     return settledNodes.contains(vertex);
   }
 
@@ -143,8 +144,8 @@ public class Dijkstra implements Algorithm {
       for (RuntimeEdge edge : this.edges) {
         RuntimeVertex source = list.get(i - 1);
         RuntimeVertex target = list.get(i);
-        if (edge.getSourceVertex().equals(source)
-          && edge.getTargetVertex().equals(target)) {
+        if (Objects.equals(edge.getSourceVertex(), source)
+          && Objects.equals(edge.getTargetVertex(), target)) {
           elements.add(edge);
           elements.add(target);
           continue a;

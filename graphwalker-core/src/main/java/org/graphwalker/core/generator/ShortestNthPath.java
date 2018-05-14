@@ -35,7 +35,6 @@ import org.graphwalker.core.model.Element;
 import org.graphwalker.core.model.Path;
 import org.graphwalker.core.model.Vertex.RuntimeVertex;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
@@ -58,6 +57,7 @@ import io.jenetics.util.RandomRegistry;
 import static io.jenetics.engine.Limits.bySteadyFitness;
 import static java.lang.Integer.MAX_VALUE;
 import static java.lang.Math.max;
+import static java.lang.Math.min;
 import static java.lang.Math.pow;
 
 /**
@@ -276,6 +276,7 @@ public class ShortestNthPath extends PathGeneratorBase<ReachedStopCondition> {
   private final FitnessFunction ff;
   private final UseTop useTop;
   private final int index;
+  private final Path<Element> cachedPath = new Path<>();
 
   public ShortestNthPath(ReachedStopCondition stopCondition, FitnessFunction ff, UseTop useTop, int index) {
     if (useTop.value < ff.size) {
@@ -294,26 +295,39 @@ public class ShortestNthPath extends PathGeneratorBase<ReachedStopCondition> {
   @Override
   public Context getNextStep() {
     Context context = super.getNextStep();
-    List<Element> elements = context.filter(context.getModel().getElements(context.getCurrentElement()));
-    if (elements.isEmpty()) {
-      throw new NoPathFoundException(context.getCurrentElement());
-    }
-    Element target = null;
-    int distance = MAX_VALUE;
-    FloydWarshall floydWarshall = context.getAlgorithm(FloydWarshall.class);
-    for (Element element : context.filter(getStopCondition().getTargetElements())) {
-      int edgeDistance = floydWarshall.getShortestDistance(context.getCurrentElement(), element);
-      if (edgeDistance < distance) {
-        distance = edgeDistance;
-        target = element;
+
+    if (cachedPath.isEmpty()) {
+      if (context.getCurrentElement() instanceof RuntimeVertex) {
+        List<Element> elements = context.filter(context.getModel().getElements(context.getCurrentElement()));
+        if (elements.isEmpty()) {
+          throw new NoPathFoundException(context.getCurrentElement());
+        }
+        Element target = null;
+        int distance = MAX_VALUE;
+        FloydWarshall floydWarshall = context.getAlgorithm(FloydWarshall.class);
+        for (Element element : context.filter(getStopCondition().getTargetElements())) {
+          int edgeDistance = floydWarshall.getShortestDistance(context.getCurrentElement(), element);
+          if (edgeDistance < distance) {
+            distance = edgeDistance;
+            target = element;
+          }
+        }
+
+        Yen yen = context.getAlgorithm(Yen.class);
+        List<Path<Element>> paths = yen.ksp((RuntimeVertex) context.getCurrentElement(), (RuntimeVertex) target, useTop.value);
+
+        if (paths.size() > 1) {
+          sort(paths, ff);
+        }
+
+        cachedPath.addAll(paths.get(min(paths.size() - 1, index)));
+        cachedPath.pollFirst();
+      } else {
+        return context.setCurrentElement(((RuntimeEdge) context.getCurrentElement()).getTargetVertex());
       }
     }
-    Yen yen = context.getAlgorithm(Yen.class);
-    List<Path<Element>> paths = yen.ksp((RuntimeVertex) context.getCurrentElement(), (RuntimeVertex) target, useTop.value);
 
-    sort(paths, ff);
-
-    return context.setCurrentElement(new ArrayList<>(paths.get(index)).get(1));
+    return context.setCurrentElement(cachedPath.pollFirst());
   }
 
   @Override
