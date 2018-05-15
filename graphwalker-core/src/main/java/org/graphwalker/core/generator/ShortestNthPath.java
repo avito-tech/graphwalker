@@ -30,16 +30,22 @@ import org.graphwalker.core.algorithm.FloydWarshall;
 import org.graphwalker.core.algorithm.Yen;
 import org.graphwalker.core.condition.ReachedStopCondition;
 import org.graphwalker.core.machine.Context;
+import org.graphwalker.core.model.Action;
 import org.graphwalker.core.model.Edge.RuntimeEdge;
 import org.graphwalker.core.model.Element;
 import org.graphwalker.core.model.Path;
 import org.graphwalker.core.model.Vertex.RuntimeVertex;
 
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 import java.util.function.Function;
+
+import javax.script.Bindings;
 
 import io.jenetics.EnumGene;
 import io.jenetics.Genotype;
@@ -53,12 +59,16 @@ import io.jenetics.engine.EvolutionStatistics;
 import io.jenetics.stat.DoubleMomentStatistics;
 import io.jenetics.util.ISeq;
 import io.jenetics.util.RandomRegistry;
+import jdk.nashorn.api.scripting.ScriptObjectMirror;
+import jdk.nashorn.api.scripting.ScriptUtils;
 
 import static io.jenetics.engine.Limits.bySteadyFitness;
 import static java.lang.Integer.MAX_VALUE;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
 import static java.lang.Math.pow;
+import static javax.script.ScriptContext.ENGINE_SCOPE;
+import static jdk.nashorn.api.scripting.NashornScriptEngine.NASHORN_GLOBAL;
 
 /**
  * Path with ability to pick n-th of possible to be generated.
@@ -144,7 +154,9 @@ public class ShortestNthPath extends PathGeneratorBase<ReachedStopCondition> {
       double value = 0.;
       for (int i = 0; i < size; i++) {
         if (hasNoEdgeWithWeightLessThan(sizedPaths.get(i), happyThreshold)) {
-          value += 1. * (size - i) / distance(sizedPaths.get(i)) * pow(weight(sizedPaths.get(i)), .25);
+          value += 1. * (size - i) / distance(sizedPaths.get(i)) * pow(weight(sizedPaths.get(i)), .5);
+        } else {
+          value += 1. * (size - i) / pow(distance(sizedPaths.get(i)), 2) * pow(weight(sizedPaths.get(i)), .5);
         }
       }
 
@@ -235,7 +247,7 @@ public class ShortestNthPath extends PathGeneratorBase<ReachedStopCondition> {
 
       double pathsOrderingBonus = 0;
       for (int i = 0; i < size; i++) {
-        pathsOrderingBonus += 1. * (size - i) / distance(sizedPaths.get(i)) * pow(weight(sizedPaths.get(i)), .25);
+        pathsOrderingBonus += 1. * (size - i) / distance(sizedPaths.get(i)) * pow(weight(sizedPaths.get(i)), .5);
       }
 
       return pathsOrderingBonus;
@@ -316,6 +328,41 @@ public class ShortestNthPath extends PathGeneratorBase<ReachedStopCondition> {
         Yen yen = context.getAlgorithm(Yen.class);
         List<Path<Element>> paths = yen.ksp((RuntimeVertex) context.getCurrentElement(), (RuntimeVertex) target, useTop.value);
 
+        Iterator<Path<Element>> iterator = paths.iterator();
+
+        Bindings engineBindings = (Bindings) context.getScriptEngine().getBindings(ENGINE_SCOPE).get(NASHORN_GLOBAL);
+        Map<String, Object> globalCopy = new HashMap<>();
+        for (Map.Entry<String, Object> e : engineBindings.entrySet()) {
+          globalCopy.put(e.getKey(), e.getValue());
+        }
+
+        next:
+        while (iterator.hasNext()) {
+          try {
+            Path<Element> path = iterator.next();
+
+            for (Element element : path) {
+
+              if (element instanceof RuntimeEdge) {
+                if (!context.isAvailable((RuntimeEdge) element)) {
+                  iterator.remove();
+                  continue next;
+                }
+              }
+
+              for (Action action : element.getActions()) {
+                context.execute(action);
+              }
+            }
+
+          } finally {
+            Bindings localBindings = context.getScriptEngine().createBindings();
+            localBindings.putAll(globalCopy);
+            ScriptObjectMirror mirror = ScriptUtils.wrap(localBindings);
+            context.getScriptEngine().getBindings(ENGINE_SCOPE).put(NASHORN_GLOBAL, mirror);
+          }
+        }
+
         if (paths.size() > 1) {
           sort(paths, ff);
         }
@@ -354,8 +401,8 @@ public class ShortestNthPath extends PathGeneratorBase<ReachedStopCondition> {
       EvolutionStatistics.ofNumber();
 
     final EvolutionResult<EnumGene<Path<Element>>, Double> result = engine.stream()
-      .limit(bySteadyFitness(100))
-      .limit(2500)
+      .limit(bySteadyFitness(250))
+      .limit(5000)
       .peek(statistics)
       .collect(EvolutionResult.toBestEvolutionResult());
 
