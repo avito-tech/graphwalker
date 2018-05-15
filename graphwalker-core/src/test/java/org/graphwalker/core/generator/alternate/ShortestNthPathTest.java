@@ -1,4 +1,4 @@
-package org.graphwalker.core.generator;
+package org.graphwalker.core.generator.alternate;
 
 /*
  * #%L
@@ -27,7 +27,6 @@ package org.graphwalker.core.generator;
  */
 
 import org.graphwalker.core.condition.ReachedVertex;
-import org.graphwalker.core.generator.ShortestNthPath.Sanity;
 import org.graphwalker.core.machine.Context;
 import org.graphwalker.core.machine.TestExecutionContext;
 import org.graphwalker.core.model.Action;
@@ -46,11 +45,7 @@ import java.util.Arrays;
 
 import javax.script.ScriptException;
 
-import static org.graphwalker.core.generator.ShortestNthPath.HappyPath;
-import static org.graphwalker.core.generator.ShortestNthPath.Regression;
-import static org.graphwalker.core.generator.ShortestNthPath.ShortestPaths;
-import static org.graphwalker.core.generator.ShortestNthPath.Smoke;
-import static org.graphwalker.core.generator.ShortestNthPath.useTop;
+import static org.graphwalker.core.generator.alternate.ShortestNthPath.useTop;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertThat;
 

@@ -1,4 +1,4 @@
-package org.graphwalker.core.generator;
+package org.graphwalker.core.generator.alternate;
 
 /*
  * #%L
@@ -29,6 +29,8 @@ package org.graphwalker.core.generator;
 import org.graphwalker.core.algorithm.FloydWarshall;
 import org.graphwalker.core.algorithm.Yen;
 import org.graphwalker.core.condition.ReachedStopCondition;
+import org.graphwalker.core.generator.NoPathFoundException;
+import org.graphwalker.core.generator.PathGeneratorBase;
 import org.graphwalker.core.machine.Context;
 import org.graphwalker.core.model.Action;
 import org.graphwalker.core.model.Edge.RuntimeEdge;
@@ -37,18 +39,14 @@ import org.graphwalker.core.model.Path;
 import org.graphwalker.core.model.Vertex.RuntimeVertex;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
-import java.util.Set;
-import java.util.function.Function;
 
 import javax.script.Bindings;
 
 import io.jenetics.EnumGene;
-import io.jenetics.Genotype;
 import io.jenetics.Optimize;
 import io.jenetics.PartiallyMatchedCrossover;
 import io.jenetics.PermutationChromosome;
@@ -64,8 +62,6 @@ import jdk.nashorn.api.scripting.ScriptUtils;
 
 import static io.jenetics.engine.Limits.bySteadyFitness;
 import static java.lang.Integer.MAX_VALUE;
-import static java.lang.Math.max;
-import static java.lang.Math.pow;
 import static javax.script.ScriptContext.ENGINE_SCOPE;
 import static jdk.nashorn.api.scripting.NashornScriptEngine.NASHORN_GLOBAL;
 
@@ -76,226 +72,8 @@ import static jdk.nashorn.api.scripting.NashornScriptEngine.NASHORN_GLOBAL;
  */
 public class ShortestNthPath extends PathGeneratorBase<ReachedStopCondition> {
 
-  public static class NoAlternatePathFoundException extends RuntimeException {
-
-    public NoAlternatePathFoundException(int index) {
-      super("No alternate paths were found with index \"" + index + "\"");
-    }
-  }
-
-  public static class NoAnyPathFoundException extends RuntimeException {
-
-    public NoAnyPathFoundException() {
-      super("No paths were found");
-    }
-  }
-
-  public static class UseTop {
-
-    private final int value;
-
-    private UseTop(int value) {
-      this.value = value;
-    }
-  }
-
   public static UseTop useTop(int value) {
     return new UseTop(value);
-  }
-
-  public abstract static class FitnessFunction implements Function<Genotype<EnumGene<Path<Element>>>, Double> {
-
-    protected final int size;
-
-    public abstract double value(List<Path<Element>> sizedPaths);
-
-    protected FitnessFunction(int size) {
-      this.size = size;
-    }
-
-    @Override
-    public Double apply(Genotype<EnumGene<Path<Element>>> genotype) {
-      return value(genotype.getChromosome().toSeq()
-        .subSeq(0, size)
-        .map(EnumGene::getAllele)
-        .asList());
-    }
-
-  }
-
-  /**
-   * Selects k paths with max weight.
-   *
-   * @implSpec {@code sum(weight * (n-i))}
-   */
-  public static class Smoke extends FitnessFunction {
-
-    public Smoke(int size) {
-      super(size);
-    }
-
-    @Override
-    public double value(List<Path<Element>> sizedPaths) {
-      double weight = 0.;
-      for (int i = 0; i < size; i++) {
-        weight += 1. * (size - i) * weight(sizedPaths.get(i));
-      }
-
-      return weight;
-    }
-  }
-
-  /**
-   * Selects k paths with all high probability edges and min distance.
-   *
-   * @implSpec {@code sum((hasNoEdgeWithWeightLessThan(threshold) ? 1 : 0) * (n-i) / distance)}
-   */
-  public static class HappyPath extends FitnessFunction {
-
-    private final double happyThreshold;
-
-    public HappyPath(int size, double happyThreshold) {
-      super(size);
-      if (happyThreshold > 1 || happyThreshold < 0) {
-        throw new IllegalArgumentException("Threshold should be in range [0; 1]");
-      }
-      this.happyThreshold = happyThreshold;
-    }
-
-    @Override
-    public double value(List<Path<Element>> sizedPaths) {
-      double value = 0.;
-      for (int i = 0; i < size; i++) {
-        if (hasNoEdgeWithWeightLessThan(sizedPaths.get(i), happyThreshold)) {
-          value += 1. * (size - i) / distance(sizedPaths.get(i)) * pow(weight(sizedPaths.get(i)), .5);
-        } else {
-          value += 1. * (size - i) / pow(distance(sizedPaths.get(i)), 2) * pow(weight(sizedPaths.get(i)), .5);
-        }
-      }
-
-      return value;
-    }
-  }
-
-  /**
-   * Selects k paths with max covered vertices.
-   *
-   * @implSpec {@code sum(vertices * (n-i) * weight)}
-   */
-  public static class Regression extends FitnessFunction {
-
-    public Regression(int size) {
-      super(size);
-    }
-
-    @Override
-    public double value(List<Path<Element>> sizedPaths) {
-      Set<RuntimeVertex> vertices = new HashSet<>();
-
-      for (Path<Element> path : sizedPaths) {
-        for (Element element : path) {
-          if (element instanceof RuntimeVertex) {
-            vertices.add((RuntimeVertex) element);
-          }
-        }
-      }
-
-      double pathsOrderingBonus = 0;
-      for (int i = 0; i < size; i++) {
-        pathsOrderingBonus += weight(sizedPaths.get(i)) * (size - i);
-      }
-
-      return vertices.size() * pathsOrderingBonus;
-    }
-  }
-
-  /**
-   * Selects routes with most different edges.
-   *
-   * @implSpec {@code sum((n-i)*weight) / max(0.5, foundDuplicates)}
-   */
-  public static class Sanity extends FitnessFunction {
-
-    public Sanity(int size) {
-      super(size);
-    }
-
-    @Override
-    public double value(List<Path<Element>> sizedPaths) {
-      Set<RuntimeEdge> edges = new HashSet<>();
-      int duplicates = 0;
-
-      for (Path<Element> path : sizedPaths) {
-        for (Element element : path) {
-          if (element instanceof RuntimeEdge) {
-            if (!edges.add((RuntimeEdge) element)) {
-              duplicates++;
-            }
-          }
-        }
-      }
-
-      double pathsOrderingBonus = 0;
-      for (int i = 0; i < size; i++) {
-        pathsOrderingBonus += weight(sizedPaths.get(i)) * (size - i) / pow(distance(sizedPaths.get(i)), 0.5);
-      }
-
-      return pathsOrderingBonus / max(0.5, duplicates);
-    }
-  }
-
-  /**
-   * Selects k paths with lowest distance.
-   *
-   * @implSpec {@code sum((n-i)/distance)}
-   */
-  public static class ShortestPaths extends FitnessFunction {
-
-    public ShortestPaths(int size) {
-      super(size);
-    }
-
-    @Override
-    public double value(List<Path<Element>> sizedPaths) {
-
-      double pathsOrderingBonus = 0;
-      for (int i = 0; i < size; i++) {
-        pathsOrderingBonus += 1. * (size - i) / distance(sizedPaths.get(i)) * pow(weight(sizedPaths.get(i)), .5);
-      }
-
-      return pathsOrderingBonus;
-    }
-  }
-
-  private static double weight(Path<Element> path) {
-    double weight = 1.;
-    for (Element element : path) {
-      if (element instanceof RuntimeEdge) {
-        weight *= ((RuntimeEdge) element).getWeight();
-      }
-    }
-    return weight;
-  }
-
-  private static boolean hasNoEdgeWithWeightLessThan(Path<Element> path, double weight) {
-    for (Element element : path) {
-      if (element instanceof RuntimeEdge) {
-        if (((RuntimeEdge) element).getWeight() < weight) {
-          return false;
-        }
-      }
-    }
-    return true;
-  }
-
-  private static int distance(Path<Element> path) {
-    int distance = 0;
-    for (Element element : path) {
-      if (element instanceof RuntimeEdge) {
-        distance++;
-      }
-    }
-    return distance;
   }
 
   private final FitnessFunction ff;
