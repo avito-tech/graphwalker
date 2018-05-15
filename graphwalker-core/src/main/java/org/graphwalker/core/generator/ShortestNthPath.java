@@ -65,7 +65,6 @@ import jdk.nashorn.api.scripting.ScriptUtils;
 import static io.jenetics.engine.Limits.bySteadyFitness;
 import static java.lang.Integer.MAX_VALUE;
 import static java.lang.Math.max;
-import static java.lang.Math.min;
 import static java.lang.Math.pow;
 import static javax.script.ScriptContext.ENGINE_SCOPE;
 import static jdk.nashorn.api.scripting.NashornScriptEngine.NASHORN_GLOBAL;
@@ -76,6 +75,20 @@ import static jdk.nashorn.api.scripting.NashornScriptEngine.NASHORN_GLOBAL;
  * @author Ivan Bonkin
  */
 public class ShortestNthPath extends PathGeneratorBase<ReachedStopCondition> {
+
+  public static class NoAlternatePathFoundException extends RuntimeException {
+
+    public NoAlternatePathFoundException(int index) {
+      super("No alternate paths were found with index \"" + index + "\"");
+    }
+  }
+
+  public static class NoAnyPathFoundException extends RuntimeException {
+
+    public NoAnyPathFoundException() {
+      super("No paths were found");
+    }
+  }
 
   public static class UseTop {
 
@@ -365,9 +378,16 @@ public class ShortestNthPath extends PathGeneratorBase<ReachedStopCondition> {
 
         if (paths.size() > 1) {
           sort(paths, ff);
+        } else if (paths.isEmpty()) {
+          throw new NoAnyPathFoundException();
         }
 
-        cachedPath.addAll(paths.get(min(paths.size() - 1, index)));
+        try {
+          cachedPath.addAll(paths.get(index));
+        } catch (IndexOutOfBoundsException ex) {
+          throw new NoAlternatePathFoundException(index);
+        }
+
         cachedPath.pollFirst();
       } else {
         return context.setCurrentElement(((RuntimeEdge) context.getCurrentElement()).getTargetVertex());
