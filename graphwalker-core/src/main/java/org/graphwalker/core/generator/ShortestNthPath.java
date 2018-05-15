@@ -224,7 +224,7 @@ public class ShortestNthPath extends PathGeneratorBase<ReachedStopCondition> {
 
       double pathsOrderingBonus = 0;
       for (int i = 0; i < size; i++) {
-        pathsOrderingBonus += weight(sizedPaths.get(i)) * (size - i);
+        pathsOrderingBonus += weight(sizedPaths.get(i)) * (size - i) / pow(distance(sizedPaths.get(i)), 0.5);
       }
 
       return pathsOrderingBonus / max(0.5, duplicates);
