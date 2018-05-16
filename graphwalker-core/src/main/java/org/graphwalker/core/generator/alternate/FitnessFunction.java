@@ -22,15 +22,16 @@ public abstract class FitnessFunction implements Function<Genotype<EnumGene<Path
     return weight;
   }
 
-  protected static boolean hasNoEdgeWithWeightLessThan(Path<Element> path, double weight) {
+  protected static int edgeWithWeightLessThan(Path<Element> path, double weight) {
+    int edges = 0;
     for (Element element : path) {
       if (element instanceof Edge.RuntimeEdge) {
         if (((Edge.RuntimeEdge) element).getWeight() < weight) {
-          return false;
+          edges++;
         }
       }
     }
-    return true;
+    return edges;
   }
 
   protected static int distance(Path<Element> path) {

@@ -183,7 +183,7 @@ public class ShortestNthPathTest {
     context.setCurrentElement(a.build());
     Element nextElement = context.getPathGenerator().getNextStep().getCurrentElement();
 
-    assertThat(nextElement, equalTo(new Edge[]{ab, ab, ae}[index].build()));
+    assertThat(nextElement, equalTo(new Edge[]{ab, ab, ag}[index].build()));
   }
 
   @Test

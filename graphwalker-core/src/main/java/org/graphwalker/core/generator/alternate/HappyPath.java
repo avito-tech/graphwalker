@@ -28,11 +28,10 @@ public class HappyPath extends FitnessFunction {
   public double value(List<Path<Element>> sizedPaths) {
     double value = 0.;
     for (int i = 0; i < size; i++) {
-      if (hasNoEdgeWithWeightLessThan(sizedPaths.get(i), happyThreshold)) {
-        value += 1. * (size - i) / distance(sizedPaths.get(i)) * pow(weight(sizedPaths.get(i)), .5);
-      } else {
-        value += 1. * (size - i) / pow(distance(sizedPaths.get(i)), 2) * pow(weight(sizedPaths.get(i)), .5);
-      }
+      value += 1. * (size - i)
+        / pow(4., edgeWithWeightLessThan(sizedPaths.get(i), happyThreshold))
+        / distance(sizedPaths.get(i))
+        * pow(weight(sizedPaths.get(i)), .1);
     }
 
     return value;
