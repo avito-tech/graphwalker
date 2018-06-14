@@ -88,14 +88,20 @@ public class WeightedRandomPath extends PathGeneratorBase<StopCondition> {
     for (Element element : elements) {
       if (element instanceof Edge.RuntimeEdge) {
         Edge.RuntimeEdge edge = (Edge.RuntimeEdge) element;
+        Double weight = edge.getWeight();
+        if (weight != null && weight > 0) {
+          sum += weight;
+        }
+      }
+    }
+
+    sum = Math.max(1.0, sum);
+
+    for (Element element : elements) {
+      if (element instanceof Edge.RuntimeEdge) {
+        Edge.RuntimeEdge edge = (Edge.RuntimeEdge) element;
         if (edge.getWeight() > 0) {
-          probabilities.put(edge, edge.getWeight());
-          sum += edge.getWeight();
-          if (sum > 1) {
-            throw new MachineException("The sum of all weights in edges from vertex: '"
-                                       + currentElement.getName()
-                                       + "', adds up to more than 1.00");
-          }
+          probabilities.put(edge, edge.getWeight() / sum);
         } else {
           numberOfZeros++;
           probabilities.put(edge, 0d);

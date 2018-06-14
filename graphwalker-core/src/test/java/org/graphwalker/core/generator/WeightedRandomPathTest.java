@@ -76,26 +76,6 @@ public class WeightedRandomPathTest {
   }
 
   @Test(expected = MachineException.class)
-  public void throwsWhenTotalWeightHigherThanOne() throws Exception {
-    Model invalidModel = new Model()
-        .addEdge(edge1)
-        .addEdge(edge2)
-        .addEdge(edge3)
-        .addEdge(edge4)
-        .addEdge(edge5)
-        .addEdge(edge6)
-        .addEdge(back2SourceEdge);
-    PathGenerator generator = new WeightedRandomPath(new EdgeCoverage(100));
-    Context context = new TestExecutionContext(invalidModel, generator).setCurrentElement(source.build());
-    SimpleMachine machine = new SimpleMachine(context);
-
-    while (machine.hasNextStep()) {
-      LOG.debug(machine.getCurrentContext().getCurrentElement().getName());
-      machine.getNextStep();
-    }
-  }
-
-  @Test(expected = MachineException.class)
   public void throwsWhenModelEmpty() throws Exception {
     Model emptyModel = new Model();
     PathGenerator generator = new WeightedRandomPath(new EdgeCoverage(100));

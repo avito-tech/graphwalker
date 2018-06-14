@@ -58,7 +58,7 @@ public class Edge extends CachedBuilder<Edge, Edge.RuntimeEdge> {
   private Vertex targetVertex;
   private Guard guard;
   private List<Action> actions = new ArrayList<>();
-  private Double weight = 0.0;
+  private Double weight = 1.0;
   private Integer dependency = 0;
 
   /**

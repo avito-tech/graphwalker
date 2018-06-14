@@ -308,7 +308,7 @@ public final class YEdContextFactory implements ContextFactory {
 
   private static void appendEdge(StringBuilder str, String id, String srcId, String destId,
                                  String name, Guard guard, List<Action> actions, int dependency,
-                                 String description, Color col) {
+                                 String description, Double weight, Color col) {
     String newLine = System.lineSeparator();
     String colorCode = format("#%02x%02x%02x", col.getRed(), col.getGreen(), col.getBlue());
 
@@ -316,10 +316,10 @@ public final class YEdContextFactory implements ContextFactory {
     str.append("      <data key=\"d1\" >").append(newLine);
     str.append("        <y:PolyLineEdge >").append(newLine);
     str.append("          <y:Path sx=\"-23.75\" sy=\"15.0\" tx=\"-23.75\" ty=\"-15.0\">").append(newLine);
-    str.append("            <y:Point x=\"273.3125\" y=\"95.0\"/>").append(newLine);
-    str.append("            <y:Point x=\"209.5625\" y=\"95.0\"/>").append(newLine);
-    str.append("            <y:Point x=\"209.5625\" y=\"143.701171875\"/>").append(newLine);
-    str.append("            <y:Point x=\"265.625\" y=\"143.701171875\"/>").append(newLine);
+    str.append("            <y:Point x=\"273.0\" y=\"95.0\"/>").append(newLine);
+    str.append("            <y:Point x=\"209.0\" y=\"95.0\"/>").append(newLine);
+    str.append("            <y:Point x=\"209.0\" y=\"143.7\"/>").append(newLine);
+    str.append("            <y:Point x=\"265.0\" y=\"143.7\"/>").append(newLine);
     str.append("          </y:Path>").append(newLine);
     str.append("          <y:LineStyle type=\"line\" width=\"1.0\" color=\"" + colorCode + "\" />").append(newLine);
     str.append("          <y:Arrows source=\"none\" target=\"standard\"/>").append(newLine);
@@ -346,20 +346,24 @@ public final class YEdContextFactory implements ContextFactory {
         label += "\ndependency=" + dependency;
       }
 
+      if (weight != null && weight < 1.0) {
+        label += "\nweight=" + weight;
+      }
+
       label = label.replaceAll("&", "&amp;");
       label = label.replaceAll("<", "&lt;");
       label = label.replaceAll(">", "&gt;");
       label = label.replaceAll("'", "&apos;");
       label = label.replaceAll("\"", "&quot;");
 
-      str.append("          <y:EdgeLabel x=\"-148.25\" y=\"30.000000000000014\" width=\"169.0\" height=\"18.701171875\" "
+      str.append("          <y:EdgeLabel x=\"-148.25\" y=\"30.0\" width=\"169.0\" height=\"18.0\" "
         + "visible=\"true\" alignment=\"center\" fontFamily=\"Dialog\" fontSize=\"12\" "
         + "fontStyle=\"plain\" textColor=\"" + colorCode + "\" modelName=\"free\" modelPosition=\"anywhere\" "
         + "preferredPlacement=\"on_edge\" distance=\"2.0\" ratio=\"0.5\">" + label);
       str.append("</y:EdgeLabel>").append(newLine);
     }
 
-    str.append("          <y:BendStyle smoothed=\"false\"/>").append(newLine);
+    str.append("          <y:BendStyle smoothed=\"true\"/>").append(newLine);
     str.append("        </y:PolyLineEdge>").append(newLine);
     str.append("      </data>").append(newLine);
     str.append("    </edge>").append(newLine);
@@ -468,6 +472,7 @@ public final class YEdContextFactory implements ContextFactory {
           context.getNextElement().getActions(),
           ((RuntimeEdge) context.getNextElement()).getDependency(),
           context.getNextElement().getDescription(),
+          ((RuntimeEdge) context.getNextElement()).getWeight(),
           BLACK);
       }
 
@@ -511,6 +516,7 @@ public final class YEdContextFactory implements ContextFactory {
           e.hasActions() ? e.getActions() : emptyList(),
           e.getDependency(),
           e.getDescription(),
+          e.getWeight(),
           color);
       }
 
@@ -834,8 +840,6 @@ public final class YEdContextFactory implements ContextFactory {
                 }
                 if (null != field.weight() && null != field.weight().Value()) {
                   edge.setWeight(Double.parseDouble(field.weight().Value().getText()));
-                } else {
-                  edge.setWeight(1.0);
                 }
                 if (null != field.dependency() && null != field.dependency().Value()) {
                   edge.setDependency(parseInt((field.dependency().Value().getText())));
