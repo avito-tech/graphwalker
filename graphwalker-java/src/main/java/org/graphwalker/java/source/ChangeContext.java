@@ -26,7 +26,9 @@ package org.graphwalker.java.source;
  * #L%
  */
 
+import org.graphwalker.core.model.Edge.RuntimeEdge;
 import org.graphwalker.core.model.Element;
+import org.graphwalker.core.model.Vertex.RuntimeVertex;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -41,11 +43,13 @@ import static org.graphwalker.core.model.Model.RuntimeModel;
 public final class ChangeContext {
 
   private final RuntimeModel model;
+  private final String className;
   private final Set<String> methodNames;
   private final Set<MethodDeclaration> methodDeclarations = new HashSet<>();
 
-  public ChangeContext(RuntimeModel model) {
+  public ChangeContext(RuntimeModel model, String className) {
     this.model = model;
+    this.className = className;
     methodNames = extractMethodNames(model);
   }
 
@@ -68,12 +72,33 @@ public final class ChangeContext {
   private Set<String> extractMethodNames(RuntimeModel model) {
     Set<String> methodNames = new HashSet<>();
     for (Element element : model.getElements()) {
-      // TODO: do we need to ignore Start!?
-      if (element.hasName() && !"Start".equalsIgnoreCase(element.getName())) {
-        methodNames.add(element.getName());
+      if (element instanceof RuntimeVertex) {
+        if (element.hasName() && !"Start".equalsIgnoreCase(element.getName())) {
+          if (isMatch(className, ((RuntimeVertex) element), model)) {
+            methodNames.add(element.getName());
+          }
+        }
+      } else if (element instanceof RuntimeEdge) {
+        if (isMatch(className, ((RuntimeEdge) element).getSourceVertex(), model)
+          || isMatch(className, ((RuntimeEdge) element).getTargetVertex(), model)) {
+          methodNames.add(element.getName());
+        }
+      } else {
+        throw new IllegalStateException("Class " + element.getClass().getSimpleName() + " was not recognized");
       }
     }
     return methodNames;
+  }
+
+  private static boolean isMatch(String className, RuntimeVertex vertex, RuntimeModel model) {
+    if (vertex == null) {
+      return false;
+    }
+    String groupName = vertex.getGroupName();
+    if (groupName != null) {
+      return className.equals(groupName);
+    }
+    return className.equals(model.getName());
   }
 
 }

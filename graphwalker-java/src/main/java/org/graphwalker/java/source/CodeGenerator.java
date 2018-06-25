@@ -27,6 +27,7 @@ package org.graphwalker.java.source;
  */
 
 import org.apache.commons.collections4.set.ListOrderedSet;
+import org.apache.commons.io.FilenameUtils;
 import org.graphwalker.core.machine.Context;
 import org.graphwalker.core.model.Edge.RuntimeEdge;
 import org.graphwalker.core.model.Vertex.RuntimeVertex;
@@ -172,9 +173,10 @@ public final class CodeGenerator extends VoidVisitorAdapter<ChangeContext> {
         try {
           ContextFactory factory = ContextFactoryScanner.get(entry);
           Context context = factory.create(linkedFiles);
-
-          SourceFile sourceFile = new SourceFile(context.getModel().getName(), entry, input, output);
-          write(context, sourceFile);
+          for (Path linkedFile : linkedFiles) {
+            SourceFile sourceFile = new SourceFile(toClassName(linkedFile), linkedFile, input, output);
+            writeSource(context, sourceFile);
+          }
           factory.write(singletonList(context), dir.resolve("link"));
           cache.add(entry, new CacheEntry(entry.toFile().lastModified(), true));
         } catch (Throwable t) {
@@ -193,7 +195,7 @@ public final class CodeGenerator extends VoidVisitorAdapter<ChangeContext> {
           List<Context> contexts = factory.create(file);
           for (Context context : contexts) {
             SourceFile sourceFile = new SourceFile(context.getModel().getName(), file, input, output);
-            write(context, sourceFile);
+            writeSource(context, sourceFile);
             cache.add(file, new CacheEntry(file.toFile().lastModified(), true));
           }
         } catch (Throwable t) {
@@ -211,6 +213,10 @@ public final class CodeGenerator extends VoidVisitorAdapter<ChangeContext> {
     }
   }
 
+  private static String toClassName(Path linkedFile) {
+    return FilenameUtils.removeExtension(linkedFile.getFileName().toString());
+  }
+
   private static boolean isModified(Path file, Cache<Path, CacheEntry> cache) throws IOException {
     return !Files.getLastModifiedTime(file).equals(cache.get(file).getLastModifiedTime());
   }
@@ -226,7 +232,7 @@ public final class CodeGenerator extends VoidVisitorAdapter<ChangeContext> {
     }
   }
 
-  private static void write(Context context, SourceFile file) throws IOException {
+  private static void writeSource(Context context, SourceFile file) throws IOException {
     try {
       RuntimeModel model = context.getModel();
       String source = generator.generate(file, model);
@@ -261,7 +267,7 @@ public final class CodeGenerator extends VoidVisitorAdapter<ChangeContext> {
 
   public String generate(SourceFile sourceFile, RuntimeModel model) {
     CompilationUnit compilationUnit = getCompilationUnit(sourceFile);
-    ChangeContext changeContext = new ChangeContext(model);
+    ChangeContext changeContext = new ChangeContext(model, sourceFile.getClassName());
     visit(compilationUnit, changeContext);
     removeMethods(compilationUnit, changeContext);
     generateMethods(compilationUnit, changeContext);
