@@ -27,7 +27,6 @@ package org.graphwalker.java.source;
  */
 
 import org.apache.commons.collections4.set.ListOrderedSet;
-import org.apache.commons.io.FilenameUtils;
 import org.graphwalker.core.machine.Context;
 import org.graphwalker.core.model.Edge.RuntimeEdge;
 import org.graphwalker.core.model.Vertex.RuntimeVertex;
@@ -174,7 +173,7 @@ public final class CodeGenerator extends VoidVisitorAdapter<ChangeContext> {
           ContextFactory factory = ContextFactoryScanner.get(entry);
           Context context = factory.create(linkedFiles);
           for (Path linkedFile : linkedFiles) {
-            SourceFile sourceFile = new SourceFile(toClassName(linkedFile), linkedFile, input, output);
+            SourceFile sourceFile = new SourceFile(new ClassName(linkedFile), linkedFile, input, output);
             writeSource(context, sourceFile);
           }
           factory.write(singletonList(context), dir.resolve("link"));
@@ -194,7 +193,7 @@ public final class CodeGenerator extends VoidVisitorAdapter<ChangeContext> {
           ContextFactory factory = ContextFactoryScanner.get(file);
           List<Context> contexts = factory.create(file);
           for (Context context : contexts) {
-            SourceFile sourceFile = new SourceFile(context.getModel().getName(), file, input, output);
+            SourceFile sourceFile = new SourceFile(new ClassName(context.getModel().getName()), file, input, output);
             writeSource(context, sourceFile);
             cache.add(file, new CacheEntry(file.toFile().lastModified(), true));
           }
@@ -211,10 +210,6 @@ public final class CodeGenerator extends VoidVisitorAdapter<ChangeContext> {
       cache.add(file, new CacheEntry(file.toFile().lastModified(), false));
       return CONTINUE;
     }
-  }
-
-  private static String toClassName(Path linkedFile) {
-    return FilenameUtils.removeExtension(linkedFile.getFileName().toString());
   }
 
   private static boolean isModified(Path file, Cache<Path, CacheEntry> cache) throws IOException {
@@ -258,7 +253,7 @@ public final class CodeGenerator extends VoidVisitorAdapter<ChangeContext> {
     List<String> sources = new ArrayList<>();
     for (Context context : contexts) {
       String sourceStr = "";
-      SourceFile sourceFile = new SourceFile(context.getModel().getName(), path);
+      SourceFile sourceFile = new SourceFile(new ClassName(context.getModel().getName()), path);
       sourceStr += generate(sourceFile, context.getModel());
       sources.add(sourceStr);
     }
@@ -364,7 +359,7 @@ public final class CodeGenerator extends VoidVisitorAdapter<ChangeContext> {
   }
 
   private ClassOrInterfaceDeclaration getInterfaceName(SourceFile sourceFile) {
-    ClassOrInterfaceDeclaration classOrInterfaceDeclaration = new ClassOrInterfaceDeclaration(ModifierSet.PUBLIC, false, sourceFile.getClassName());
+    ClassOrInterfaceDeclaration classOrInterfaceDeclaration = new ClassOrInterfaceDeclaration(ModifierSet.PUBLIC, false, sourceFile.getClassName().toString());
     List<MemberValuePair> memberValuePairs = new ArrayList<>();
     memberValuePairs.add(new MemberValuePair("file", new StringLiteralExpr(sourceFile.getRelativePath().toString().replace(File.separator, "/"))));
     List<AnnotationExpr> annotations = new ArrayList<>();

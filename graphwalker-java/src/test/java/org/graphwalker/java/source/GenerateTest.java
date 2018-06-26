@@ -222,8 +222,8 @@ public class GenerateTest {
     jsonString = jsonString.replaceAll("\\\\+", "/");
 
     jsonString = jsonString.replaceFirst(
-      "\\{.*/CodeGenerator/linked_graphml/org/graphwalker/java/graphml/MyModelPart(\\d)\\.graphml",
-      "{\"CodeGenerator/linked_graphml/org/graphwalker/java/graphml/MyModelPart$1.graphml"
+      "\\{.*/CodeGenerator/linked_graphml/org/graphwalker/java/graphml/MyModel Part(\\d)\\.graphml",
+      "{\"CodeGenerator/linked_graphml/org/graphwalker/java/graphml/MyModel Part$1.graphml"
     );
     jsonString = jsonString.replaceFirst(
       "\"modified\":[0-9]+,",
@@ -231,10 +231,10 @@ public class GenerateTest {
     );
     JSONObject data = new JSONObject(jsonString);
 
-    String expected = "{\"CodeGenerator/linked_graphml/org/graphwalker/java/graphml/MyModelPart1.graphml\":{modified:123123123,generated:true}}";
+    String expected = "{\"CodeGenerator/linked_graphml/org/graphwalker/java/graphml/MyModel Part1.graphml\":{modified:123123123,generated:true}}";
     JSONAssert.assertEquals(expected, data, false);
 
-    File sourceFile = new File(tmpFolder + "/org/graphwalker/java/graphml/MyModelPart1.java");
+    File sourceFile = new File(tmpFolder + "/org/graphwalker/java/graphml/MyModel_Part1.java");
     Assert.assertThat(sourceFile.exists(), is(true));
 
     String content = readFile(sourceFile.toPath(), UTF_8);
@@ -246,8 +246,8 @@ public class GenerateTest {
         "import org.graphwalker.java.annotation.Vertex;\n" +
         "import org.graphwalker.java.annotation.Edge;\n" +
         "\n" +
-        "@Model(file = \"org/graphwalker/java/graphml/MyModelPart1.graphml\")\n" +
-        "public interface MyModelPart1 {\n" +
+        "@Model(file = \"org/graphwalker/java/graphml/MyModel Part1.graphml\")\n" +
+        "public interface MyModel_Part1 {\n" +
         "\n" +
         "    @Edge(value = \"\")\n" +
         "    void startEdge();\n" +
@@ -263,7 +263,7 @@ public class GenerateTest {
         "}\n"
     ));
 
-    sourceFile = new File(tmpFolder + "/org/graphwalker/java/graphml/MyModelPart2.java");
+    sourceFile = new File(tmpFolder + "/org/graphwalker/java/graphml/MyModel_Part2.java");
     Assert.assertThat(sourceFile.exists(), is(true));
 
     content = readFile(sourceFile.toPath(), UTF_8);
@@ -275,8 +275,8 @@ public class GenerateTest {
         "import org.graphwalker.java.annotation.Vertex;\n" +
         "import org.graphwalker.java.annotation.Edge;\n" +
         "\n" +
-        "@Model(file = \"org/graphwalker/java/graphml/MyModelPart2.graphml\")\n" +
-        "public interface MyModelPart2 {\n" +
+        "@Model(file = \"org/graphwalker/java/graphml/MyModel Part2.graphml\")\n" +
+        "public interface MyModel_Part2 {\n" +
         "\n" +
         "    @Edge(value = \"\")\n" +
         "    void edge23();\n" +

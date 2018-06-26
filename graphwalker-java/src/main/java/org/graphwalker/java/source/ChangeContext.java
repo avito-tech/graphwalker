@@ -43,11 +43,11 @@ import static org.graphwalker.core.model.Model.RuntimeModel;
 public final class ChangeContext {
 
   private final RuntimeModel model;
-  private final String className;
+  private final ClassName className;
   private final Set<String> methodNames;
   private final Set<MethodDeclaration> methodDeclarations = new HashSet<>();
 
-  public ChangeContext(RuntimeModel model, String className) {
+  public ChangeContext(RuntimeModel model, ClassName className) {
     this.model = model;
     this.className = className;
     methodNames = extractMethodNames(model);
@@ -90,15 +90,15 @@ public final class ChangeContext {
     return methodNames;
   }
 
-  private static boolean isMatch(String className, RuntimeVertex vertex, RuntimeModel model) {
+  private static boolean isMatch(ClassName className, RuntimeVertex vertex, RuntimeModel model) {
     if (vertex == null) {
       return false;
     }
     String groupName = vertex.getGroupName();
     if (groupName != null) {
-      return className.equals(groupName);
+      return className.equals(new ClassName(groupName));
     }
-    return className.equals(model.getName());
+    return className.equals(new ClassName(model.getName()));
   }
 
 }

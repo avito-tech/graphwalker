@@ -42,18 +42,18 @@ public final class SourceFile {
   private final Path relativePath;
   private final Path outputPath;
   private final String packageName;
-  private final String className;
+  private final ClassName className;
 
-  public SourceFile(String modelName, Path path) {
+  public SourceFile(ClassName modelName, Path path) {
     this(modelName, path, DEFAULT_PATH, DEFAULT_PATH);
   }
 
   public SourceFile(Path inputPath, Path basePath, Path outputPath) {
-    this(getModelName(inputPath), inputPath, basePath, outputPath);
+    this(new ClassName(inputPath), inputPath, basePath, outputPath);
   }
 
-  public SourceFile(String modelName, Path inputPath, Path basePath, Path outputPath) {
-    this.className = modelName;
+  public SourceFile(ClassName className, Path inputPath, Path basePath, Path outputPath) {
+    this.className = className;
     this.inputPath = inputPath;
     this.relativePath = basePath.relativize(inputPath);
     if (null != this.relativePath.getParent()) {
@@ -94,7 +94,7 @@ public final class SourceFile {
     return filename.substring(0, index);
   }
 
-  public String getClassName() {
+  public ClassName getClassName() {
     return className;
   }
 }
