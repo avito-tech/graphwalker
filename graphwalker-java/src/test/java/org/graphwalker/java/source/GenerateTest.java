@@ -252,9 +252,6 @@ public class GenerateTest {
         "    @Edge(value = \"\")\n" +
         "    void startEdge();\n" +
         "\n" +
-        "    @Edge(value = \"\")\n" +
-        "    void edge12();\n" +
-        "\n" +
         "    @Edge(value = \"comment\")\n" +
         "    void edge21();\n" +
         "\n" +
@@ -286,9 +283,6 @@ public class GenerateTest {
         "\n" +
         "    @Edge(value = \"\")\n" +
         "    void edge32();\n" +
-        "\n" +
-        "    @Edge(value = \"comment\")\n" +
-        "    void edge21();\n" +
         "\n" +
         "    @Vertex(value = \"Comment 3\")\n" +
         "    boolean vertex3();\n" +

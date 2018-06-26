@@ -79,8 +79,7 @@ public final class ChangeContext {
           }
         }
       } else if (element instanceof RuntimeEdge) {
-        if (isMatch(className, ((RuntimeEdge) element).getSourceVertex(), model)
-          || isMatch(className, ((RuntimeEdge) element).getTargetVertex(), model)) {
+        if (isMatch(className, ((RuntimeEdge) element).getTargetVertex(), model)) {
           methodNames.add(element.getName());
         }
       } else {
