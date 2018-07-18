@@ -106,7 +106,7 @@ public abstract class BuilderBase<B, T> implements Builder<T> {
 
   @SuppressWarnings("unchecked")
   public B setOutdegrees(boolean isPresent) {
-    this.outdegrees = outdegrees;
+    this.outdegrees = isPresent;
     return (B) this;
   }
 
