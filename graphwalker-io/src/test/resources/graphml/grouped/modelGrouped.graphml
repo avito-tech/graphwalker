@@ -1,0 +1,337 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<graphml xmlns="http://graphml.graphdrawing.org/xmlns"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:y="http://www.yworks.com/xml/graphml"
+  xsi:schemaLocation="http://graphml.graphdrawing.org/xmlns http://www.yworks.com/xml/schema/graphml/1.1/ygraphml.xsd">
+  <!--Created by yEd 3.17.2-->
+  <key for="port" id="d0" yfiles.type="portgraphics" />
+  <key for="port" id="d1" yfiles.type="portgeometry" />
+  <key for="port" id="d2" yfiles.type="portuserdata" />
+  <key attr.name="url" attr.type="string" for="node" id="d3" />
+  <key attr.name="description" attr.type="string" for="node" id="d4" />
+  <key for="node" id="d5" yfiles.type="nodegraphics" />
+  <key for="graphml" id="d6" yfiles.type="resources" />
+  <key attr.name="url" attr.type="string" for="edge" id="d7" />
+  <key attr.name="description" attr.type="string" for="edge" id="d8" />
+  <key for="edge" id="d9" yfiles.type="edgegraphics" />
+  <graph edgedefault="directed" id="G">
+    <node id="n0" yfiles.foldertype="group">
+      <data key="d5">
+        <y:ProxyAutoBoundsNode>
+          <y:Realizers active="0">
+            <y:GroupNode>
+              <y:Geometry height="356.75390625" width="414.07301587301583" x="90.62023809523811"
+                y="558.3046875" />
+              <y:Fill color="#F2F0D8" transparent="false" />
+              <y:BorderStyle color="#000000" type="line" width="1.0" />
+              <y:NodeLabel alignment="right" autoSizePolicy="node_width" backgroundColor="#404040"
+                borderDistance="0.0" fontFamily="Dialog" fontSize="16" fontStyle="plain"
+                hasLineColor="false" height="25.1015625" horizontalTextPosition="center"
+                iconTextGap="4" modelName="internal" modelPosition="t" textColor="#FFFFFF"
+                verticalTextPosition="bottom" visible="true" width="414.07301587301583" x="0.0"
+                y="0.0">profile
+              </y:NodeLabel>
+              <y:Shape type="rectangle" />
+              <y:DropShadow color="#D2D2D2" offsetX="4" offsetY="4" />
+              <y:State closed="false" closedHeight="50.0" closedWidth="50.0"
+                innerGraphDisplayEnabled="false" />
+              <y:Insets bottom="15" bottomF="15.0" left="15" leftF="15.0" right="15" rightF="15.0"
+                top="15" topF="15.0" />
+              <y:BorderInsets bottom="0" bottomF="0.0" left="1" leftF="1.0" right="36"
+                rightF="35.78650793650792" top="0" topF="0.0" />
+            </y:GroupNode>
+            <y:GroupNode>
+              <y:Geometry height="50.0" width="50.0" x="0.0" y="60.0" />
+              <y:Fill color="#F5F5F5" transparent="false" />
+              <y:BorderStyle color="#000000" type="dashed" width="1.0" />
+              <y:NodeLabel alignment="right" autoSizePolicy="node_width" backgroundColor="#EBEBEB"
+                borderDistance="0.0" fontFamily="Dialog" fontSize="15" fontStyle="plain"
+                hasLineColor="false" height="23.78271484375" horizontalTextPosition="center"
+                iconTextGap="4" modelName="internal" modelPosition="t" textColor="#000000"
+                verticalTextPosition="bottom" visible="true" width="50.0" x="0.0" y="0.0">profile
+              </y:NodeLabel>
+              <y:Shape type="roundrectangle" />
+              <y:State closed="true" closedHeight="50.0" closedWidth="50.0"
+                innerGraphDisplayEnabled="false" />
+              <y:Insets bottom="5" bottomF="5.0" left="5" leftF="5.0" right="5" rightF="5.0" top="5"
+                topF="5.0" />
+              <y:BorderInsets bottom="0" bottomF="0.0" left="0" leftF="0.0" right="0" rightF="0.0"
+                top="0" topF="0.0" />
+            </y:GroupNode>
+          </y:Realizers>
+        </y:ProxyAutoBoundsNode>
+      </data>
+      <graph edgedefault="directed" id="n0:">
+        <node id="n0::n0">
+          <data key="d5">
+            <y:ShapeNode>
+              <y:Geometry height="60.0" width="250.0" x="106.62023809523811" y="598.40625" />
+              <y:Fill color="#FFFF00" transparent="false" />
+              <y:BorderStyle color="#000000" type="line" width="1.0" />
+              <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog"
+                fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false"
+                height="19.826171875" horizontalTextPosition="center" iconTextGap="4"
+                modelName="internal" modelPosition="c" textColor="#000000"
+                verticalTextPosition="bottom" visible="true" width="54.625" x="97.6875"
+                y="20.0869140625">v__profile
+              </y:NodeLabel>
+              <y:Shape type="rectangle" />
+            </y:ShapeNode>
+          </data>
+        </node>
+        <node id="n0::n1">
+          <data key="d5">
+            <y:ShapeNode>
+              <y:Geometry height="60.0" width="250.0" x="203.90674603174602" y="840.05859375" />
+              <y:Fill color="#FFFF00" transparent="false" />
+              <y:BorderStyle color="#000000" type="line" width="1.0" />
+              <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog"
+                fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false"
+                height="19.826171875" horizontalTextPosition="center" iconTextGap="4"
+                modelName="internal" modelPosition="c" textColor="#000000"
+                verticalTextPosition="bottom" visible="true" width="122.69921875" x="63.650390625"
+                y="20.0869140625">v__profile__items__old
+              </y:NodeLabel>
+              <y:Shape type="rectangle" />
+            </y:ShapeNode>
+          </data>
+        </node>
+      </graph>
+    </node>
+    <node id="n1" yfiles.foldertype="group">
+      <data key="d5">
+        <y:ProxyAutoBoundsNode>
+          <y:Realizers active="0">
+            <y:GroupNode>
+              <y:Geometry height="340.927734375" width="452.1936507936508" x="0.0"
+                y="-40.1015625" />
+              <y:Fill color="#F2F0D8" transparent="false" />
+              <y:BorderStyle color="#000000" type="line" width="1.0" />
+              <y:NodeLabel alignment="right" autoSizePolicy="node_width" backgroundColor="#404040"
+                borderDistance="0.0" fontFamily="Dialog" fontSize="16" fontStyle="plain"
+                hasLineColor="false" height="25.1015625" horizontalTextPosition="center"
+                iconTextGap="4" modelName="internal" modelPosition="t" textColor="#FFFFFF"
+                verticalTextPosition="bottom" visible="true" width="452.1936507936508" x="0.0"
+                y="0.0">rossiya
+              </y:NodeLabel>
+              <y:Shape type="rectangle" />
+              <y:DropShadow color="#D2D2D2" offsetX="4" offsetY="4" />
+              <y:State closed="false" closedHeight="50.0" closedWidth="50.0"
+                innerGraphDisplayEnabled="false" />
+              <y:Insets bottom="15" bottomF="15.0" left="15" leftF="15.0" right="15" rightF="15.0"
+                top="15" topF="15.0" />
+              <y:BorderInsets bottom="0" bottomF="0.0" left="171" leftF="171.19365079365082"
+                right="1" rightF="1.0" top="0" topF="0.0" />
+            </y:GroupNode>
+            <y:GroupNode>
+              <y:Geometry height="50.0" width="50.0" x="0.0" y="60.0" />
+              <y:Fill color="#F5F5F5" transparent="false" />
+              <y:BorderStyle color="#000000" type="dashed" width="1.0" />
+              <y:NodeLabel alignment="right" autoSizePolicy="node_width" backgroundColor="#EBEBEB"
+                borderDistance="0.0" fontFamily="Dialog" fontSize="15" fontStyle="plain"
+                hasLineColor="false" height="23.78271484375" horizontalTextPosition="center"
+                iconTextGap="4" modelName="internal" modelPosition="t" textColor="#000000"
+                verticalTextPosition="bottom" visible="true" width="51.99560546875"
+                x="-0.997802734375" y="0.0">rossiya
+              </y:NodeLabel>
+              <y:Shape type="roundrectangle" />
+              <y:State closed="true" closedHeight="50.0" closedWidth="50.0"
+                innerGraphDisplayEnabled="false" />
+              <y:Insets bottom="5" bottomF="5.0" left="5" leftF="5.0" right="5" rightF="5.0" top="5"
+                topF="5.0" />
+              <y:BorderInsets bottom="0" bottomF="0.0" left="0" leftF="0.0" right="0" rightF="0.0"
+                top="0" topF="0.0" />
+            </y:GroupNode>
+          </y:Realizers>
+        </y:ProxyAutoBoundsNode>
+      </data>
+      <graph edgedefault="directed" id="n1:">
+        <node id="n1::n0">
+          <data key="d5">
+            <y:ShapeNode>
+              <y:Geometry height="60.0" width="250.0" x="186.19365079365082" y="0.0" />
+              <y:Fill color="#00FF00" transparent="false" />
+              <y:BorderStyle color="#000000" type="line" width="1.0" />
+              <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog"
+                fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false"
+                height="19.826171875" horizontalTextPosition="center" iconTextGap="4"
+                modelName="internal" modelPosition="c" textColor="#000000"
+                verticalTextPosition="bottom" visible="true" width="29.546875" x="110.2265625"
+                y="20.0869140625">Start
+              </y:NodeLabel>
+              <y:Shape type="rectangle" />
+            </y:ShapeNode>
+          </data>
+        </node>
+        <node id="n1::n1">
+          <data key="d5">
+            <y:ShapeNode>
+              <y:Geometry height="60.0" width="250.0" x="186.19365079365082" y="225.826171875" />
+              <y:Fill color="#FFFF00" transparent="false" />
+              <y:BorderStyle color="#000000" type="line" width="1.0" />
+              <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog"
+                fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false"
+                height="19.826171875" horizontalTextPosition="center" iconTextGap="4"
+                modelName="internal" modelPosition="c" textColor="#000000"
+                verticalTextPosition="bottom" visible="true" width="59.037109375" x="95.4814453125"
+                y="20.0869140625">v__rossiya
+              </y:NodeLabel>
+              <y:Shape type="rectangle" />
+            </y:ShapeNode>
+          </data>
+        </node>
+      </graph>
+    </node>
+    <edge id="e0" source="n1::n1" target="n0::n0">
+      <data key="d9">
+        <y:PolyLineEdge>
+          <y:Path sx="-83.33333333333334" sy="30.0" tx="-62.5" ty="-30.0">
+            <y:Point x="227.86031746031748" y="355.326171875" />
+            <y:Point x="169.1202380952381" y="355.326171875" />
+          </y:Path>
+          <y:LineStyle color="#000000" type="line" width="1.0" />
+          <y:Arrows source="none" target="standard" />
+          <y:EdgeLabel alignment="center" distance="2.0" fontFamily="Dialog" fontSize="12"
+            fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="51.478515625"
+            horizontalTextPosition="center" iconTextGap="4" modelName="free"
+            modelPosition="anywhere" preferredPlacement="on_edge" ratio="0.5" textColor="#000000"
+            verticalTextPosition="bottom" visible="true" width="100.57421875" x="-109.0271923246838"
+            y="125.0">e_Edge1
+            /* Description 1 */
+            weight=0.541
+            <y:PreferredPlacementDescriptor angle="0.0" angleOffsetOnRightSide="0"
+              angleReference="absolute" angleRotationOnRightSide="co" distance="-1.0" frozen="true"
+              placement="anywhere" side="on_edge" sideReference="relative_to_edge_flow" />
+          </y:EdgeLabel>
+          <y:BendStyle smoothed="true" />
+        </y:PolyLineEdge>
+      </data>
+    </edge>
+    <edge id="n0::e0" source="n0::n0" target="n0::n1">
+      <data key="d9">
+        <y:PolyLineEdge>
+          <y:Path sx="0.0" sy="30.0" tx="-62.5" ty="-30.0">
+            <y:Point x="231.6202380952381" y="794.55859375" />
+            <y:Point x="266.406746031746" y="794.55859375" />
+          </y:Path>
+          <y:LineStyle color="#000000" type="line" width="1.0" />
+          <y:Arrows source="none" target="standard" />
+          <y:EdgeLabel alignment="center" distance="2.0" fontFamily="Dialog" fontSize="12"
+            fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="35.65234375"
+            horizontalTextPosition="center" iconTextGap="4" modelName="free"
+            modelPosition="anywhere" preferredPlacement="on_edge" ratio="0.5" textColor="#000000"
+            verticalTextPosition="bottom" visible="true" width="76.24609375" x="-38.12304803757439"
+            y="55.0">e_OpenItem
+            weight=0.467
+            <y:PreferredPlacementDescriptor angle="0.0" angleOffsetOnRightSide="0"
+              angleReference="absolute" angleRotationOnRightSide="co" distance="-1.0" frozen="true"
+              placement="anywhere" side="on_edge" sideReference="relative_to_edge_flow" />
+          </y:EdgeLabel>
+          <y:BendStyle smoothed="true" />
+        </y:PolyLineEdge>
+      </data>
+    </edge>
+    <edge id="n1::e0" source="n1::n1" target="n1::n1">
+      <data key="d9">
+        <y:PolyLineEdge>
+          <y:Path sx="-125.0" sy="0.0" tx="-62.5" ty="-30.0">
+            <y:Point x="16.500291418650818" y="255.826171875" />
+            <y:Point x="16.500291418650818" y="139.5869140625" />
+            <y:Point x="248.69365079365082" y="139.5869140625" />
+          </y:Path>
+          <y:LineStyle color="#000000" type="line" width="1.0" />
+          <y:Arrows source="none" target="standard" />
+          <y:EdgeLabel alignment="center" distance="2.0" fontFamily="Dialog" fontSize="12"
+            fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="51.478515625"
+            horizontalTextPosition="center" iconTextGap="4" modelName="free"
+            modelPosition="anywhere" preferredPlacement="on_edge" ratio="0.5" textColor="#000000"
+            verticalTextPosition="bottom" visible="true" width="86.693359375"
+            x="-159.65193026103663" y="-141.97851562500006">e_EdgeLoop
+            /* Edge Loop */
+            weight=0.459
+            <y:PreferredPlacementDescriptor angle="0.0" angleOffsetOnRightSide="0"
+              angleReference="absolute" angleRotationOnRightSide="co" distance="-1.0" frozen="true"
+              placement="anywhere" side="on_edge" sideReference="relative_to_edge_flow" />
+          </y:EdgeLabel>
+          <y:BendStyle smoothed="true" />
+        </y:PolyLineEdge>
+      </data>
+    </edge>
+    <edge id="n1::e1" source="n1::n0" target="n1::n1">
+      <data key="d8" />
+      <data key="d9">
+        <y:BezierEdge>
+          <y:Path sx="0.0" sy="30.0" tx="62.5" ty="-30.0">
+            <y:Point x="311.1936507936508" y="180.326171875" />
+            <y:Point x="373.6936507936508" y="180.326171875" />
+          </y:Path>
+          <y:LineStyle color="#000000" type="line" width="1.0" />
+          <y:Arrows source="none" target="standard" />
+          <y:EdgeLabel alignment="center" configuration="AutoFlippingLabel" distance="2.0"
+            fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false"
+            hasLineColor="false" height="19.826171875" horizontalTextPosition="center"
+            iconTextGap="4" modelName="free" modelPosition="anywhere" preferredPlacement="anywhere"
+            ratio="0.5" textColor="#000000" verticalTextPosition="bottom" visible="true"
+            width="41.318359375" x="-20.659193444630432" y="55.0">e_Start
+            <y:PreferredPlacementDescriptor angle="0.0" angleOffsetOnRightSide="0"
+              angleReference="absolute" angleRotationOnRightSide="co" distance="-1.0" frozen="true"
+              placement="anywhere" side="anywhere" sideReference="relative_to_edge_flow" />
+          </y:EdgeLabel>
+        </y:BezierEdge>
+      </data>
+    </edge>
+    <edge id="e1" source="n0::n1" target="n1::n1">
+      <data key="d8" />
+      <data key="d9">
+        <y:BezierEdge>
+          <y:Path sx="62.5" sy="-30.0" tx="83.33333333333337" ty="30.0">
+            <y:Point x="391.406746031746" y="771.732421875" />
+            <y:Point x="447.906746031746" y="771.732421875" />
+            <y:Point x="447.906746031746" y="355.326171875" />
+            <y:Point x="394.5269841269842" y="355.326171875" />
+          </y:Path>
+          <y:LineStyle color="#000000" type="line" width="1.0" />
+          <y:Arrows source="none" target="standard" />
+          <y:EdgeLabel alignment="center" configuration="AutoFlippingLabel" distance="2.0"
+            fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false"
+            hasLineColor="false" height="35.65234375" horizontalTextPosition="center"
+            iconTextGap="4" modelName="free" modelPosition="anywhere" preferredPlacement="anywhere"
+            ratio="0.5" textColor="#000000" verticalTextPosition="bottom" visible="true"
+            width="81.572265625" x="15.711403014167956" y="-224.43133544921875">e_BackLink
+            /* Back Link */
+            <y:PreferredPlacementDescriptor angle="0.0" angleOffsetOnRightSide="0"
+              angleReference="absolute" angleRotationOnRightSide="co" distance="-1.0" frozen="true"
+              placement="anywhere" side="anywhere" sideReference="relative_to_edge_flow" />
+          </y:EdgeLabel>
+        </y:BezierEdge>
+      </data>
+    </edge>
+    <edge id="e2" source="n0::n0" target="n1::n1">
+      <data key="d8" />
+      <data key="d9">
+        <y:BezierEdge>
+          <y:Path sx="62.5" sy="-30.0" tx="0.0" ty="30.0">
+            <y:Point x="294.1202380952381" y="507.8046875" />
+            <y:Point x="311.1936507936508" y="507.8046875" />
+          </y:Path>
+          <y:LineStyle color="#000000" type="line" width="1.0" />
+          <y:Arrows source="none" target="standard" />
+          <y:EdgeLabel alignment="center" configuration="AutoFlippingLabel" distance="2.0"
+            fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false"
+            hasLineColor="false" height="51.478515625" horizontalTextPosition="center"
+            iconTextGap="4" modelName="free" modelPosition="anywhere" preferredPlacement="anywhere"
+            ratio="0.5" textColor="#000000" verticalTextPosition="bottom" visible="true"
+            width="81.572265625" x="-23.713423180958557" y="-187.55047607421875">e_BackLink
+            /* Back Link */
+            weight=0.533
+            <y:PreferredPlacementDescriptor angle="0.0" angleOffsetOnRightSide="0"
+              angleReference="absolute" angleRotationOnRightSide="co" distance="-1.0" frozen="true"
+              placement="anywhere" side="anywhere" sideReference="relative_to_edge_flow" />
+          </y:EdgeLabel>
+        </y:BezierEdge>
+      </data>
+    </edge>
+  </graph>
+  <data key="d6">
+    <y:Resources />
+  </data>
+</graphml>

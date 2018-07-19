@@ -96,6 +96,7 @@ import java.util.Collection;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -120,6 +121,7 @@ public final class YEdContextFactory implements ContextFactory {
 
   private static final Logger logger = LoggerFactory.getLogger(YEdContextFactory.class);
   private static final String NAMESPACE = "declare namespace xq='http://graphml.graphdrawing.org/xmlns';";
+  private static final String Y = "declare namespace y='http://www.yworks.com/xml/graphml';";
   private static final String FILE_TYPE = "graphml";
   private static final Set<String> SUPPORTED_TYPE = new HashSet<>(asList("**/*.graphml"));
 
@@ -612,8 +614,10 @@ public final class YEdContextFactory implements ContextFactory {
     Multimap<String, Vertex> outdegrees) throws XmlException {
 
     AddResult<Vertex> addResult = new AddResult<>();
-    Deque<XmlObject> workQueue = new ArrayDeque<>();
-    workQueue.addAll(asList(document.selectPath(NAMESPACE + "$this/xq:graphml/xq:graph/xq:node")));
+    LinkedHashMap<String, Deque<XmlObject>> groupedWorkQueue = new LinkedHashMap<>();
+    groupedWorkQueue.put(
+      null,
+      new ArrayDeque<>(asList(document.selectPath(NAMESPACE + "$this/xq:graphml/xq:graph/xq:node"))));
 
     List<KeyType> keys = getKeyArray(document);
     Map<String, KeyType> propKeys = new HashMap<>();
@@ -623,109 +627,136 @@ public final class YEdContextFactory implements ContextFactory {
       }
     }
 
-    while (!workQueue.isEmpty()) {
-      XmlObject object = workQueue.pop();
-      if (object instanceof NodeType) {
-        NodeType node = (NodeType) object;
-        if (0 < node.getGraphArray().length) {
-          for (GraphType subgraph : node.getGraphArray()) {
-            workQueue.addAll(asList(subgraph.getNodeArray()));
-          }
-        } else {
-          Vertex vertex = new Vertex();
-          vertex.setGroupName(document.documentProperties().getSourceName());
-          for (Map.Entry<String, KeyType> entry : propKeys.entrySet()) {
-            KeyType value = entry.getValue();
-            if (value.isSetDefault()) {
-              vertex.setProperty(value.getAttrName(), ((KeyTypeImpl) value).getStringValue().trim());
-            }
-          }
-          for (DataType data : node.getDataArray()) {
-            String propName;
-            String propCurrentValue;
-            String key = data.getKey();
-            if (propKeys.containsKey(key)) {
-              KeyType currentKey = propKeys.get(key);
-              propName = currentKey.getAttrName();
-              propCurrentValue = ((DataTypeImpl) data).getStringValue().trim();
-              vertex.setProperty(propName, propCurrentValue);
-            }
+    String sourceName = document.documentProperties().getSourceName();
 
-            if (0 < data.getDomNode().getChildNodes().getLength()) {
-              if (isSupportedNode(data.xmlText())) {
-                StringBuilder label = new StringBuilder();
-                com.yworks.xml.graphml.NodeType nodeType = getSupportedNode(data.xmlText());
-                if (nodeType == null) {
-                  throw new XmlException("Expected a valid vertex");
-                }
-
-                for (NodeLabelType nodeLabel : nodeType.getNodeLabelArray()) {
-                  label.append(((NodeLabelTypeImpl) nodeLabel).getStringValue());
-                }
-                YEdVertexParser parser = new YEdVertexParser(getTokenStream(label.toString()));
-                parser.removeErrorListeners();
-                parser.addErrorListener(YEdDescriptiveErrorListener.INSTANCE);
-                YEdVertexParser.ParseContext parseContext = parser.parse();
-
-                vertex.setProperty("x", nodeType.getGeometry().getX());
-                vertex.setProperty("y", nodeType.getGeometry().getY());
-                if (null != parseContext.start()) {
-                  elements.put(node.getId(), vertex);
-                  vertex.setId(node.getId());
-                  addResult.start = vertex;
-                } else {
-                  for (YEdVertexParser.FieldContext field : parseContext.field()) {
-                    if (null != field.names()) {
-                      vertex.setName(field.names().getText());
-                    }
-                    if (null != field.shared() && null != field.shared().Identifier()) {
-                      vertex.setSharedState(field.shared().Identifier().getText());
-                    }
-                    if (null != field.indegrees()) {
-                      vertex.setIndegrees(true);
-                      for (YEdVertexParser.IndegreeContext indegreeContext : field.indegrees().indegreeList().indegree()) {
-                        indegrees.put(
-                          indegreeContext.element().getText(),
-                          new IndegreeVertex(
-                            vertex,
-                            indegreeContext.description() != null ? indegreeContext.description().getText() : "",
-                            indegreeContext.guard() != null ? new Guard(indegreeContext.guard().getText()) : null
-                          )
-                        );
-                      }
-                    }
-                    if (null != field.outdegrees()) {
-                      vertex.setOutdegrees(true);
-                      for (YEdVertexParser.OutdegreeContext outdegreeContext : field.outdegrees().outdegreeList().outdegree()) {
-                        outdegrees.put(outdegreeContext.element().getText(), vertex);
-                      }
-                    }
-                    if (null != field.reqtags()) {
-                      vertex.setRequirements(convertVertexRequirement(field.reqtags().reqtagList().reqtag()));
-                    }
-                    if (null != field.actions()) {
-                      model.addActions(convertVertexAction(field.actions().action()));
-                    }
-                    if (null != field.sets()) {
-                      vertex.setSetActions(convertVertexAction(field.sets().set()));
-                    }
-                    if (null != field.blocked()) {
-                      vertex.setProperty("blocked", true);
-                    }
-                    if (null != field.description()) {
-                      vertex.setDescription(field.description().getText());
+    while (!groupedWorkQueue.isEmpty()) {
+      Deque<XmlObject> workQueue = groupedWorkQueue.values().iterator().next();
+      while (!workQueue.isEmpty()) {
+        XmlObject object = workQueue.pop();
+        if (object instanceof NodeType) {
+          NodeType node = (NodeType) object;
+          if (0 < node.getGraphArray().length) {
+            String groupName = sourceName;
+            if (groupName == null && groupedWorkQueue.keySet().iterator().next() == null) {
+              data:
+              for (DataType data : node.getDataArray()) {
+                XmlObject[] objects = data.selectPath(Y + "$this//y:NodeLabel");
+                if (objects instanceof NodeLabelType[]) {
+                  NodeLabelType[] labels = (NodeLabelType[]) objects;
+                  for (NodeLabelType label : labels) {
+                    String g = ((NodeLabelTypeImpl) label).getStringValue();
+                    if (g != null && !g.isEmpty()) {
+                      groupName = g;
+                      break data;
                     }
                   }
-                  elements.put(node.getId(), vertex);
-                  vertex.setId(node.getId());
-                  model.addVertex(vertex);
-                  addResult.elements.add(vertex);
+                }
+              }
+            }
+            groupedWorkQueue.compute(groupName, (g, prev) -> {
+              Deque<XmlObject> queue = prev != null ? prev : new ArrayDeque<>();
+              for (GraphType subgraph : node.getGraphArray()) {
+                queue.addAll(asList(subgraph.getNodeArray()));
+              }
+              return queue;
+            });
+          } else {
+            Vertex vertex = new Vertex();
+            vertex.setGroupName(sourceName != null ? sourceName : groupedWorkQueue.keySet().iterator().next());
+            for (Map.Entry<String, KeyType> entry : propKeys.entrySet()) {
+              KeyType value = entry.getValue();
+              if (value.isSetDefault()) {
+                vertex.setProperty(value.getAttrName(), ((KeyTypeImpl) value).getStringValue().trim());
+              }
+            }
+            for (DataType data : node.getDataArray()) {
+              String propName;
+              String propCurrentValue;
+              String key = data.getKey();
+              if (propKeys.containsKey(key)) {
+                KeyType currentKey = propKeys.get(key);
+                propName = currentKey.getAttrName();
+                propCurrentValue = ((DataTypeImpl) data).getStringValue().trim();
+                vertex.setProperty(propName, propCurrentValue);
+              }
+
+              if (0 < data.getDomNode().getChildNodes().getLength()) {
+                if (isSupportedNode(data.xmlText())) {
+                  StringBuilder label = new StringBuilder();
+                  com.yworks.xml.graphml.NodeType nodeType = getSupportedNode(data.xmlText());
+                  if (nodeType == null) {
+                    throw new XmlException("Expected a valid vertex");
+                  }
+
+                  for (NodeLabelType nodeLabel : nodeType.getNodeLabelArray()) {
+                    label.append(((NodeLabelTypeImpl) nodeLabel).getStringValue());
+                  }
+                  YEdVertexParser parser = new YEdVertexParser(getTokenStream(label.toString()));
+                  parser.removeErrorListeners();
+                  parser.addErrorListener(YEdDescriptiveErrorListener.INSTANCE);
+                  YEdVertexParser.ParseContext parseContext = parser.parse();
+
+                  vertex.setProperty("x", nodeType.getGeometry().getX());
+                  vertex.setProperty("y", nodeType.getGeometry().getY());
+                  if (null != parseContext.start()) {
+                    elements.put(node.getId(), vertex);
+                    vertex.setId(node.getId());
+                    addResult.start = vertex;
+                  } else {
+                    for (YEdVertexParser.FieldContext field : parseContext.field()) {
+                      if (null != field.names()) {
+                        vertex.setName(field.names().getText());
+                      }
+                      if (null != field.shared() && null != field.shared().Identifier()) {
+                        vertex.setSharedState(field.shared().Identifier().getText());
+                      }
+                      if (null != field.indegrees()) {
+                        vertex.setIndegrees(true);
+                        for (YEdVertexParser.IndegreeContext indegreeContext : field.indegrees().indegreeList().indegree()) {
+                          indegrees.put(
+                            indegreeContext.element().getText(),
+                            new IndegreeVertex(
+                              vertex,
+                              indegreeContext.description() != null ? indegreeContext.description().getText() : "",
+                              indegreeContext.guard() != null ? new Guard(indegreeContext.guard().getText()) : null
+                            )
+                          );
+                        }
+                      }
+                      if (null != field.outdegrees()) {
+                        vertex.setOutdegrees(true);
+                        for (YEdVertexParser.OutdegreeContext outdegreeContext : field.outdegrees().outdegreeList().outdegree()) {
+                          outdegrees.put(outdegreeContext.element().getText(), vertex);
+                        }
+                      }
+                      if (null != field.reqtags()) {
+                        vertex.setRequirements(convertVertexRequirement(field.reqtags().reqtagList().reqtag()));
+                      }
+                      if (null != field.actions()) {
+                        model.addActions(convertVertexAction(field.actions().action()));
+                      }
+                      if (null != field.sets()) {
+                        vertex.setSetActions(convertVertexAction(field.sets().set()));
+                      }
+                      if (null != field.blocked()) {
+                        vertex.setProperty("blocked", true);
+                      }
+                      if (null != field.description()) {
+                        vertex.setDescription(field.description().getText());
+                      }
+                    }
+                    elements.put(node.getId(), vertex);
+                    vertex.setId(node.getId());
+                    model.addVertex(vertex);
+                    addResult.elements.add(vertex);
+                  }
                 }
               }
             }
           }
         }
       }
+      groupedWorkQueue.remove(groupedWorkQueue.keySet().iterator().next());
     }
     return addResult;
   }

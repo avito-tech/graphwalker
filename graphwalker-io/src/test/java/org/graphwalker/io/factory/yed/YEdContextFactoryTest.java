@@ -57,6 +57,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.hasProperty;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -566,9 +569,9 @@ public class YEdContextFactoryTest {
     // Read the graphml file
     List<Context> readCContexts = new YEdContextFactory().create(tmpFolder);
 
-	Context context = readCContexts.get(0);
-	RuntimeEdge edge = context.getModel().getEdges().get(0);
-	assertEquals(75, edge.getDependency().intValue()); 
+    Context context = readCContexts.get(0);
+    RuntimeEdge edge = context.getModel().getEdges().get(0);
+    assertEquals(75, edge.getDependency().intValue());
     
   }
   
@@ -594,9 +597,9 @@ public class YEdContextFactoryTest {
     // Read the graphml file
     List<Context> readCContexts = new YEdContextFactory().create(tmpFolder);
 
-	Context context = readCContexts.get(0);
-	RuntimeEdge edge = context.getModel().getEdges().get(0);
-	assertEquals(75, edge.getDependency().intValue()); 
+    Context context = readCContexts.get(0);
+    RuntimeEdge edge = context.getModel().getEdges().get(0);
+    assertEquals(75, edge.getDependency().intValue());
     
   }
   
@@ -607,7 +610,7 @@ public class YEdContextFactoryTest {
 
 
     Model model = new Model();
-    
+
     model.addEdge(new Edge().setSourceVertex(v_Start).setTargetVertex(v_BrowserStarted).setName("e_init").setGuard(new Guard("!neverWentThere")).setDependency(75)).setId("e0");
 
     Context writeContext = new TestExecutionContext().setModel(model.build());
@@ -621,9 +624,21 @@ public class YEdContextFactoryTest {
     // Read the graphml file
     List<Context> readCContexts = new YEdContextFactory().create(tmpFolder);
 
-	Context context = readCContexts.get(0);
-	RuntimeEdge edge = context.getModel().getEdges().get(0);
-	assertEquals(75, edge.getDependency().intValue()); 
-    
+    Context context = readCContexts.get(0);
+    RuntimeEdge edge = context.getModel().getEdges().get(0);
+    assertEquals(75, edge.getDependency().intValue());
+
+  }
+
+  @Test
+  public void readGrouped() throws IOException {
+    List<Context> contexts = new YEdContextFactory().create(Paths.get("graphml/grouped/modelGrouped.graphml"));
+    Context context = contexts.get(0);
+    RuntimeModel model = context.getModel();
+
+    List<RuntimeVertex> vertices = model.getVertices();
+
+    assertThat(vertices, hasItem(hasProperty("groupName", equalTo("rossiya"))));
+    assertThat(vertices, hasItem(hasProperty("groupName", equalTo("profile"))));
   }
 }
