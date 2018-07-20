@@ -99,6 +99,7 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -112,6 +113,11 @@ import static java.lang.Integer.parseInt;
 import static java.lang.String.format;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
+import static java.util.Collections.emptyMap;
+import static java.util.Collections.singletonList;
+import static java.util.function.Function.identity;
+import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.toMap;
 
 
 /**
@@ -271,7 +277,8 @@ public final class YEdContextFactory implements ContextFactory {
   }
 
   private static void appendVertex(StringBuilder str, String id, String name, String description,
-                                   List<Action> actions, Color col) {
+                                   List<Action> actions, List<String> outdegrees,
+                                   List<IndegreeLabel> indegrees, Color col) {
 
     double scale = !actions.isEmpty() || (description != null && description.length() >= 50) ? 1.7 : 1.0;
 
@@ -298,6 +305,20 @@ public final class YEdContextFactory implements ContextFactory {
       str.append(newLine + "INIT: ");
       for (int i = 0; i < actions.size(); i++) {
         str.append(actions.get(i).getScript() + (i < actions.size() - 1 ? ", " : ";"));
+      }
+    }
+
+    if (!outdegrees.isEmpty()) {
+      str.append(newLine + "OUTDEGREE: ");
+      for (int i = 0; i < outdegrees.size(); i++) {
+        str.append(outdegrees.get(i) + (i < outdegrees.size() - 1 ? ", " : ";"));
+      }
+    }
+
+    if (!indegrees.isEmpty()) {
+      str.append(newLine + "INDEGREE: ");
+      for (int i = 0; i < indegrees.size(); i++) {
+        str.append(indegrees.get(i) + (i < indegrees.size() - 1 ? ", " : ";"));
       }
     }
 
@@ -466,7 +487,7 @@ public final class YEdContextFactory implements ContextFactory {
         while (uniqueEdges.containsValue("e" + e)) {
           e++;
         }
-        appendVertex(str, "n" + n, "Start", null, emptyList(), GREEN);
+        appendVertex(str, "n" + n, "Start", null, emptyList(), emptyList(), emptyList(), GREEN);
         IndexedCollection<RuntimeVertex> destGroup = groupedVertices.getOrDefault(((RuntimeEdge) context.getNextElement()).getTargetVertex().getGroupName(), NO_GROUP);
         appendEdge(str, "e" + e, "n" + n, destGroup + uniqueVertices.get(((RuntimeEdge) context.getNextElement()).getTargetVertex()),
           context.getNextElement().getName(),
@@ -571,7 +592,7 @@ public final class YEdContextFactory implements ContextFactory {
           } else {
             color = YELLOW;
           }
-          appendVertex(str, id, v.getName(), v.getDescription(), v.getActions(), color);
+          appendVertex(str, id, v.getName(), v.getDescription(), v.getActions(), emptyList(), emptyList(), color);
         }
         if (group.getKey() != null && g > 1) {
           str.append("</graph>").append(newLine);
@@ -587,6 +608,172 @@ public final class YEdContextFactory implements ContextFactory {
     return graphmlStr.toString();
   }
 
+  private String getAsString(List<Context> contexts, String selectOnlyGroup,
+                             Map<RuntimeVertex, Map<RuntimeVertex, String>> outdegrees,
+                             Map<RuntimeVertex, List<IndegreeLabel>> indegrees) {
+    StringBuilder graphmlStr = new StringBuilder();
+    for (Context context : contexts) {
+      String newLine = System.lineSeparator();
+      StringBuilder str = new StringBuilder();
+
+      str.append("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>").append(newLine);
+      str.append("<graphml xmlns=\"http://graphml.graphdrawing.org/xmlns\" "
+        + "xmlns:java=\"http://www.yworks.com/xml/yfiles-common/1.0/java\" "
+        + "xmlns:sys=\"http://www.yworks.com/xml/yfiles-common/markup/primitives/2.0\" "
+        + "xmlns:x=\"http://www.yworks.com/xml/yfiles-common/markup/2.0\" "
+        + "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" "
+        + "xmlns:y=\"http://www.yworks.com/xml/graphml\" "
+        + "xmlns:yed=\"http://www.yworks.com/xml/yed/3\" "
+        + "xsi:schemaLocation=\"http://graphml.graphdrawing.org/xmlns http://www.yworks.com/xml/schema/graphml/1.1/ygraphml.xsd\">").append(newLine);
+      str.append("  <key id=\"d0\" for=\"node\" yfiles.type=\"nodegraphics\"/>").append(newLine);
+      str.append("  <key id=\"d1\" for=\"edge\" yfiles.type=\"edgegraphics\"/>").append(newLine);
+      str.append("  <graph id=\"G\" edgedefault=\"directed\">").append(newLine);
+
+      BiMap<RuntimeVertex, String> uniqueVertices = HashBiMap.create();
+      BiMap<RuntimeEdge, String> uniqueEdges = HashBiMap.create();
+
+      Map<String, IndexedCollection<RuntimeVertex>> groupedVertices = new HashMap<>();
+
+      // nodes' ids in yEd have format like "n9::n3::n2" / "n2::n1" / "n1", where only last part should be changed
+      // http://www.catonmat.net/blog/my-favorite-regex/
+      Pattern p = Pattern.compile("^([ -~]*)(\\d+)$");
+      int g = 0;
+      for (RuntimeVertex v : context.getModel().getVertices()) {
+        String id = v.getId();
+        Matcher m = p.matcher(id);
+        if (m.find()) {
+          String letter = m.group(1);
+          int digit = parseInt(m.group(2));
+          while (uniqueVertices.containsValue(letter + digit)) {
+            digit += 1_000;
+          }
+          uniqueVertices.put(v, letter + digit);
+        } else {
+          uniqueVertices.forcePut(v, v.getId());
+        }
+        String groupName = v.getGroupName();
+        IndexedCollection<RuntimeVertex> group = groupedVertices.get(groupName);
+        if (group != null) {
+          group.items.add(v);
+        } else {
+          groupedVertices.put(groupName, new IndexedCollection<>(g++, v));
+        }
+      }
+      for (RuntimeEdge e : context.getModel().getEdges()) {
+        String id = e.getId();
+        Matcher m = p.matcher(id);
+        if (m.find()) {
+          String letter = m.group(1);
+          int digit = parseInt(m.group(2));
+          while (uniqueEdges.containsValue(letter + digit)) {
+            digit += 1_000;
+          }
+          uniqueEdges.put(e, letter + digit);
+        } else {
+          uniqueEdges.forcePut(e, e.getId());
+        }
+      }
+
+      if (context.getNextElement() != null
+        && context.getNextElement() instanceof RuntimeEdge
+        && ((RuntimeEdge) context.getNextElement()).getTargetVertex() != null) {
+        int n = 0, e = 0;
+        while (uniqueVertices.containsValue("n" + n)) {
+          n++;
+        }
+        while (uniqueEdges.containsValue("e" + e)) {
+          e++;
+        }
+        appendVertex(str, "n" + n, "Start", null, emptyList(), emptyList(), emptyList(), GREEN);
+        IndexedCollection<RuntimeVertex> destGroup = groupedVertices.getOrDefault(((RuntimeEdge) context.getNextElement()).getTargetVertex().getGroupName(), NO_GROUP);
+        appendEdge(str, "e" + e, "n" + n, destGroup + uniqueVertices.get(((RuntimeEdge) context.getNextElement()).getTargetVertex()),
+          context.getNextElement().getName(),
+          ((RuntimeEdge) context.getNextElement()).getGuard(),
+          context.getNextElement().getActions(),
+          ((RuntimeEdge) context.getNextElement()).getDependency(),
+          context.getNextElement().getDescription(),
+          ((RuntimeEdge) context.getNextElement()).getWeight(),
+          BLACK);
+      }
+
+      Set<RuntimeVertex> hasNoInput = new HashSet<>(context.getModel().getVertices());
+      Set<RuntimeVertex> hasNoOutput = new HashSet<>(context.getModel().getVertices());
+
+      for (RuntimeEdge e : context.getModel().getEdges()) {
+        RuntimeVertex src = e.getSourceVertex();
+        RuntimeVertex dest = e.getTargetVertex();
+
+        if (src == null || dest == null) {
+          continue;
+        }
+
+        if (!Objects.equals(src.getGroupName(), selectOnlyGroup)
+          || !Objects.equals(dest.getGroupName(), selectOnlyGroup)) {
+
+          continue;
+        }
+
+        hasNoInput.remove(dest);
+        hasNoOutput.remove(src);
+
+        String edgeName;
+        Color color;
+        if (e.getName() == null) {
+          logger.warn("Edge between {} and {} (marked with \"red\" color) has no Text property. It invalidates the model!",
+            e.getSourceVertex().getId(), e.getTargetVertex());
+          edgeName = "(No text specified!)";
+          color = RED;
+        } else {
+          edgeName = e.getName();
+          color = BLACK;
+        }
+
+        String id = uniqueEdges.get(e);
+        String srcId = uniqueVertices.get(src);
+        String destId = uniqueVertices.get(dest);
+
+        appendEdge(str, id, srcId, destId,
+          edgeName,
+          e.hasGuard() ? e.getGuard() : null,
+          e.hasActions() ? e.getActions() : emptyList(),
+          e.getDependency(),
+          e.getDescription(),
+          e.getWeight(),
+          color);
+      }
+
+      for (RuntimeVertex v : groupedVertices.get(selectOnlyGroup).items) {
+        String id = uniqueVertices.get(v);
+        Color color;
+        if (hasNoInput.contains(v)) {
+          if (v.hasName() && v.getName().equalsIgnoreCase("start")) {
+            color = GREEN;
+          } else {
+            logger.warn("Vertex " + v + " has no input edges (marked with \"magenta\" color). " +
+              "It could not be tested!");
+            color = MAGENTA;
+          }
+        } else if (hasNoOutput.contains(v)) {
+          logger.warn("Vertex " + v + " has no output edges (marked with \"red\" color). " +
+            "Most of path generating techniques will not work correctly with that graph!");
+          color = RED;
+        } else {
+          color = YELLOW;
+        }
+        appendVertex(str, id, v.getName(), v.getDescription(), v.getActions(),
+          new ArrayList<>(outdegrees.getOrDefault(v, emptyMap()).values()),
+          indegrees.getOrDefault(v, emptyList()), color);
+      }
+
+      str.append("  </graph>").append(newLine);
+      str.append("</graphml>").append(newLine);
+
+      graphmlStr.append(str);
+    }
+    return graphmlStr.toString();
+  }
+
+
   @Override
   public void write(List<Context> contexts, Path path) throws IOException {
     File folder = path.toFile().getAbsoluteFile();
@@ -595,6 +782,84 @@ public final class YEdContextFactory implements ContextFactory {
     try (OutputStream outputStream = Files.newOutputStream(graphmlFile)) {
       outputStream.write(String.valueOf(getAsString(contexts)).getBytes());
     }
+  }
+
+  public void writeToSeparateFiles(Context context, Path path) throws IOException {
+    File folder = path.toFile().getAbsoluteFile();
+    folder.mkdirs();
+
+    Set<String> groups = new HashSet<>();
+    for (RuntimeVertex vertex : context.getModel().getVertices()) {
+      if (vertex.getGroupName() != null) {
+        groups.add(vertex.getGroupName());
+      }
+    }
+
+    if (groups.size() > 1) {
+      Map<RuntimeVertex, Map<RuntimeVertex, String>> outdegrees = new HashMap<>();
+      Map<RuntimeVertex, List<IndegreeLabel>> indegrees = new HashMap<>();
+
+      for (RuntimeEdge e : context.getModel().getEdges()) {
+        RuntimeVertex src = e.getSourceVertex();
+        RuntimeVertex dest = e.getTargetVertex();
+
+        if (src == null || dest == null) {
+          continue;
+        }
+
+        if (!Objects.equals(src.getGroupName(), dest.getGroupName())) {
+          outdegrees.compute(src, (v, out) -> {
+            Map<RuntimeVertex, String> outdegreeNames = out != null ? out : new HashMap<>();
+            outdegreeNames.put(dest, e.getName());
+            return outdegreeNames;
+          });
+          indegrees.compute(dest, (v, in) -> {
+            List<IndegreeLabel> indegreeLabels = in != null ? in : new ArrayList<>();
+            indegreeLabels.add(new IndegreeLabel(e.getName(), e.getDescription(), e.getGuard(), e.getWeight(), src));
+            return indegreeLabels;
+          });
+        }
+      }
+      // Split different by meaning indegrees, replacing their names
+      for (Map.Entry<RuntimeVertex, List<IndegreeLabel>> e : indegrees.entrySet()) {
+        List<IndegreeLabel> byHash = new ArrayList<>(e.getValue().stream()
+          .collect(toMap(identity(), identity(), IndegreeLabel::merge)).values());
+        Map<String, List<IndegreeLabel>> byName = byHash.stream()
+          .collect(groupingBy(IndegreeLabel::getName));
+
+        for (Map.Entry<String, List<IndegreeLabel>> group : byName.entrySet()) {
+          List<IndegreeLabel> value = group.getValue();
+          if (value.size() > 1) {
+            for (int suffix = 0; suffix < value.size(); suffix++) {
+              String newName = group.getKey() + "$" + (suffix + 1);
+              IndegreeLabel label = value.get(suffix);
+              for (RuntimeVertex matchedOutdegree : label.getMatchingOutdegrees()) {
+                outdegrees.get(matchedOutdegree).replace(e.getKey(), group.getKey(), newName);
+              }
+              e.getValue().remove(label);
+              e.getValue().add(suffix, label.withName(newName));
+            }
+          }
+        }
+      }
+      for (String group : groups) {
+        Path graphmlFile = Paths.get(folder.toString(), getValidFileName(group) + ".graphml");
+        try (OutputStream outputStream = Files.newOutputStream(graphmlFile)) {
+          outputStream.write(getAsString(singletonList(context), group, outdegrees, indegrees).getBytes());
+        }
+      }
+    } else {
+      throw new IllegalStateException("Can not write to separate files, not enough groups");
+    }
+  }
+
+  private static String getValidFileName(String fileName) {
+    String newFileName = fileName.replace("^\\.+", "").replaceAll("[\\\\/:*?\"<>|]", "_");
+    if (newFileName.isEmpty()) {
+      throw new IllegalStateException(
+        "File Name " + fileName + " results in a empty fileName!");
+    }
+    return newFileName;
   }
 
   private static class AddResult<T> {
@@ -646,8 +911,12 @@ public final class YEdContextFactory implements ContextFactory {
                   for (NodeLabelType label : labels) {
                     String g = ((NodeLabelTypeImpl) label).getStringValue();
                     if (g != null && !g.isEmpty()) {
-                      groupName = g;
-                      break data;
+                      for (String part : g.split("[\r\n]")) {
+                        if (!part.trim().isEmpty()) {
+                          groupName = part;
+                          break data;
+                        }
+                      }
                     }
                   }
                 }

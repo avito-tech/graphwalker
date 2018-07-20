@@ -87,8 +87,10 @@ public class Vertex extends CachedBuilder<Vertex, Vertex.RuntimeVertex> {
     return this;
   }
 
-  public void setGroupName(String groupName) {
+  public Vertex setGroupName(String groupName) {
     this.groupName = groupName;
+    invalidateCache();
+    return this;
   }
 
   public List<Action> getSetActions() {

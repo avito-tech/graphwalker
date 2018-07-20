@@ -51,11 +51,14 @@ import org.junit.rules.TemporaryFolder;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
+import static java.util.Collections.singleton;
+import static java.util.stream.Collectors.toList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasItem;
@@ -582,7 +585,7 @@ public class YEdContextFactoryTest {
 
 
     Model model = new Model();
-    List<Action> actions = new ArrayList<Action>();
+    List<Action> actions = new ArrayList<>();
     actions.add(new Action("validLogin=false;rememberMe=false;"));
     model.addEdge(new Edge().setSourceVertex(v_Start).setTargetVertex(v_BrowserStarted).setName("e_init").setActions(actions).setDependency(75)).setId("e0");
 
@@ -640,5 +643,44 @@ public class YEdContextFactoryTest {
 
     assertThat(vertices, hasItem(hasProperty("groupName", equalTo("rossiya"))));
     assertThat(vertices, hasItem(hasProperty("groupName", equalTo("profile"))));
+  }
+
+  @Test
+  public void writeGroup() throws IOException {
+    Vertex v_Start = new Vertex().setName("Start").setId("n1::n0").setGroupName("rossiya");
+    Vertex v_Rossiya = new Vertex().setName("v__rossiya").setId("n1::n1").setGroupName("rossiya");
+    Vertex v_Profile = new Vertex().setName("v__profile").setId("n0::n0").setGroupName("profile");
+    Vertex v_ProfileItemsOld = new Vertex().setName("v__profile__items__old").setId("n0::n1").setGroupName("profile");
+
+    Model model = new Model();
+    model.addEdge(new Edge().setSourceVertex(v_Start).setTargetVertex(v_Rossiya).setName("e_Start")).setId("n1::e1");
+    model.addEdge(new Edge().setSourceVertex(v_Rossiya).setTargetVertex(v_Rossiya).setName("e_EdgeLoop")
+      .setWeight(0.5).setDescription("Edge Loop")).setId("n1::e0");
+    model.addEdge(new Edge().setSourceVertex(v_Rossiya).setTargetVertex(v_Profile).setName("e_Edge1")).setId("e0");
+    model.addEdge(new Edge().setSourceVertex(v_Profile).setTargetVertex(v_Rossiya).setName("e_BackLink")
+      .setDescription("Minor").setWeight(0.533)).setId("e2");
+    model.addEdge(new Edge().setSourceVertex(v_Profile).setTargetVertex(v_ProfileItemsOld).setName("e_OpenItem")).setId("n0::e0");
+    model.addEdge(new Edge().setSourceVertex(v_ProfileItemsOld).setTargetVertex(v_Rossiya).setName("e_BackLink")
+      .setDescription("Major")).setId("e1");
+
+    Context writeContext = new TestExecutionContext().setModel(model.build());
+    List<Context> writeContexts = new ArrayList<>(singleton(writeContext));
+
+    // Write the graphml file
+    Path tmpFolder = testFolder.getRoot().toPath();
+    new YEdContextFactory().writeToSeparateFiles(writeContexts.get(0), tmpFolder);
+
+    // Read the graphml file
+    Context readContext = new YEdContextFactory().create(
+      Files.walk(tmpFolder).filter(Files::isRegularFile).collect(toList()));
+
+    // Compare
+    // The start vertex is removed automatically
+    assertThat(readContext.getModel().getEdges(), hasItem(hasProperty("name", equalTo("e_BackLink$1"))));
+    assertThat(readContext.getModel().getEdges(), hasItem(hasProperty("name", equalTo("e_BackLink$2"))));
+    assertThat(readContext.getModel().getVertices().size(), is(4 - 1));
+    assertThat(readContext.getModel().getEdges().size(), is(6));
+    assertThat(readContext.getModel().getEdges(), hasItem(hasProperty("weight", equalTo(0.5))));
+    assertThat(readContext.getModel().getEdges(), hasItem(hasProperty("description", equalTo("Edge Loop"))));
   }
 }
