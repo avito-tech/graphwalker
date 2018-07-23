@@ -747,7 +747,7 @@ public final class YEdContextFactory implements ContextFactory {
       for (RuntimeVertex v : groupedVertices.get(selectOnlyGroup).items) {
         String id = uniqueVertices.get(v);
         Color color;
-        if (hasNoInput.contains(v)) {
+        if (hasNoInput.contains(v) && !indegrees.containsKey(v)) {
           if (v.hasName() && v.getName().equalsIgnoreCase("start")) {
             color = GREEN;
           } else {
@@ -755,7 +755,7 @@ public final class YEdContextFactory implements ContextFactory {
               "It could not be tested!");
             color = MAGENTA;
           }
-        } else if (hasNoOutput.contains(v)) {
+        } else if (hasNoOutput.contains(v) && !outdegrees.containsKey(v)) {
           logger.warn("Vertex " + v + " has no output edges (marked with \"red\" color). " +
             "Most of path generating techniques will not work correctly with that graph!");
           color = RED;
