@@ -681,6 +681,7 @@ public class YEdContextFactoryTest {
     assertThat(readContext.getModel().getVertices().size(), is(4 - 1));
     assertThat(readContext.getModel().getEdges().size(), is(6));
     assertThat(readContext.getModel().getEdges(), hasItem(hasProperty("weight", equalTo(0.5))));
+    assertThat(readContext.getModel().getEdges(), hasItem(hasProperty("weight", equalTo(0.533))));
     assertThat(readContext.getModel().getEdges(), hasItem(hasProperty("description", equalTo("Edge Loop"))));
   }
 }

@@ -37,10 +37,13 @@ class IndegreeVertex {
 
   private final Guard guard;
 
-  public IndegreeVertex(Vertex vertex, String description, Guard guard) {
+  private final double weight;
+
+  public IndegreeVertex(Vertex vertex, String description, Guard guard, double weight) {
     this.vertex = vertex;
     this.description = description;
     this.guard = guard;
+    this.weight = weight;
   }
 
   public Vertex getVertex() {
@@ -53,5 +56,9 @@ class IndegreeVertex {
 
   public Guard getGuard() {
     return guard;
+  }
+
+  public double getWeight() {
+    return weight;
   }
 }

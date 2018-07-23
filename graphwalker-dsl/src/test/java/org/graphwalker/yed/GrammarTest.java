@@ -75,7 +75,8 @@ public class GrammarTest {
       "REQTAG = R1",
       "REQTAG= R1,R2 , R3, R4",
     "OUTDEGREE : e_SideBar;\nINDEGREE : e_ClickSources;",
-    "INDEGREE: /* comment 1 */ e_SideBar, e_ClickBtn /* comment 2 */ [loggedIn == true];\nOUTDEGREE: e_ClickSources;"
+    "INDEGREE: /* comment 1 */ e_SideBar, e_ClickBtn /* comment 2 */ [loggedIn == true];\nOUTDEGREE: e_ClickSources;",
+    "INDEGREE: /* comment 1 */ e_BackLink$1 weight=0.1, /* comment 2 */ weight=0.9 e_BackLink$2;"
   );
 
   private List<String> edges = Arrays.asList(

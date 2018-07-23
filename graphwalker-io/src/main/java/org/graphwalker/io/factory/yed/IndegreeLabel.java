@@ -96,7 +96,8 @@ class IndegreeLabel {
   public String toString() {
     return name
       + (isNotBlank(description) ? " /* " + description + " */" : "")
-      + (guard != null ? " [ " + guard.getScript() + " ]" : "");
+      + (guard != null ? " [ " + guard.getScript() + " ]" : "")
+      + (weight < 1.0 ? " weight=" + weight : "");
   }
 
   @Override

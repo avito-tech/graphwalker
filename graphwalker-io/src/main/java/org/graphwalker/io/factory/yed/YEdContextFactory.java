@@ -109,6 +109,7 @@ import static java.awt.Color.GREEN;
 import static java.awt.Color.MAGENTA;
 import static java.awt.Color.RED;
 import static java.awt.Color.YELLOW;
+import static java.lang.Double.parseDouble;
 import static java.lang.Integer.parseInt;
 import static java.lang.String.format;
 import static java.util.Arrays.asList;
@@ -253,7 +254,8 @@ public final class YEdContextFactory implements ContextFactory {
               .setTargetVertex(in.getVertex())
               .setName(edgeName)
               .setDescription(in.getDescription())
-              .setGuard(in.getGuard());
+              .setGuard(in.getGuard())
+              .setWeight(in.getWeight());
             for (Action set : in.getVertex().getSetActions()) {
               edge.addAction(set);
             }
@@ -982,14 +984,15 @@ public final class YEdContextFactory implements ContextFactory {
                       if (null != field.indegrees()) {
                         vertex.setIndegrees(true);
                         for (YEdVertexParser.IndegreeContext indegreeContext : field.indegrees().indegreeList().indegree()) {
-                          indegrees.put(
-                            indegreeContext.element().getText(),
-                            new IndegreeVertex(
-                              vertex,
-                              indegreeContext.description() != null ? indegreeContext.description().getText() : "",
-                              indegreeContext.guard() != null ? new Guard(indegreeContext.guard().getText()) : null
-                            )
-                          );
+                          String description = indegreeContext.description() != null ? indegreeContext.description().getText() : "";
+                          Guard guard = indegreeContext.guard() != null ? new Guard(indegreeContext.guard().getText()) : null;
+                          double weight;
+                          try {
+                            weight = indegreeContext.weight() != null ? parseDouble(indegreeContext.weight().Value().getText()) : 1.0;
+                          } catch (NumberFormatException e) {
+                            throw new NumberFormatException("For input WEIGHT string: \"" + indegreeContext.weight().getText() + "\"");
+                          }
+                          indegrees.put(indegreeContext.element().getText(), new IndegreeVertex(vertex, description, guard, weight));
                         }
                       }
                       if (null != field.outdegrees()) {
@@ -1139,7 +1142,7 @@ public final class YEdContextFactory implements ContextFactory {
                   edge.setProperty("blocked", true);
                 }
                 if (null != field.weight() && null != field.weight().Value()) {
-                  edge.setWeight(Double.parseDouble(field.weight().Value().getText()));
+                  edge.setWeight(parseDouble(field.weight().Value().getText()));
                 }
                 if (null != field.dependency() && null != field.dependency().Value()) {
                   edge.setDependency(parseInt((field.dependency().Value().getText())));
