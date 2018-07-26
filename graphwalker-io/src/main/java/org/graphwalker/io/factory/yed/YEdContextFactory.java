@@ -119,6 +119,7 @@ import static java.util.Collections.singletonList;
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toMap;
+import static org.apache.commons.lang3.StringEscapeUtils.escapeXml10;
 
 
 /**
@@ -300,7 +301,7 @@ public final class YEdContextFactory implements ContextFactory {
       String formattedDescription = description
         .replaceAll("([^\\\\])\\\\n", "$1\n")
         .replace("\\\\n", "\\n");
-      str.append(newLine + "/* " + formattedDescription + " */");
+      str.append(newLine + "/* " + escapeXml10(formattedDescription) + " */");
     }
 
     if (!actions.isEmpty()) {
@@ -348,6 +349,11 @@ public final class YEdContextFactory implements ContextFactory {
     str.append("          </y:Path>").append(newLine);
     str.append("          <y:LineStyle type=\"line\" width=\"1.0\" color=\"" + colorCode + "\" />").append(newLine);
     str.append("          <y:Arrows source=\"none\" target=\"standard\"/>").append(newLine);
+
+    if (name == null) {
+      throw new IllegalStateException("Edge @id=\"" + id + "\" has no name");
+    }
+
     if (!name.isEmpty()) {
       String label = name;
 
@@ -364,7 +370,7 @@ public final class YEdContextFactory implements ContextFactory {
         String formattedDescription = description
           .replaceAll("([^\\\\])\\\\n", "$1\n")
           .replace("\\\\n", "\\n");
-        label += newLine + "/* " + formattedDescription + " */";
+        label += newLine + "/* " + escapeXml10(formattedDescription) + " */";
       }
 
       if (dependency != 0) {
@@ -482,7 +488,7 @@ public final class YEdContextFactory implements ContextFactory {
       if (context.getNextElement() != null
         && context.getNextElement() instanceof RuntimeEdge
         && ((RuntimeEdge) context.getNextElement()).getTargetVertex() != null) {
-        int n = 0, e = 0;
+        int n = g, e = 0;
         while (uniqueVertices.containsValue("n" + n)) {
           n++;
         }
