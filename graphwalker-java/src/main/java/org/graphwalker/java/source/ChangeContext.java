@@ -31,6 +31,7 @@ import org.graphwalker.core.model.Element;
 import org.graphwalker.core.model.Vertex.RuntimeVertex;
 
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 import japa.parser.ast.body.MethodDeclaration;
@@ -43,13 +44,13 @@ import static org.graphwalker.core.model.Model.RuntimeModel;
 public final class ChangeContext {
 
   private final RuntimeModel model;
-  private final ClassName className;
+  private final SourceFile sourceFile;
   private final Set<String> methodNames;
   private final Set<MethodDeclaration> methodDeclarations = new HashSet<>();
 
-  public ChangeContext(RuntimeModel model, ClassName className) {
+  public ChangeContext(RuntimeModel model, SourceFile sourceFile) {
     this.model = model;
-    this.className = className;
+    this.sourceFile = sourceFile;
     methodNames = extractMethodNames(model);
   }
 
@@ -74,12 +75,12 @@ public final class ChangeContext {
     for (Element element : model.getElements()) {
       if (element instanceof RuntimeVertex) {
         if (element.hasName() && !"Start".equalsIgnoreCase(element.getName())) {
-          if (isMatch(className, ((RuntimeVertex) element), model)) {
+          if (isMatch(sourceFile, ((RuntimeVertex) element), model)) {
             methodNames.add(element.getName());
           }
         }
       } else if (element instanceof RuntimeEdge) {
-        if (isMatch(className, ((RuntimeEdge) element).getTargetVertex(), model)) {
+        if (isMatch(sourceFile, ((RuntimeEdge) element).getTargetVertex(), model)) {
           methodNames.add(element.getName());
         }
       } else {
@@ -89,15 +90,16 @@ public final class ChangeContext {
     return methodNames;
   }
 
-  private static boolean isMatch(ClassName className, RuntimeVertex vertex, RuntimeModel model) {
+  private static boolean isMatch(SourceFile sourceFile, RuntimeVertex vertex, RuntimeModel model) {
     if (vertex == null) {
       return false;
     }
     String groupName = vertex.getGroupName();
     if (groupName != null) {
-      return className.equals(new ClassName(groupName));
+      return Objects.equals(sourceFile.getClassName(), new ClassName(groupName))
+        || Objects.equals(sourceFile.getPackageName(), "link");
     }
-    return className.equals(new ClassName(model.getName()));
+    return sourceFile.getClassName().equals(new ClassName(model.getName()));
   }
 
 }

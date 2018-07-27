@@ -262,7 +262,7 @@ public final class CodeGenerator extends VoidVisitorAdapter<ChangeContext> {
 
   public String generate(SourceFile sourceFile, RuntimeModel model) {
     CompilationUnit compilationUnit = getCompilationUnit(sourceFile);
-    ChangeContext changeContext = new ChangeContext(model, sourceFile.getClassName());
+    ChangeContext changeContext = new ChangeContext(model, sourceFile);
     visit(compilationUnit, changeContext);
     removeMethods(compilationUnit, changeContext);
     generateMethods(compilationUnit, changeContext);
