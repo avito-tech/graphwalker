@@ -684,4 +684,16 @@ public class YEdContextFactoryTest {
     assertThat(readContext.getModel().getEdges(), hasItem(hasProperty("weight", equalTo(0.533))));
     assertThat(readContext.getModel().getEdges(), hasItem(hasProperty("description", equalTo("Edge Loop"))));
   }
+
+  @Test
+  public void readCommentaryCodeTag() throws IOException {
+    Context context = new YEdContextFactory().create(Paths.get("graphml/tags/code.graphml")).get(0);
+    RuntimeModel model = context.getModel();
+    List<RuntimeEdge> edges = model.getEdges();
+    assertThat(edges.get(0).getCodeTag().toString(), equalTo("@code message(\"Hello World\");"));
+    assertThat(edges.get(1).getCodeTag().toString(), equalTo("@code message((Number)id((Boolean)flag()));"));
+    List<RuntimeVertex> vertices = model.getVertices();
+    assertThat(vertices.get(0).getCodeTag().toString(), equalTo("@code (Boolean)message((String)prefix(\"pre\"), (String)suffix());"));
+    assertThat(vertices.get(1).getCodeTag().toString(), equalTo("@code message((Number)convert(1.0));"));
+  }
 }

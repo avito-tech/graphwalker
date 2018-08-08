@@ -50,10 +50,9 @@ import static org.graphwalker.core.common.Objects.unmodifiableList;
 public class Vertex extends CachedBuilder<Vertex, Vertex.RuntimeVertex> {
 
   private String sharedState;
-
   private String groupName;
-
   private List<Action> setActions = new ArrayList<>();
+  private CodeTag codeTag;
 
   /**
    * Gets the name of the shared state.
@@ -116,6 +115,14 @@ public class Vertex extends CachedBuilder<Vertex, Vertex.RuntimeVertex> {
     return new RuntimeVertex(this);
   }
 
+  public void setCodeTag(CodeTag codeTag) {
+    this.codeTag = codeTag;
+  }
+
+  public CodeTag getCodeTag() {
+    return codeTag;
+  }
+
   /**
    * <h1>RuntimeVertex</h1>
    * Immutable class for Vertex
@@ -130,7 +137,8 @@ public class Vertex extends CachedBuilder<Vertex, Vertex.RuntimeVertex> {
     private final boolean indegrees;
     private final boolean outdegrees;
 
-    private String groupName;
+    private final String groupName;
+    private final CodeTag codeTag;
 
     private RuntimeVertex(Vertex vertex) {
       super(vertex.getId(), vertex.getName(), vertex.getDescription(), vertex.getRequirements(), vertex.getProperties());
@@ -138,6 +146,7 @@ public class Vertex extends CachedBuilder<Vertex, Vertex.RuntimeVertex> {
       this.indegrees = vertex.hasIndegrees();
       this.outdegrees = vertex.hasOutdegrees();
       this.groupName = vertex.groupName;
+      this.codeTag = vertex.getCodeTag();
     }
 
     public boolean hasIndegrees() {
@@ -169,6 +178,10 @@ public class Vertex extends CachedBuilder<Vertex, Vertex.RuntimeVertex> {
      */
     public boolean hasSharedState() {
       return isNotNullOrEmpty(sharedState);
+    }
+
+    public CodeTag getCodeTag() {
+      return codeTag;
     }
 
     /**

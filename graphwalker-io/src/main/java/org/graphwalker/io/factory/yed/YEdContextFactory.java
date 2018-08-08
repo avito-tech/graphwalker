@@ -120,6 +120,10 @@ import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toMap;
 import static org.apache.commons.lang3.StringEscapeUtils.escapeXml10;
+import static org.graphwalker.dsl.yed.YEdEdgeParser.ActionContext;
+import static org.graphwalker.dsl.yed.YEdEdgeParser.FieldContext;
+import static org.graphwalker.dsl.yed.YEdEdgeParser.ParseContext;
+import static org.graphwalker.dsl.yed.YEdEdgeParser.ReqtagContext;
 
 
 /**
@@ -1021,6 +1025,18 @@ public final class YEdContextFactory implements ContextFactory {
                       }
                       if (null != field.description()) {
                         vertex.setDescription(field.description().getText());
+
+                        if (null != field.description().code()) {
+                          if (null != field.description().code().voidExpression()
+                            && null != field.description().code().voidExpression().voidMethod()) {
+                            vertex.setCodeTag(new CodeTagParser().parse(
+                              field.description().code().voidExpression().voidMethod()));
+                          }
+                          if (null != field.description().code().booleanMethod()) {
+                            vertex.setCodeTag(new CodeTagParser().parse(
+                              field.description().code().booleanMethod()));
+                          }
+                        }
                       }
                     }
                     elements.put(node.getId(), vertex);
@@ -1086,9 +1102,6 @@ public final class YEdContextFactory implements ContextFactory {
     for (XmlObject object : document.selectPath(NAMESPACE + "$this/xq:graphml/xq:graph/xq:edge")) {
       if (object instanceof org.graphdrawing.graphml.xmlns.EdgeType) {
         org.graphdrawing.graphml.xmlns.EdgeType edgeType = (org.graphdrawing.graphml.xmlns.EdgeType) object;
-        if (edgeType == null) {
-          throw new XmlException("Expected a valid edge");
-        }
         Edge edge = new Edge();
         for (Map.Entry<String, KeyType> entry : propKeys.entrySet()) {
           KeyType value = entry.getValue();
@@ -1118,7 +1131,7 @@ public final class YEdContextFactory implements ContextFactory {
               YEdEdgeParser parser = new YEdEdgeParser(getTokenStream(label.toString()));
               parser.removeErrorListeners();
               parser.addErrorListener(YEdDescriptiveErrorListener.INSTANCE);
-              YEdEdgeParser.ParseContext parseContext = parser.parse();
+              ParseContext parseContext = parser.parse();
 
               Vertex sourceVertex = elements.get(edgeType.getSource());
               if (null != sourceVertex) {
@@ -1131,7 +1144,7 @@ public final class YEdContextFactory implements ContextFactory {
                   edge.addAction(set);
                 }
               }
-              for (YEdEdgeParser.FieldContext field : parseContext.field()) {
+              for (FieldContext field : parseContext.field()) {
                 if (null != field.names()) {
                   edge.setName(field.names().getText());
                 }
@@ -1154,7 +1167,15 @@ public final class YEdContextFactory implements ContextFactory {
                   edge.setDependency(parseInt((field.dependency().Value().getText())));
                 }
                 if (null != field.description()) {
-                    edge.setDescription(field.description().getText());
+                  edge.setDescription(field.description().getText());
+
+                  if (null != field.description().code()) {
+                    if (null != field.description().code().voidExpression()
+                      && null != field.description().code().voidExpression().voidMethod()) {
+                      edge.setCodeTag(new CodeTagParser().parse(
+                        field.description().code().voidExpression().voidMethod()));
+                    }
+                  }
                 }
               }
               if (null != edge.getTargetVertex()) {
@@ -1204,9 +1225,9 @@ public final class YEdContextFactory implements ContextFactory {
     throw new ContextFactoryException("Unsupported edge type: " + xml);
   }
 
-  private List<Action> convertEdgeAction(List<YEdEdgeParser.ActionContext> actionContexts) {
+  private List<Action> convertEdgeAction(List<ActionContext> actionContexts) {
     List<Action> actions = new ArrayList<>();
-    for (YEdEdgeParser.ActionContext actionContext : actionContexts) {
+    for (ActionContext actionContext : actionContexts) {
       actions.add(new Action(actionContext.getText()));
     }
     return actions;
@@ -1220,9 +1241,9 @@ public final class YEdContextFactory implements ContextFactory {
     return actions;
   }
 
-  private Set<Requirement> convertEdgeRequirement(List<YEdEdgeParser.ReqtagContext> reqtagContexts) {
+  private Set<Requirement> convertEdgeRequirement(List<ReqtagContext> reqtagContexts) {
     Set<Requirement> requirements = new HashSet<>();
-    for (YEdEdgeParser.ReqtagContext reqtagContext : reqtagContexts) {
+    for (ReqtagContext reqtagContext : reqtagContexts) {
       requirements.add(new Requirement(reqtagContext.getText()));
     }
     return requirements;

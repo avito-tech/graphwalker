@@ -60,6 +60,7 @@ public class Edge extends CachedBuilder<Edge, Edge.RuntimeEdge> {
   private List<Action> actions = new ArrayList<>();
   private Double weight = 1.0;
   private Integer dependency = 0;
+  private CodeTag codeTag;
 
   /**
    * Sets the source vertex of the edge.
@@ -233,6 +234,14 @@ public class Edge extends CachedBuilder<Edge, Edge.RuntimeEdge> {
     return this;
   }
 
+  public void setCodeTag(CodeTag codeTag) {
+    this.codeTag = codeTag;
+  }
+
+  public CodeTag getCodeTag() {
+    return codeTag;
+  }
+
   /**
    * <h1>RuntimeEdge</h1>
    * Immutable class for Edge
@@ -248,6 +257,7 @@ public class Edge extends CachedBuilder<Edge, Edge.RuntimeEdge> {
     private final Guard guard;
     private final Double weight;
     private final Integer dependency;
+    private final CodeTag codeTag;
 
     private RuntimeEdge(Edge edge) {
       super(edge.getId(), edge.getName(), edge.getDescription(), edge.getActions(), edge.getRequirements(), edge.getProperties());
@@ -256,6 +266,7 @@ public class Edge extends CachedBuilder<Edge, Edge.RuntimeEdge> {
       this.guard = edge.getGuard();
       this.weight = edge.getWeight();
       this.dependency = edge.getDependency();
+      this.codeTag = edge.getCodeTag();
     }
 
     private <T> T build(Builder<T> builder) {
@@ -304,6 +315,10 @@ public class Edge extends CachedBuilder<Edge, Edge.RuntimeEdge> {
      */
     public Double getWeight() {
       return weight;
+    }
+
+    public CodeTag getCodeTag() {
+      return codeTag;
     }
 
     /**
@@ -367,7 +382,6 @@ public class Edge extends CachedBuilder<Edge, Edge.RuntimeEdge> {
     public double getDependencyAsDouble() {
       return (double) getDependency() / 100;
     }
-
 
   }
 }
