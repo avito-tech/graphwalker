@@ -25,10 +25,6 @@ Identifier
  : Letter LetterOrDigit*
  ;
 
-String
- : '"' ~["] '"'
- ;
-
 Value
  : Integer | Integer? ('.' Digit+)
  ;
@@ -68,10 +64,6 @@ LetterOrDigit
    {Character.isJavaIdentifierPart(Character.toCodePoint((char)_input.LA(-2), (char)_input.LA(-1)))}?
  ;
 
-COMMENT
- : '/*' .*? '*/'
- ;
-
 LINE_COMMENT
  :   WHITESPACE '//' ~[\r\n]* -> skip
  ;
@@ -80,7 +72,99 @@ WHITESPACE
  : [ \t\r\n\u000C]+
  ;
 
-ANY
- : .
+JAVADOC_START
+	: '/*' STAR* -> pushMode(IN_DESCRIPTION)
+	;
+
+COMMENT
+ : '/*' ~[@]* '*/'
  ;
 
+mode IN_DESCRIPTION;
+
+MINUS            : '-';
+PLUS             : '+';
+ARG_SPLITTER     : ',';
+ROOT_METHOD_END  : ';';
+CODE_TAG         : '@code' DOCSPACE+;
+BOOLEAN_VALUE    : 'true'|'false';
+STRING_CAST      : '(String)'|'(string)';
+NUMBER_CAST      : '(Number)'|'(number)';
+BOOLEAN_CAST     : '(Boolean)'|'(boolean)';
+METHOD_NAME      : LowerCaseLetter MethodLetter*;
+ARGS_START       : '(';
+ARGS_END         : ')';
+JAVADOC_END      : WHITESPACE? STAR* '*/' -> popMode;
+
+DESCRIPTION_COMMENT
+ : (';' | '\r' '\n' | '\n' | '\r') (~'*' | '*' ~'/')*
+ ;
+
+STAR
+	: '*'
+	;
+
+DOCSPACE
+ : [ \t\r\n]+
+ ;
+
+STRING_LITERAL
+	:	'"' StringCharacters? '"'
+	;
+
+fragment
+LowerCaseLetter
+	:	[a-z]
+	;
+
+fragment
+MethodLetter
+	:	[a-zA-Z0-9]
+	;
+
+fragment
+StringCharacters
+	:	StringCharacter+
+	;
+
+fragment
+StringCharacter
+	:	~["\\]
+	|	EscapeSequence
+	;
+
+fragment
+EscapeSequence
+	:	'\\' [btnfr"'\\]
+	|	OctalEscape
+	;
+
+fragment
+OctalEscape
+	:	'\\' OctalDigit
+	|	'\\' OctalDigit OctalDigit
+	|	'\\' ZeroToThree OctalDigit OctalDigit
+	;
+
+fragment
+ZeroToThree
+	:	[0-3]
+	;
+
+fragment
+OctalDigit
+	:	[0-7]
+	;
+
+REAL_VALUE
+   : Decimal ('.' DecimalDigit+)?
+   ;
+
+fragment Decimal
+  :
+  '0' | '1'..'9' DecimalDigit*
+  ;
+
+fragment DecimalDigit
+  :
+  '0'..'9' ;

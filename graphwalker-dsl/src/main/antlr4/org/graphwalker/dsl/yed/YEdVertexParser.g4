@@ -4,6 +4,8 @@ options {
 	tokenVocab=YEdLabelLexer;
 }
 
+import DescriptionParser;
+
 parse
  locals [java.util.Set<String> fields = new java.util.HashSet<String>();]
  : start
@@ -120,10 +122,20 @@ guard
  : NestedBrackets
  ;
 
-description
- : (COMMENT)+
- ;
-
 weight
  : WEIGHT WHITESPACE* ASSIGN WHITESPACE* Value
+ ;
+
+description
+ : comment
+ | JAVADOC_START DOCSPACE* code DOCSPACE* JAVADOC_END
+ | JAVADOC_START DOCSPACE* code DOCSPACE* DESCRIPTION_COMMENT JAVADOC_END
+ ;
+
+comment
+ : COMMENT
+ ;
+
+code
+ : CODE_TAG (voidExpression|booleanMethod)
  ;
