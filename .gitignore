@@ -27,6 +27,8 @@ release.properties
 work/
 amps-standalone/
 **/node_modules
+/graphwalker-dsl/gen/**
+/graphwalker-dsl/**/*.tokens
 
 # Mac stuff #
 #############
