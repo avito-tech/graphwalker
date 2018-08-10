@@ -351,7 +351,7 @@ public class GenerateTest {
         "@Model(file = \"org/graphwalker/java/graphml/MyModel.graphml\")\n" +
         "public interface MyModel {\n" +
         "\n" +
-        "    @Vertex(value = \"@code isBrowserStarted(\\\"Firefox\\\")\\nbrowser started\")\n" +
+        "    @Vertex(value = \"@code isBrowserStarted(\\\"Firefox\\\")\\n            browser started\")\n" +
         "    default boolean v_BrowserStarted() {\n" +
         "        return isBrowserStarted(\"Firefox\");\n" +
         "    }\n" +
@@ -361,7 +361,7 @@ public class GenerateTest {
         "        runBrowser(\"Firefox\");\n" +
         "    }\n" +
         "\n" +
-        "    @Edge(value = \"@code get(\\\"https://www.avito.ru\\\");\\nHome page navigation\")\n" +
+        "    @Edge(value = \"@code get(\\\"https://www.avito.ru\\\");\\n            Home page navigation\")\n" +
         "    default void e_navigate() {\n" +
         "        get(\"https://www.avito.ru\");\n" +
         "    }\n" +

@@ -334,7 +334,7 @@ public final class CodeGenerator extends VoidVisitorAdapter<ChangeContext> {
         Type type;
         CodeTag codeTag;
         if (vertices != null) {
-          String description = getOrElse(vertices, RuntimeVertex::getDescription, "");
+          String description = getOrElse(vertices, unquote(RuntimeVertex::getDescription), "");
           codeTag = getOrElse(vertices, RuntimeVertex::getCodeTag, null);
           NodeList<MemberValuePair> memberValuePairs = new NodeList<>(new MemberValuePair("value", new StringLiteralExpr(description)));
           annotations.add(new NormalAnnotationExpr(new Name("Vertex"), memberValuePairs));
@@ -342,7 +342,7 @@ public final class CodeGenerator extends VoidVisitorAdapter<ChangeContext> {
         } else {
           List<RuntimeEdge> edges = changeContext.getModel().findEdges(methodName);
           if (edges != null) {
-            String description = getOrElse(edges, RuntimeEdge::getDescription, "");
+            String description = getOrElse(edges, unquote(RuntimeEdge::getDescription), "");
             codeTag = getOrElse(edges, RuntimeEdge::getCodeTag, null);
             NodeList<MemberValuePair> memberValuePairs = new NodeList<>(new MemberValuePair("value", new StringLiteralExpr(description)));
             annotations.add(new NormalAnnotationExpr(new Name("Edge"), memberValuePairs));
@@ -438,6 +438,10 @@ public final class CodeGenerator extends VoidVisitorAdapter<ChangeContext> {
     }
     methods.add(0, methodDeclaration.setParameters(parameters));
     return methods;
+  }
+
+  private static <T> Function<T, String> unquote(Function<T, String> extractor) {
+    return extractor.andThen(s -> s.replaceAll("\"", "\\\\\""));
   }
 
   private static <T, V> V getOrElse(List<T> elements, Function<T, V> extractor, V defaultValue) {

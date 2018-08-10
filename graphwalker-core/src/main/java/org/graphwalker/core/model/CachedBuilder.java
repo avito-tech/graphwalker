@@ -109,7 +109,7 @@ public abstract class CachedBuilder<B, T> extends BuilderBase<B, T> {
   }
 
   private static String unquote(String comment) {
-    return comment.replace("\\", "\\\\").replaceAll("\"", "\\\\\"");
+    return comment.replace("\\", "\\\\");
   }
 
   private static String inline(String comment) {
