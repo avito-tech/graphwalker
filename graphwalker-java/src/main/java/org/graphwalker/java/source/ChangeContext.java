@@ -26,6 +26,8 @@ package org.graphwalker.java.source;
  * #L%
  */
 
+import com.github.javaparser.ast.body.MethodDeclaration;
+
 import org.graphwalker.core.model.Edge.RuntimeEdge;
 import org.graphwalker.core.model.Element;
 import org.graphwalker.core.model.Vertex.RuntimeVertex;
@@ -33,8 +35,6 @@ import org.graphwalker.core.model.Vertex.RuntimeVertex;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
-
-import japa.parser.ast.body.MethodDeclaration;
 
 import static org.graphwalker.core.model.Model.RuntimeModel;
 

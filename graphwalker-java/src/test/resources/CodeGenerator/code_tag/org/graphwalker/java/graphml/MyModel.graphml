@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<graphml xmlns="http://graphml.graphdrawing.org/xmlns"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:y="http://www.yworks.com/xml/graphml"
+  xsi:schemaLocation="http://graphml.graphdrawing.org/xmlns http://www.yworks.com/xml/schema/graphml/1.1/ygraphml.xsd">
+  <!--Created by yEd 3.17.2-->
+  <key for="port" id="d0" yfiles.type="portgraphics" />
+  <key for="port" id="d1" yfiles.type="portgeometry" />
+  <key for="port" id="d2" yfiles.type="portuserdata" />
+  <key attr.name="url" attr.type="string" for="node" id="d3" />
+  <key attr.name="description" attr.type="string" for="node" id="d4" />
+  <key for="node" id="d5" yfiles.type="nodegraphics" />
+  <key for="graphml" id="d6" yfiles.type="resources" />
+  <key attr.name="url" attr.type="string" for="edge" id="d7" />
+  <key attr.name="description" attr.type="string" for="edge" id="d8" />
+  <key for="edge" id="d9" yfiles.type="edgegraphics" />
+  <graph edgedefault="directed" id="G">
+    <node id="n0">
+      <data key="d5">
+        <y:ShapeNode>
+          <y:Geometry height="30.0" width="95.0" x="55.0" y="0.0" />
+          <y:Fill color="#CCCCFF" transparent="false" />
+          <y:BorderStyle color="#000000" type="line" width="1.0" />
+          <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="12"
+            fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="35.65234375"
+            horizontalTextPosition="center" iconTextGap="4" modelName="internal" modelPosition="c"
+            textColor="#000000" verticalTextPosition="bottom" visible="true" width="33.70703125"
+            x="30.646484375" y="-2.826171875">Start
+          </y:NodeLabel>
+          <y:Shape type="rectangle" />
+        </y:ShapeNode>
+      </data>
+    </node>
+    <node id="n1">
+      <data key="d5">
+        <y:ShapeNode>
+          <y:Geometry height="60.0" width="350.0" x="-72.5" y="166.47851562500003" />
+          <y:Fill color="#CCCCFF" transparent="false" />
+          <y:BorderStyle color="#000000" type="line" width="1.0" />
+          <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="12"
+            fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="67.3046875"
+            horizontalTextPosition="center" iconTextGap="4" modelName="internal" modelPosition="c"
+            textColor="#000000" verticalTextPosition="bottom" visible="true" width="237.3671875"
+            x="56.31640625" y="-3.65234375">v_BrowserStarted
+            /* @code isBrowserStarted("Firefox")
+            browser started */
+          </y:NodeLabel>
+          <y:Shape type="rectangle" />
+        </y:ShapeNode>
+      </data>
+    </node>
+    <node id="n2">
+      <data key="d5">
+        <y:ShapeNode>
+          <y:Geometry height="60.0" width="350.0" x="-72.5" y="362.95703125000006" />
+          <y:Fill color="#CCCCFF" transparent="false" />
+          <y:BorderStyle color="#000000" type="line" width="1.0" />
+          <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="12"
+            fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="51.478515625"
+            horizontalTextPosition="center" iconTextGap="4" modelName="internal" modelPosition="c"
+            textColor="#000000" verticalTextPosition="bottom" visible="true" width="134.81640625"
+            x="107.591796875" y="4.2607421875">v_OpenHome
+            /* page opened */
+          </y:NodeLabel>
+          <y:Shape type="rectangle" />
+        </y:ShapeNode>
+      </data>
+    </node>
+    <edge id="e0" source="n0" target="n1">
+      <data key="d9">
+        <y:PolyLineEdge>
+          <y:Path sx="0.0" sy="15.0" tx="0.0" ty="-15.0" />
+          <y:LineStyle color="#000000" type="line" width="1.0" />
+          <y:Arrows source="none" target="standard" />
+          <y:EdgeLabel alignment="center" distance="2.0" fontFamily="Dialog" fontSize="12"
+            fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="51.478515625"
+            horizontalTextPosition="center" iconTextGap="4" modelName="free"
+            modelPosition="anywhere" preferredPlacement="on_edge" ratio="0.5" textColor="#000000"
+            verticalTextPosition="bottom" visible="true" width="219.9765625" x="-109.98828125"
+            y="55.0">e_init
+            /* @code runBrowser("Firefox") */
+            <y:PreferredPlacementDescriptor angle="0.0" angleOffsetOnRightSide="0"
+              angleReference="absolute" angleRotationOnRightSide="co" distance="-1.0" frozen="true"
+              placement="anywhere" side="on_edge" sideReference="relative_to_edge_flow" />
+          </y:EdgeLabel>
+          <y:BendStyle smoothed="false" />
+        </y:PolyLineEdge>
+      </data>
+    </edge>
+    <edge id="e1" source="n1" target="n2">
+      <data key="d9">
+        <y:BezierEdge>
+          <y:Path sx="0.0" sy="0.0" tx="0.0" ty="0.0" />
+          <y:LineStyle color="#000000" type="line" width="1.0" />
+          <y:Arrows source="none" target="standard" />
+          <y:EdgeLabel alignment="center" configuration="AutoFlippingLabel" distance="2.0"
+            fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false"
+            hasLineColor="false" height="51.478515625" horizontalTextPosition="center"
+            iconTextGap="4" modelName="custom" preferredPlacement="anywhere" ratio="0.5"
+            textColor="#000000" verticalTextPosition="bottom" visible="true" width="205.7734375"
+            x="-213.88671875" y="40.5">e_navigate
+            /* @code get("https://www.avito.ru");
+            Home page navigation */
+            <y:LabelModel>
+              <y:SmartEdgeLabelModel autoRotationEnabled="false" defaultAngle="0.0"
+                defaultDistance="10.0" />
+            </y:LabelModel>
+            <y:ModelParameter>
+              <y:SmartEdgeLabelModelParameter angle="6.283185307179586" distance="111.0"
+                distanceToCenter="true" position="right" ratio="0.473333333333333" segment="-1" />
+            </y:ModelParameter>
+            <y:PreferredPlacementDescriptor angle="0.0" angleOffsetOnRightSide="0"
+              angleReference="absolute" angleRotationOnRightSide="co" distance="-1.0" frozen="true"
+              placement="anywhere" side="anywhere" sideReference="relative_to_edge_flow" />
+          </y:EdgeLabel>
+        </y:BezierEdge>
+      </data>
+    </edge>
+  </graph>
+  <data key="d6">
+    <y:Resources />
+  </data>
+</graphml>

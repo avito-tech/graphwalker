@@ -7,7 +7,7 @@
     <parent>
         <groupId>org.graphwalker</groupId>
         <artifactId>graphwalker-project</artifactId>
-      <version>4.1.3</version>
+      <version>4.1.4</version>
     </parent>
 
     <artifactId>graphwalker-dsl</artifactId>
@@ -36,6 +36,9 @@
             <plugin>
                 <groupId>org.antlr</groupId>
                 <artifactId>antlr4-maven-plugin</artifactId>
+              <configuration>
+                <libDirectory>${basedir}/src/main/antlr4/org/graphwalker/dsl/yed</libDirectory>
+              </configuration>
                 <executions>
                     <execution>
                         <id>antlr</id>

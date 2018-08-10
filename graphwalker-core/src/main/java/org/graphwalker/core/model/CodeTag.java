@@ -64,7 +64,7 @@ public class CodeTag {
     }
   }
 
-  enum TypePrefix {
+  public enum TypePrefix {
     VOID(""), STRING("(String)"), NUMBER("(Number)"), BOOLEAN("(Boolean)");
 
     private final String value;
@@ -93,9 +93,31 @@ public class CodeTag {
       this.arguments = arguments;
     }
 
+    public TypePrefix getTypePrefix() {
+      return typePrefix;
+    }
+
+    public String getName() {
+      return name;
+    }
+
+    public List<Expression> getArguments() {
+      return arguments;
+    }
+
+    public String asJavaMethodCall() {
+      String asYedScript = toString();
+      for (TypePrefix prefix : TypePrefix.values()) {
+        if (!prefix.value.isEmpty()) {
+          asYedScript = asYedScript.replace(prefix.value, "");
+        }
+      }
+      return asYedScript;
+    }
+
     @Override
     public String toString() {
-      return String.format("%s%s(%s)",
+      return String.format("%s%s(%s);",
         typePrefix, name, arguments.stream().map(Expression::toString).collect(joining(", ")));
     }
 
@@ -136,7 +158,7 @@ public class CodeTag {
     }
   }
 
-  public static class DoubleMethod extends AbstractMethod implements Expression<Boolean> {
+  public static class DoubleMethod extends AbstractMethod implements Expression<Double> {
 
     public DoubleMethod(String name, List<Expression> arguments) {
       super(NUMBER, name, arguments);
@@ -153,6 +175,10 @@ public class CodeTag {
       throw new IllegalArgumentException("Method " + method + "can not be a root expression, only boolean or void methods are valid");
     }
     this.method = (AbstractMethod) method;
+  }
+
+  public AbstractMethod getMethod() {
+    return method;
   }
 
   @Override
