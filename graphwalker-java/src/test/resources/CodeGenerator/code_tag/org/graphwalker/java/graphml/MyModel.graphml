@@ -39,8 +39,8 @@
           <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="12"
             fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="67.3046875"
             horizontalTextPosition="center" iconTextGap="4" modelName="internal" modelPosition="c"
-            textColor="#000000" verticalTextPosition="bottom" visible="true" width="237.3671875"
-            x="56.31640625" y="-3.65234375">v_BrowserStarted
+            textColor="#000000" verticalTextPosition="bottom" visible="true" width="201.71875"
+            x="74.140625" y="-3.65234375">v_BrowserStarted
             /* @code isBrowserStarted("Firefox")
             browser started */
           </y:NodeLabel>
@@ -57,8 +57,8 @@
           <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="12"
             fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="51.478515625"
             horizontalTextPosition="center" iconTextGap="4" modelName="internal" modelPosition="c"
-            textColor="#000000" verticalTextPosition="bottom" visible="true" width="134.81640625"
-            x="107.591796875" y="4.2607421875">v_OpenHome
+            textColor="#000000" verticalTextPosition="bottom" visible="true" width="99.16796875"
+            x="125.416015625" y="4.2607421875">v_OpenHome
             /* page opened */
           </y:NodeLabel>
           <y:Shape type="rectangle" />
@@ -75,7 +75,7 @@
             fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="51.478515625"
             horizontalTextPosition="center" iconTextGap="4" modelName="free"
             modelPosition="anywhere" preferredPlacement="on_edge" ratio="0.5" textColor="#000000"
-            verticalTextPosition="bottom" visible="true" width="219.9765625" x="-109.98828125"
+            verticalTextPosition="bottom" visible="true" width="184.328125" x="-92.1640625"
             y="55.0">e_init
             /* @code runBrowser("Firefox") */
             <y:PreferredPlacementDescriptor angle="0.0" angleOffsetOnRightSide="0"
@@ -94,10 +94,10 @@
           <y:Arrows source="none" target="standard" />
           <y:EdgeLabel alignment="center" configuration="AutoFlippingLabel" distance="2.0"
             fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false"
-            hasLineColor="false" height="51.478515625" horizontalTextPosition="center"
-            iconTextGap="4" modelName="custom" preferredPlacement="anywhere" ratio="0.5"
-            textColor="#000000" verticalTextPosition="bottom" visible="true" width="205.7734375"
-            x="-213.88671875" y="40.5">e_navigate
+            hasLineColor="false" height="67.3046875" horizontalTextPosition="center" iconTextGap="4"
+            modelName="custom" preferredPlacement="anywhere" ratio="0.5" textColor="#000000"
+            verticalTextPosition="bottom" visible="true" width="202.802734375" x="-212.4013671875"
+            y="33.00894531250003">e_navigate
             /* @code get("https://www.avito.ru");
             Home page navigation */
             <y:LabelModel>

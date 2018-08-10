@@ -43,7 +43,9 @@ public class YEdDescriptiveErrorListener extends BaseErrorListener {
   public void syntaxError(Recognizer<?, ?> recognizer, Object offendingSymbol,
                           int line, int charPositionInLine,
                           String msg, RecognitionException e) {
-    String message = ((CommonToken) offendingSymbol).getInputStream().toString().trim();
+    String message = offendingSymbol != null
+      ? ((CommonToken) offendingSymbol).getInputStream().toString().trim()
+      : msg + "...";
     throw new DslException("The string '" + message + "' did not conform to GraphWalker syntax rules.");
   }
 }

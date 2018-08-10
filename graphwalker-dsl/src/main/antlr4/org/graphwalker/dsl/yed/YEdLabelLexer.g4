@@ -17,6 +17,24 @@ REQTAG    : 'REQTAG';
 WEIGHT    : [Ww][Ee][Ii][Gg][Hh][Tt];
 DEPENDENCY    : [Dd][Ee][Pp][Ee][Nn][Dd][Ee][Nn][Cc][Yy];
 
+JS_PLUS         : '+';
+JS_MINUS        : '-';
+JS_MUL          : '*';
+JS_MOD          :	'%';
+JS_INC          :	'++';
+JS_DEC          :	'--';
+JS_NOT          :	'!';
+JS_PLUS_ASSIGN  : JS_PLUS ASSIGN;
+JS_MINUS_ASSIGN : JS_MINUS ASSIGN;
+JS_MUL_ASSIGN   : JS_MUL ASSIGN;
+JS_DIV_ASSIGN   : SLASH ASSIGN;
+JS_MOD_ASSIGN   : JS_MOD ASSIGN;
+JS_LITERAL     	:	'"' (~["\r\n])* '"';
+JS_ARRAY      	:	'[' ((Identifier (COMMA Identifier)*)|((JS_MINUS? Value) (COMMA (JS_MINUS? Value))*))? ']';
+JS_FUNCTION     :	'function(' (Identifier (COMMA Identifier)*)? '){' (JS_FOR|(~[}\r\n]))* '}';
+JS_FOR          :	'for(' (~[;\r\n])* ';' (~[;\r\n])* ';' (~[;\r\n])* '){' (~[}\r\n])* '}';
+JS_METHOD_CALL  :	Identifier '(' (~[)\r\n])* ')';
+
 NestedBrackets
  :  '[' ( ~('[' | ']') | NestedBrackets )* ']'
  ;
@@ -77,7 +95,7 @@ JAVADOC_START
 	;
 
 COMMENT
- : '/*' ~[@]* '*/'
+ : '/*' ( ~[@*] | ('*' ~'/') )* '*/'
  ;
 
 mode IN_DESCRIPTION;

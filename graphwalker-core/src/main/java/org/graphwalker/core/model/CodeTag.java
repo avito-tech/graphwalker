@@ -112,12 +112,12 @@ public class CodeTag {
           asYedScript = asYedScript.replace(prefix.value, "");
         }
       }
-      return asYedScript;
+      return asYedScript + ";";
     }
 
     @Override
     public String toString() {
-      return String.format("%s%s(%s);",
+      return String.format("%s%s(%s)",
         typePrefix, name, arguments.stream().map(Expression::toString).collect(joining(", ")));
     }
 
@@ -195,7 +195,6 @@ public class CodeTag {
 
   @Override
   public int hashCode() {
-
     return Objects.hash(method);
   }
 }

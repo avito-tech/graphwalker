@@ -58,6 +58,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static java.util.Collections.singleton;
+import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
@@ -196,8 +197,8 @@ public class YEdContextFactoryTest {
     assertNotNull(contexts);
     assertThat(contexts.size(), is(1));
     RuntimeEdge edge = contexts.get(0).getModel().findEdges("init").get(0);
-    assertThat(edge.getActions().size(), is(1));
-    assertThat(edge.getActions().get(0).getScript(),
+    assertThat(edge.getActions().size(), is(3));
+    assertThat(edge.getActions().stream().map(Action::getScript).collect(joining()),
                is(" elements = [1,2,3]; value = 0; toString = function(){for(var i = 0;i<elements.length;i++){value+=elements[i]}return value};"));
   }
 
@@ -694,6 +695,6 @@ public class YEdContextFactoryTest {
     assertThat(edges.get(1).getCodeTag().toString(), equalTo("@code message((Number)id((Boolean)flag()));"));
     List<RuntimeVertex> vertices = model.getVertices();
     assertThat(vertices.get(0).getCodeTag().toString(), equalTo("@code (Boolean)message((String)prefix(\"pre\"), (String)suffix());"));
-    assertThat(vertices.get(1).getCodeTag().toString(), equalTo("@code message((Number)convert(1.0));"));
+    assertThat(vertices.get(1).getCodeTag().toString(), equalTo("@code (Boolean)message((Number)convert(1.0));"));
   }
 }
