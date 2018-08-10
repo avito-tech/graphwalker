@@ -87,42 +87,42 @@ public class GenerateTest {
     Assert.assertThat(sources.get(0), occurrencesOfString("@Vertex()", 3));
     Assert.assertThat(sources.get(0), occurrencesOfString("@Edge()", 3));
     Assert.assertThat(sources.get(0), stringContainsInOrder(Arrays.asList(
-      "void e_AddOwner();",
       "boolean v_FindOwners();",
-      "void e_Search();",
+      "boolean v_NewOwner();",
+      "void e_AddOwner();",
       "void e_FindOwners();",
-      "boolean v_NewOwner();"
+      "void e_Search();"
     )));
 
     Assert.assertThat(sources.get(1), containsString("public interface NewOwner {"));
     Assert.assertThat(sources.get(1), occurrencesOfString("@Vertex()", 3));
     Assert.assertThat(sources.get(1), occurrencesOfString("@Edge()", 2));
     Assert.assertThat(sources.get(1), stringContainsInOrder(Arrays.asList(
+      "boolean v_IncorrectData();",
+      "boolean v_NewOwner();",
       "boolean v_OwnerInformation();",
       "void e_CorrectData();",
-      "void e_IncorrectData();",
-      "boolean v_IncorrectData();",
-      "boolean v_NewOwner();"
+      "void e_IncorrectData();"
     )));
 
     Assert.assertThat(sources.get(2), containsString("public interface OwnerInformation {"));
     Assert.assertThat(sources.get(2), occurrencesOfString("@Vertex()", 5));
     Assert.assertThat(sources.get(2), occurrencesOfString("@Edge()", 9));
     Assert.assertThat(sources.get(2), stringContainsInOrder(Arrays.asList(
-      "boolean v_OwnerInformation();",
-      "void e_UpdatePet();",
       "boolean v_FindOwners();",
-      "void e_EditPet();",
-      "void e_AddNewPet();",
-      "void e_AddVisit();",
-      "void e_FindOwners();",
-      "void e_AddPetSuccessfully();",
       "boolean v_NewPet();",
-      "void e_VisitAddedSuccessfully();",
       "boolean v_NewVisit();",
+      "boolean v_OwnerInformation();",
       "boolean v_Pet();",
+      "void e_AddNewPet();",
       "void e_AddPetFailed();",
-      "void e_VisitAddedFailed();"
+      "void e_AddPetSuccessfully();",
+      "void e_AddVisit();",
+      "void e_EditPet();",
+      "void e_FindOwners();",
+      "void e_UpdatePet();",
+      "void e_VisitAddedFailed();",
+      "void e_VisitAddedSuccessfully();"
     )));
 
     Assert.assertThat(sources.get(3), containsString("public interface PetClinic {"));
@@ -130,20 +130,20 @@ public class GenerateTest {
     Assert.assertThat(sources.get(3), occurrencesOfString("@Edge()", 4));
     Assert.assertThat(sources.get(3), stringContainsInOrder(Arrays.asList(
       "boolean v_FindOwners();",
+      "boolean v_HomePage();",
+      "void e_FindOwners();",
       "void e_HomePage();",
       "void e_StartBrowser();",
-      "void e_Veterinarians();",
-      "void e_FindOwners();",
-      "boolean v_HomePage();"
+      "void e_Veterinarians();"
     )));
 
     Assert.assertThat(sources.get(4), containsString("public interface Veterinarians {"));
     Assert.assertThat(sources.get(4), occurrencesOfString("@Vertex()", 2));
     Assert.assertThat(sources.get(4), occurrencesOfString("@Edge()", 1));
     Assert.assertThat(sources.get(4), stringContainsInOrder(Arrays.asList(
-      "void e_Search();",
       "boolean v_SearchResult();",
-      "boolean v_Veterinarians();"
+      "boolean v_Veterinarians();",
+      "void e_Search();"
     )));
   }
 
@@ -195,14 +195,14 @@ public class GenerateTest {
         "@Model(file = \"org/graphwalker/java/graphml/MyModel.graphml\")\n" +
         "public interface MyModel {\n" +
         "\n" +
-        "    @Edge(value = \"Comment\\n1-2\")\n" +
-        "    void edge12();\n" +
-        "\n" +
         "    @Vertex(value = \"Comment 1\")\n" +
         "    boolean vertex1();\n" +
         "\n" +
         "    @Vertex(value = \"Comment \\\"2\\\"\\\\\")\n" +
         "    boolean vertex2();\n" +
+        "\n" +
+        "    @Edge(value = \"Comment\\n1-2\")\n" +
+        "    void edge12();\n" +
         "}\n"
     ));
   }
@@ -249,14 +249,14 @@ public class GenerateTest {
         "@Model(file = \"org/graphwalker/java/graphml/MyModel Part1.graphml\")\n" +
         "public interface MyModel_Part1 {\n" +
         "\n" +
-        "    @Edge(value = \"\")\n" +
-        "    void startEdge();\n" +
+        "    @Vertex(value = \"Comment 1\")\n" +
+        "    boolean vertex1();\n" +
         "\n" +
         "    @Edge(value = \"comment\")\n" +
         "    void edge21();\n" +
         "\n" +
-        "    @Vertex(value = \"Comment 1\")\n" +
-        "    boolean vertex1();\n" +
+        "    @Edge(value = \"\")\n" +
+        "    void startEdge();\n" +
         "}\n"
     ));
 
@@ -275,20 +275,20 @@ public class GenerateTest {
         "@Model(file = \"org/graphwalker/java/graphml/MyModel Part2.graphml\")\n" +
         "public interface MyModel_Part2 {\n" +
         "\n" +
-        "    @Edge(value = \"\")\n" +
-        "    void edge23();\n" +
+        "    @Vertex(value = \"Comment \\\"2\\\"\\\\\")\n" +
+        "    boolean vertex2();\n" +
+        "\n" +
+        "    @Vertex(value = \"Comment 3\")\n" +
+        "    boolean vertex3();\n" +
         "\n" +
         "    @Edge(value = \"\")\n" +
         "    void edge12();\n" +
         "\n" +
         "    @Edge(value = \"\")\n" +
+        "    void edge23();\n" +
+        "\n" +
+        "    @Edge(value = \"\")\n" +
         "    void edge32();\n" +
-        "\n" +
-        "    @Vertex(value = \"Comment 3\")\n" +
-        "    boolean vertex3();\n" +
-        "\n" +
-        "    @Vertex(value = \"Comment \\\"2\\\"\\\\\")\n" +
-        "    boolean vertex2();\n" +
         "}\n"
     ));
   }
@@ -351,7 +351,7 @@ public class GenerateTest {
         "@Model(file = \"org/graphwalker/java/graphml/MyModel.graphml\")\n" +
         "public interface MyModel {\n" +
         "\n" +
-        "    @Vertex(value = \"@code isBrowserStarted(\\\"Firefox\\\")\\n            browser started\")\n" +
+        "    @Vertex(value = \"@code isBrowserStarted(\\\"Firefox\\\")\\nbrowser started\")\n" +
         "    default boolean v_BrowserStarted() {\n" +
         "        return isBrowserStarted(\"Firefox\");\n" +
         "    }\n" +
@@ -361,7 +361,7 @@ public class GenerateTest {
         "        runBrowser(\"Firefox\");\n" +
         "    }\n" +
         "\n" +
-        "    @Edge(value = \"@code get(\\\"https://www.avito.ru\\\"); \\nHome page navigation\")\n" +
+        "    @Edge(value = \"@code get(\\\"https://www.avito.ru\\\");\\nHome page navigation\")\n" +
         "    default void e_navigate() {\n" +
         "        get(\"https://www.avito.ru\");\n" +
         "    }\n" +
