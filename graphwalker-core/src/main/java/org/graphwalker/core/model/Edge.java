@@ -234,8 +234,9 @@ public class Edge extends CachedBuilder<Edge, Edge.RuntimeEdge> {
     return this;
   }
 
-  public void setCodeTag(CodeTag codeTag) {
+  public Edge setCodeTag(CodeTag codeTag) {
     this.codeTag = codeTag;
+    return this;
   }
 
   public CodeTag getCodeTag() {

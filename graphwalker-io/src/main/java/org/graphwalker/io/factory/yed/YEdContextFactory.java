@@ -64,6 +64,7 @@ import org.graphdrawing.graphml.xmlns.impl.KeyForTypeImpl;
 import org.graphdrawing.graphml.xmlns.impl.KeyTypeImpl;
 import org.graphwalker.core.machine.Context;
 import org.graphwalker.core.model.Action;
+import org.graphwalker.core.model.CodeTag;
 import org.graphwalker.core.model.Edge;
 import org.graphwalker.core.model.Edge.RuntimeEdge;
 import org.graphwalker.core.model.Guard;
@@ -260,7 +261,8 @@ public final class YEdContextFactory implements ContextFactory {
               .setName(edgeName)
               .setDescription(in.getDescription())
               .setGuard(in.getGuard())
-              .setWeight(in.getWeight());
+              .setWeight(in.getWeight())
+              .setCodeTag(in.getCodeTag());
             for (Action set : in.getVertex().getSetActions()) {
               edge.addAction(set);
             }
@@ -325,7 +327,7 @@ public final class YEdContextFactory implements ContextFactory {
     if (!indegrees.isEmpty()) {
       str.append(newLine + "INDEGREE: ");
       for (int i = 0; i < indegrees.size(); i++) {
-        str.append(indegrees.get(i) + (i < indegrees.size() - 1 ? ", " : ";"));
+        str.append(escapeXml10(indegrees.get(i).toString()) + (i < indegrees.size() - 1 ? ", " : ";"));
       }
     }
 
@@ -374,7 +376,7 @@ public final class YEdContextFactory implements ContextFactory {
         String formattedDescription = description
           .replaceAll("([^\\\\])\\\\n", "$1\n")
           .replace("\\\\n", "\\n");
-        label += newLine + "/* " + escapeXml10(formattedDescription) + " */";
+        label += newLine + "/* " + formattedDescription + " */";
       }
 
       if (dependency != 0) {
@@ -385,16 +387,10 @@ public final class YEdContextFactory implements ContextFactory {
         label += "\nweight=" + weight;
       }
 
-      label = label.replaceAll("&", "&amp;");
-      label = label.replaceAll("<", "&lt;");
-      label = label.replaceAll(">", "&gt;");
-      label = label.replaceAll("'", "&apos;");
-      label = label.replaceAll("\"", "&quot;");
-
       str.append("          <y:EdgeLabel x=\"-148.25\" y=\"30.0\" width=\"169.0\" height=\"18.0\" "
         + "visible=\"true\" alignment=\"center\" fontFamily=\"Dialog\" fontSize=\"12\" "
         + "fontStyle=\"plain\" textColor=\"" + colorCode + "\" modelName=\"free\" modelPosition=\"anywhere\" "
-        + "preferredPlacement=\"on_edge\" distance=\"2.0\" ratio=\"0.5\">" + label);
+        + "preferredPlacement=\"on_edge\" distance=\"2.0\" ratio=\"0.5\">" + escapeXml10(label));
       str.append("</y:EdgeLabel>").append(newLine);
     }
 
@@ -994,7 +990,18 @@ public final class YEdContextFactory implements ContextFactory {
                       if (null != field.indegrees()) {
                         vertex.setIndegrees(true);
                         for (YEdVertexParser.IndegreeContext indegreeContext : field.indegrees().indegreeList().indegree()) {
-                          String description = indegreeContext.description() != null ? indegreeContext.description().getText() : "";
+                          String description = "";
+                          CodeTag codeTag = null;
+                          if (null != indegreeContext.description()) {
+                            description = indegreeContext.description().getText();
+                            if (null != indegreeContext.description().code()) {
+                              if (null != indegreeContext.description().code().voidExpression()
+                                && null != indegreeContext.description().code().voidExpression().voidMethod()) {
+                                codeTag = new CodeTagParser().parseIndegree(
+                                  indegreeContext.description().code().voidExpression().voidMethod());
+                              }
+                            }
+                          }
                           Guard guard = indegreeContext.guard() != null ? new Guard(indegreeContext.guard().getText()) : null;
                           double weight;
                           try {
@@ -1002,7 +1009,7 @@ public final class YEdContextFactory implements ContextFactory {
                           } catch (NumberFormatException e) {
                             throw new NumberFormatException("For input WEIGHT string: \"" + indegreeContext.weight().getText() + "\"");
                           }
-                          indegrees.put(indegreeContext.element().getText(), new IndegreeVertex(vertex, description, guard, weight));
+                          indegrees.put(indegreeContext.element().getText(), new IndegreeVertex(vertex, description, guard, weight, codeTag));
                         }
                       }
                       if (null != field.outdegrees()) {

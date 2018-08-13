@@ -47,6 +47,10 @@ final class CodeTagParser {
     return new CodeTag(parseEdgeExpression(ctx));
   }
 
+  public CodeTag parseIndegree(YEdVertexParser.VoidMethodContext ctx) {
+    return new CodeTag(parseVertexExpression(ctx));
+  }
+
   public CodeTag parse(YEdVertexParser.VoidMethodContext ctx) {
     // Treat root Void method as Boolean if node type is Vertex;
     // graphwalker-dsl allows non typed root methods for vertices

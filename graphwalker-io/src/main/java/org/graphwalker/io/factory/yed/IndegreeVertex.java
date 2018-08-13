@@ -26,6 +26,7 @@ package org.graphwalker.io.factory.yed;
  * #L%
  */
 
+import org.graphwalker.core.model.CodeTag;
 import org.graphwalker.core.model.Guard;
 import org.graphwalker.core.model.Vertex;
 
@@ -39,11 +40,14 @@ class IndegreeVertex {
 
   private final double weight;
 
-  public IndegreeVertex(Vertex vertex, String description, Guard guard, double weight) {
+  private final CodeTag codeTag;
+
+  public IndegreeVertex(Vertex vertex, String description, Guard guard, double weight, CodeTag codeTag) {
     this.vertex = vertex;
     this.description = description;
     this.guard = guard;
     this.weight = weight;
+    this.codeTag = codeTag;
   }
 
   public Vertex getVertex() {
@@ -60,5 +64,9 @@ class IndegreeVertex {
 
   public double getWeight() {
     return weight;
+  }
+
+  public CodeTag getCodeTag() {
+    return codeTag;
   }
 }
