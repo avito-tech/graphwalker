@@ -83,10 +83,12 @@ public class ShortestNthPath extends PathGeneratorBase<ReachedStopCondition> {
 
   public ShortestNthPath(ReachedStopCondition stopCondition, FitnessFunction ff, UseTop useTop, int index) {
     if (useTop.value < ff.size) {
-      throw new IllegalArgumentException("Number of paths should not be less than batch size");
+      throw new IllegalArgumentException("Number of paths (" + useTop.value
+        + ") should not be less than batch size (" + ff.size + ")");
     }
     if (ff.size <= index) {
-      throw new IllegalArgumentException("Index should be in bounds of batch size");
+      throw new IllegalArgumentException("Index (" + index
+        + ") should be in bounds of batch size (" + ff.size + ")");
     }
 
     this.ff = ff;
