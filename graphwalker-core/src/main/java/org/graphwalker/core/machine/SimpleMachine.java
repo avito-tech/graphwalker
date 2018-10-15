@@ -35,7 +35,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.Random;
+import java.util.UUID;
 
 import static org.graphwalker.core.common.Objects.isNotNull;
 import static org.graphwalker.core.common.Objects.isNull;
@@ -278,7 +283,7 @@ public class SimpleMachine extends MachineBase {
   private void execute(RuntimeEdge edge) {
     execute(edge.getActions());
     if (edge.hasName()) {
-      getCurrentContext().execute(edge.getName());
+      getCurrentContext().execute(edge.getName(), edge.getTargetVertex().getGroupName());
     }
   }
 
@@ -290,7 +295,7 @@ public class SimpleMachine extends MachineBase {
 
   private void execute(RuntimeVertex vertex) {
     if (vertex.hasName()) {
-      getCurrentContext().execute(vertex.getName());
+      getCurrentContext().execute(vertex.getName(), vertex.getGroupName());
     }
   }
 

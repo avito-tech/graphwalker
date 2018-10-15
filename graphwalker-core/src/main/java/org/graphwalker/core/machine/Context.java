@@ -34,10 +34,11 @@ import org.graphwalker.core.model.Element;
 import org.graphwalker.core.model.Requirement;
 import org.graphwalker.core.statistics.Profiler;
 
-import javax.script.ScriptEngine;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+
+import javax.script.ScriptEngine;
 
 import static org.graphwalker.core.model.Edge.RuntimeEdge;
 import static org.graphwalker.core.model.Model.RuntimeModel;
@@ -91,7 +92,7 @@ public interface Context {
 
   void execute(Action action);
 
-  void execute(String name);
+  void execute(String methodName, String groupName);
 
   Map<String, String> getKeys();
 }

@@ -42,6 +42,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -103,38 +104,60 @@ public abstract class ExecutionContext extends SimpleScriptContext implements Co
     engine.setContext(this);
     String script = "var Callable = Java.type(\"java.util.concurrent.Callable\");";
     Compilable compiler = (Compilable) engine;
-    for (Method method : getClass().getMethods()) {
-      String arguments = "";
-      for (int i = 0; i < method.getParameterTypes().length; i++) {
-        if (i > 0) {
-          arguments += ",";
+    Map<String, Object> groups = new HashMap<>(groups());
+    groups.put(null, this);
+    for (Map.Entry<String, Object> group : groups.entrySet()) {
+      String groupName = group.getKey();
+      Object groupImpl = group.getValue();
+      String bindingName = groupName != null ? groupName : "impl";
+      for (Method method : groupImpl.getClass().getMethods()) {
+        String arguments = "";
+        for (int i = 0; i < method.getParameterTypes().length; i++) {
+          if (i > 0) {
+            arguments += ",";
+          }
+          arguments += Character.toChars(65 + i)[0];
         }
-        arguments += Character.toChars(65 + i)[0];
-      }
 
-      if (method.getName().startsWith("v_")) {
-        script += "var " + method.getName() + "Callable = Java.extend(Callable, {" +
-          "  call: function() {" +
-          "    return impl." + method.getName() + "(" + arguments + ");" +
-          "  }" +
-          "});";
-        script += "function " + method.getName() + "(" + arguments;
-        script += ") { return impl.wait(new " + method.getName() + "Callable()); };";
-      } else {
-        script += "function " + method.getName() + "(" + arguments;
-        script += ") { return impl." + method.getName() + "(" + arguments + ");};";
+        String functionName = getFunctionName(method.getName(), groupName);
+        if (method.getName().startsWith("v_")) {
+          script += "var " + functionName + "Callable = Java.extend(Callable, {" +
+            "  call: function() {" +
+            "    return " + bindingName + "." + method.getName() + "(" + arguments + ");" +
+            "  }" +
+            "});";
+          script += "function " + functionName + "(" + arguments;
+          script += ") { return impl.wait(new " + functionName + "Callable()); };";
+        } else {
+          script += "function " + functionName + "(" + arguments;
+          script += ") { return " + bindingName + "." + method.getName() + "(" + arguments + ");};";
+        }
       }
     }
     try {
       CompiledScript compiledScript = compiler.compile(script);
       Bindings bindings = engine.getBindings(ScriptContext.ENGINE_SCOPE);
       bindings.put("impl", this);
+      groups.remove(null);
+      groups.forEach(bindings::put);
       compiledScript.eval(bindings);
       scriptEngine = compiledScript.getEngine();
     } catch (ScriptException e) {
       LOG.error(e.getMessage());
       throw new RuntimeException(e);
     }
+  }
+
+  public Map<String, Object> groups() {
+    return Collections.singletonMap(null, this);
+  }
+
+  public Method getMethod(String methodName, String groupName) throws NoSuchMethodException {
+    return groups().get(groupName).getClass().getMethod(methodName);
+  }
+
+  public String getFunctionName(String methodName, String groupName) {
+    return groupName != null ? groupName + "$" + methodName : methodName;
   }
 
   private ScriptEngine getEngineByName() {
@@ -155,14 +178,17 @@ public abstract class ExecutionContext extends SimpleScriptContext implements Co
     setPathGenerator(pathGenerator);
   }
 
+  @Override
   public ScriptEngine getScriptEngine() {
     return scriptEngine;
   }
 
+  @Override
   public RuntimeModel getModel() {
     return model;
   }
 
+  @Override
   public Context setModel(RuntimeModel model) {
     this.model = model;
     addRequirements(model);
@@ -181,20 +207,24 @@ public abstract class ExecutionContext extends SimpleScriptContext implements Co
     }
   }
 
+  @Override
   public Profiler getProfiler() {
     return profiler;
   }
 
+  @Override
   public Context setProfiler(Profiler profiler) {
     this.profiler = profiler;
     this.profiler.addContext(this);
     return this;
   }
 
+  @Override
   public PathGenerator getPathGenerator() {
     return pathGenerator;
   }
 
+  @Override
   public Context setPathGenerator(PathGenerator pathGenerator) {
     this.pathGenerator = pathGenerator;
     if (isNotNull(pathGenerator)) {
@@ -203,23 +233,28 @@ public abstract class ExecutionContext extends SimpleScriptContext implements Co
     return this;
   }
 
+  @Override
   public ExecutionStatus getExecutionStatus() {
     return executionStatus;
   }
 
+  @Override
   public Context setExecutionStatus(ExecutionStatus executionStatus) {
     this.executionStatus = executionStatus;
     return this;
   }
 
+  @Override
   public Element getLastElement() {
     return lastElement;
   }
 
+  @Override
   public Element getCurrentElement() {
     return currentElement;
   }
 
+  @Override
   public Context setCurrentElement(Element element) {
     this.lastElement = this.currentElement;
     this.currentElement = element;
@@ -227,30 +262,36 @@ public abstract class ExecutionContext extends SimpleScriptContext implements Co
     return this;
   }
 
+  @Override
   public Element getNextElement() {
     return nextElement;
   }
 
+  @Override
   public Context setNextElement(Builder<? extends Element> nextElement) {
     setNextElement(nextElement.build());
     return this;
   }
 
+  @Override
   public Context setNextElement(Element nextElement) {
     this.nextElement = nextElement;
     this.currentElement = null;
     return this;
   }
 
+  @Override
   public Context setRequirementStatus(Requirement requirement, RequirementStatus requirementStatus) {
     requirements.put(requirement, requirementStatus);
     return this;
   }
 
+  @Override
   public List<Requirement> getRequirements() {
     return new ArrayList<>(requirements.keySet());
   }
 
+  @Override
   public List<Requirement> getRequirements(RequirementStatus status) {
     List<Requirement> filteredRequirements = new ArrayList<>();
     for (Requirement requirement : requirements.keySet()) {
@@ -262,6 +303,7 @@ public abstract class ExecutionContext extends SimpleScriptContext implements Co
   }
 
   @SuppressWarnings("unchecked")
+  @Override
   public <A extends Algorithm> A getAlgorithm(Class<A> clazz) {
     if (!algorithms.containsKey(clazz)) {
       try {
@@ -275,6 +317,7 @@ public abstract class ExecutionContext extends SimpleScriptContext implements Co
     return (A) algorithms.get(clazz);
   }
 
+  @Override
   public <E> List<E> filter(Collection<E> elements) {
     List<E> filteredElements = new ArrayList<>();
     if (isNotNull(elements)) {
@@ -292,6 +335,7 @@ public abstract class ExecutionContext extends SimpleScriptContext implements Co
     return filteredElements;
   }
 
+  @Override
   public boolean isAvailable(RuntimeEdge edge) {
     if (edge.hasGuard()) {
       LOG.debug("Execute: '{}' in model: '{}'", edge.getGuard().getScript(), getModel().getName());
@@ -305,6 +349,7 @@ public abstract class ExecutionContext extends SimpleScriptContext implements Co
     return true;
   }
 
+  @Override
   public void execute(Action action) {
     LOG.debug("Execute: '{}' in model: '{}'", action.getScript(), getModel().getName());
     try {
@@ -315,11 +360,13 @@ public abstract class ExecutionContext extends SimpleScriptContext implements Co
     }
   }
 
-  public void execute(String name) {
-    LOG.debug("Execute: '{}' in model: '{}'", name, getModel().getName());
+  @Override
+  public void execute(String methodName, String groupName) {
+    LOG.debug("Execute: '{}' in model: '{}'", methodName, getModel().getName());
     try {
-      getClass().getMethod(name); // provoke a NoSuchMethodException exception if the method doesn't exist
-      getScriptEngine().eval(name + "()");
+      getMethod(methodName, groupName); // provoke a NoSuchMethodException exception if the method doesn't exist
+      String functionName = getFunctionName(methodName, groupName);
+      getScriptEngine().eval(functionName + "()");
     } catch (NoSuchMethodException e) {
       // ignore, method is not defined in the execution context
     } catch (Throwable t) {
@@ -329,11 +376,14 @@ public abstract class ExecutionContext extends SimpleScriptContext implements Co
   }
 
   @SuppressWarnings("unchecked")
+  @Override
   public Map<String, String> getKeys() {
     Map<String, String> keys = new HashMap<>();
     List<String> methods = new ArrayList<>();
-    for (Method method : getClass().getMethods()) {
-      methods.add(method.getName());
+    for (Object impl : groups().values()) {
+      for (Method method : impl.getClass().getMethods()) {
+        methods.add(method.getName());
+      }
     }
     if (getBindings(ENGINE_SCOPE).containsKey("nashorn.global")) {
       Map<String, Object> global = (Map<String, Object>) getBindings(ENGINE_SCOPE).get("nashorn.global");
@@ -362,6 +412,7 @@ public abstract class ExecutionContext extends SimpleScriptContext implements Co
   }
 
   @SuppressWarnings("unchecked")
+  @Override
   public Object getAttribute(String name) {
     if (getBindings(ENGINE_SCOPE).containsKey("nashorn.global")) {
       Map<String, Object> attributes = (Map<String, Object>) getBindings(ENGINE_SCOPE).get("nashorn.global");
