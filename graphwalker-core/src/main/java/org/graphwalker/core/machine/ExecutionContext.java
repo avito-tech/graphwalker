@@ -148,8 +148,37 @@ public abstract class ExecutionContext extends SimpleScriptContext implements Co
     }
   }
 
-  public Map<String, Object> groups() {
-    return Collections.singletonMap(null, this);
+  protected Map<String, Object> groups() {
+    Map<String, Object> groups = new HashMap<>();
+    String packageName = this.getClass().getPackage().getName();
+    do {
+      try {
+        String fullyQualified = packageName.isEmpty()
+          ? "ContextFactory"
+          : packageName + ".ContextFactory";
+        Class<?> contextFactory = Class.forName(fullyQualified);
+        if (!contextFactory.isAssignableFrom(this.getClass())) {
+          LOG.trace("Current test model does not use ContextFactory");
+          break;
+        }
+        Method[] declaredMethods = contextFactory.getDeclaredMethods();
+        if (declaredMethods.length == 0) {
+          LOG.warn("Test model is represented by \"ContextFactory\" without factory methods");
+        }
+        for (Method method : declaredMethods) {
+          Object suppliedInstance = method.invoke(this);
+          groups.put(method.getReturnType().getSimpleName(), suppliedInstance);
+        }
+        break;
+      } catch (ClassNotFoundException e) {
+        // no ContextFactory in the package
+      } catch (IllegalAccessException | InvocationTargetException e) {
+        LOG.error("Can not execute method \"" + "\" of ContextFactory");
+      }
+      packageName = substringBeforeLast(packageName, '.');
+    } while (packageName != null);
+
+    return !groups.isEmpty() ? groups : Collections.singletonMap(null, this);
   }
 
   public Method getMethod(String methodName, String groupName) throws NoSuchMethodException {
@@ -434,5 +463,10 @@ public abstract class ExecutionContext extends SimpleScriptContext implements Co
 
   private boolean isVariable(String key, List<String> methods) {
     return !"impl".equals(key) && !methods.contains(key) && !"print".equals(key) && !"println".equals(key);
+  }
+
+  private String substringBeforeLast(String string, char delimiter) {
+    int index = string.lastIndexOf(delimiter);
+    return index == -1 ? null : string.substring(0, index);
   }
 }

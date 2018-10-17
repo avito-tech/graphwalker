@@ -180,6 +180,11 @@ public final class CodeGenerator extends VoidVisitorAdapter<ChangeContext> {
       this.output = output;
       this.linkedFiles = linkedFiles;
       this.cache = new SimpleCache(output);
+      if (!linkedFiles.isEmpty()) {
+        FactoryCodeGenerator.writeFactorySource(
+          linkedFiles,
+          new SourceFile(new ClassName("ContextFactory"), linkedFiles.get(0), input, output));
+      }
     }
 
     @Override
@@ -328,7 +333,7 @@ public final class CodeGenerator extends VoidVisitorAdapter<ChangeContext> {
       defaultNodeMethods = new HashSet<>(),
       codeTagMethods = new HashSet<>();
     for (String methodName : changeContext.getMethodNames()) {
-      if (isValidName(methodName)) {
+      if (isValidMethodName(methodName)) {
         List<RuntimeVertex> vertices = changeContext.getModel().findVertices(methodName);
         NodeList<AnnotationExpr> annotations = new NodeList<>();
         Type type;
@@ -448,7 +453,7 @@ public final class CodeGenerator extends VoidVisitorAdapter<ChangeContext> {
     return elements.isEmpty() ? defaultValue : extractor.apply(elements.iterator().next());
   }
 
-  private boolean isValidName(String name) {
+  static boolean isValidMethodName(String name) {
     if (null == name || name.isEmpty()) {
       return false;
     }
@@ -461,6 +466,18 @@ public final class CodeGenerator extends VoidVisitorAdapter<ChangeContext> {
       }
     }
     return valid;
+  }
+
+  static String toValidMethodOrClassName(String name) {
+    String firstSymbol = Character.toString(Character.isJavaIdentifierStart(name.charAt(0)) ? name.charAt(0) : Character.MIN_VALUE);
+    StringBuilder sb = new StringBuilder(firstSymbol);
+    for (int i = 1; i < name.length(); i++) {
+      char ch = name.charAt(i);
+      if (Character.isJavaIdentifierPart(ch)) {
+        sb.append(ch);
+      }
+    }
+    return sb.toString();
   }
 
   public void visit(MethodDeclaration methodDeclaration, ChangeContext changeContext) {
