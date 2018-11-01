@@ -181,10 +181,6 @@ public abstract class ExecutionContext extends SimpleScriptContext implements Co
     return !groups.isEmpty() ? groups : Collections.singletonMap(null, this);
   }
 
-  public Method getMethod(String methodName, String groupName) throws NoSuchMethodException {
-    return groups().get(groupName).getClass().getMethod(methodName);
-  }
-
   public String getFunctionName(String methodName, String groupName) {
     return groupName != null ? groupName + "$" + methodName : methodName;
   }
@@ -393,8 +389,14 @@ public abstract class ExecutionContext extends SimpleScriptContext implements Co
   public void execute(String methodName, String groupName) {
     LOG.debug("Execute: '{}' in model: '{}'", methodName, getModel().getName());
     try {
-      getMethod(methodName, groupName); // provoke a NoSuchMethodException exception if the method doesn't exist
-      String functionName = getFunctionName(methodName, groupName);
+      Object impl = this;
+      String functionName = methodName;
+      if (groups().containsKey(groupName)) {
+        functionName = getFunctionName(methodName, groupName);
+        impl = groups().get(groupName);
+      }
+      // provoke a NoSuchMethodException exception if the method doesn't exist
+      impl.getClass().getMethod(methodName);
       getScriptEngine().eval(functionName + "()");
     } catch (NoSuchMethodException e) {
       // ignore, method is not defined in the execution context
