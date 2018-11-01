@@ -33,6 +33,7 @@ JS_LITERAL     	:	'"' (~["\r\n])* '"';
 JS_ARRAY      	:	'[' ((Identifier (COMMA Identifier)*)|((JS_MINUS? Value) (COMMA (JS_MINUS? Value))*))? ']';
 JS_FUNCTION     :	'function(' (Identifier (COMMA Identifier)*)? '){' (JS_FOR|(~[}\r\n]))* '}';
 JS_FOR          :	'for(' (~[;\r\n])* ';' (~[;\r\n])* ';' (~[;\r\n])* '){' (~[}\r\n])* '}';
+JS_BRACES      	:	'{' (Identifier COLON WHITESPACE* JS_MINUS? Value (COMMA WHITESPACE* (Identifier COLON WHITESPACE* JS_MINUS? Value))*)? '}';
 JS_METHOD_CALL  :	Identifier '(' (~[)\r\n])* ')';
 
 NestedBrackets

@@ -1235,7 +1235,7 @@ public final class YEdContextFactory implements ContextFactory {
   private List<Action> convertEdgeAction(List<ActionContext> actionContexts) {
     List<Action> actions = new ArrayList<>();
     for (ActionContext actionContext : actionContexts) {
-      actions.add(new Action(actionContext.getText()));
+      actions.add(new Action(actionContext.getText() + ";"));
     }
     return actions;
   }

@@ -24,15 +24,15 @@ field
  ;
 
 actions
- : SLASH (action)+
+ : SLASH action ((SEMICOLON | COMMA) action)* SEMICOLON
  ;
 
 action
- : actionPart+ SEMICOLON
+ : actionPart+
  ;
 
 actionPart
- : WHITESPACE* Identifier WHITESPACE* actionOperator? WHITESPACE* ((JS_NOT? Identifier) | (JS_MINUS? Value) | JS_LITERAL | JS_FUNCTION | JS_ARRAY | JS_METHOD_CALL)?
+ : WHITESPACE* Identifier (DOT Identifier)* WHITESPACE* actionOperator? WHITESPACE* ((JS_NOT? Identifier) | (JS_MINUS? Value) | JS_LITERAL | JS_FUNCTION | JS_ARRAY | JS_METHOD_CALL | JS_BRACES)?
  ;
 
 actionOperator

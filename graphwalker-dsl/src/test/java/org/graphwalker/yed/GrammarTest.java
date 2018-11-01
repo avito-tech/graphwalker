@@ -82,7 +82,8 @@ public class GrammarTest {
     "INDEGREE: /* comment 1 */ e_SideBar, e_ClickBtn /* comment 2 */ [loggedIn == true];\nOUTDEGREE: e_ClickSources;",
     "INDEGREE: /* comment 1 */ e_BackLink$1 weight=0.1, /* comment 2 */ weight=0.9 e_BackLink$2;",
     "INDEGREE: e_ClickBtn /* @code run()\nComment 1 */;",
-    "v_Vertex /* @code (Boolean)run(); */"
+    "v_Vertex /* @code (Boolean)run(); */",
+    "v_Vertex\n/* commentary */\nOUTDEGREE: e_ChooseSaleFilter, e_ChooseRentFilter;\nSET: filters = {}, authorized = true;"
   );
 
   private List<String> edges = Arrays.asList(
@@ -135,7 +136,11 @@ public class GrammarTest {
     "e_Edge /* @code call(true); comment 1 */",
     "e_Edge /* @code call((Boolean)call(true)); 1 */",
     "e_Edge /* @code call((String)getUrl()); *** Text *** */",
-    "e_Edge /* @code call((String)getUrl())\n *** Text *** */"
+    "e_Edge /* @code call((String)getUrl())\n *** Text *** */",
+    "e_ShowLessFilters /filters.itemType = \"sale\", filters.full = false;\n/* Press [More] */",
+    "e_Edge /filters.itemType = \"sale\", filters.full = false;\n/* @code run(); Press button */",
+    "e_EnterInvalidKey/incorrect=incorrect+1;",
+    "e_ShowLessFilters /filters.itemType={a:2, b: 3};\n/* Press [More] */"
   );
 
   @Test
