@@ -61,6 +61,28 @@ public class Edge extends CachedBuilder<Edge, Edge.RuntimeEdge> {
   private Double weight = 1.0;
   private Integer dependency = 0;
   private CodeTag codeTag;
+  private List<Argument> arguments;
+
+  public Edge() {
+  }
+
+  private Edge(Vertex sourceVertex,
+               Vertex targetVertex,
+               Guard guard,
+               List<Action> actions,
+               Double weight,
+               Integer dependency,
+               CodeTag codeTag,
+               List<Argument> arguments) {
+    this.sourceVertex = sourceVertex;
+    this.targetVertex = targetVertex;
+    this.guard = guard;
+    this.actions = actions;
+    this.weight = weight;
+    this.dependency = dependency;
+    this.codeTag = codeTag;
+    this.arguments = arguments;
+  }
 
   /**
    * Sets the source vertex of the edge.
@@ -243,6 +265,30 @@ public class Edge extends CachedBuilder<Edge, Edge.RuntimeEdge> {
     return codeTag;
   }
 
+  public Edge setArguments(List<Argument> arguments) {
+    this.arguments = arguments;
+    return this;
+  }
+
+  public List<Argument> getArguments() {
+    return arguments;
+  }
+
+  public Edge copy() {
+    // deep copy actions but not arguments
+    List<Action> actionsCopy = new ArrayList<>();
+    for (Action action : actions) {
+      actionsCopy.add(new Action(action.getScript()));
+    }
+    Guard guardCopy = guard != null ? new Guard(guard.getScript()) : null;
+    CodeTag codeTagCopy = codeTag != null ? new CodeTag((CodeTag.Expression) codeTag.getMethod()) : null;
+    return new Edge(sourceVertex, targetVertex, guardCopy, actionsCopy, weight, dependency, codeTagCopy, arguments)
+      .setName(getName())
+      .setDescription(getDescription())
+      .setRequirements(getRequirements())
+      .setProperties(getProperties());
+  }
+
   /**
    * <h1>RuntimeEdge</h1>
    * Immutable class for Edge
@@ -259,6 +305,7 @@ public class Edge extends CachedBuilder<Edge, Edge.RuntimeEdge> {
     private final Double weight;
     private final Integer dependency;
     private final CodeTag codeTag;
+    private final List<Argument> arguments;
 
     private RuntimeEdge(Edge edge) {
       super(edge.getId(), edge.getName(), edge.getDescription(), edge.getActions(), edge.getRequirements(), edge.getProperties());
@@ -268,6 +315,7 @@ public class Edge extends CachedBuilder<Edge, Edge.RuntimeEdge> {
       this.weight = edge.getWeight();
       this.dependency = edge.getDependency();
       this.codeTag = edge.getCodeTag();
+      this.arguments = edge.getArguments();
     }
 
     private <T> T build(Builder<T> builder) {
@@ -320,6 +368,10 @@ public class Edge extends CachedBuilder<Edge, Edge.RuntimeEdge> {
 
     public CodeTag getCodeTag() {
       return codeTag;
+    }
+
+    public List<Argument> getArguments() {
+      return arguments;
     }
 
     /**

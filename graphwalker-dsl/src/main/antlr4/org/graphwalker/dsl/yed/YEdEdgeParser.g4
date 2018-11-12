@@ -20,6 +20,9 @@ field
  | {!$parse::fields.contains("weight")}? weight {$parse::fields.add("weight");}
  | {!$parse::fields.contains("dependency")}? dependency {$parse::fields.add("dependency");}
  | {!$parse::fields.contains("description")}? description {$parse::fields.add("description");}
+ | {!$parse::fields.contains("dataset")}? dataset {$parse::fields.add("dataset");}
+ | {!$parse::fields.contains("htmlStart")}? htmlStart
+ | {!$parse::fields.contains("htmlEnd")}? htmlEnd
  | WHITESPACE
  ;
 
@@ -88,4 +91,52 @@ comment
 
 code
  : CODE_TAG voidExpression
+ ;
+
+htmlStart
+ : HTML_TAG_START WHITESPACE*
+ ;
+
+htmlEnd
+ : HTML_TAG_END
+ ;
+
+dataset
+ : htmlTable
+ ;
+
+htmlTable
+ : HTML_TABLE_START WHITESPACE* tableHeader WHITESPACE* (tableRow WHITESPACE*)+ HTML_TABLE_END
+ ;
+
+tableHeader
+ : HTML_TR_START WHITESPACE* (tableHeaderCell WHITESPACE*)+ HTML_TR_END
+ ;
+
+tableRow
+ : HTML_TR_START WHITESPACE* (tableBodyCell WHITESPACE*)+ HTML_TR_END
+ ;
+
+tableBodyCell
+ : HTML_TD_START (numericValue|stringQuote|stringValue|booleanValue) HTML_TD_END
+ ;
+
+tableHeaderCell
+ : HTML_TH_START Identifier HTML_TH_END
+ ;
+
+numericValue
+ : (JS_MINUS|JS_PLUS)? Value
+ ;
+
+booleanValue
+ : BOOLEAN_VALUE
+ ;
+
+stringValue
+ : Identifier
+ ;
+
+stringQuote
+ : JS_LITERAL
  ;

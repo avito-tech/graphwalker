@@ -61,9 +61,11 @@ import static java.util.Collections.singleton;
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.both;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.hasProperty;
+import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -696,5 +698,21 @@ public class YEdContextFactoryTest {
     List<RuntimeVertex> vertices = model.getVertices();
     assertThat(vertices.get(0).getCodeTag().toString(), equalTo("@code (Boolean)message((String)prefix(\"pre\"), (String)suffix());"));
     assertThat(vertices.get(1).getCodeTag().toString(), equalTo("@code (Boolean)message((Number)convert(1.0));"));
+  }
+
+  @Test
+  public void readDatasetSingleEdge() throws IOException {
+    Context context = new YEdContextFactory().create(Paths.get("graphml/dataset/singleEdge.graphml")).get(0);
+    RuntimeModel model = context.getModel();
+    List<RuntimeEdge> edges = model.getEdges();
+    assertThat("Should be init edge and two parametrized", edges, hasSize(3));
+    assertThat("First row should have username=admin,password=pass", edges, hasItem(hasProperty("arguments",
+      both(hasItem(both(hasProperty("name", equalTo("username"))).and(hasProperty("value", equalTo("admin")))))
+        .and(hasItem(both(hasProperty("name", equalTo("password"))).and(hasProperty("value", equalTo("pass")))))
+    )));
+    assertThat("Second row should have username=root,password=secret", edges, hasItem(hasProperty("arguments",
+      both(hasItem(both(hasProperty("name", equalTo("username"))).and(hasProperty("value", equalTo("root")))))
+        .and(hasItem(both(hasProperty("name", equalTo("password"))).and(hasProperty("value", equalTo("secret")))))
+    )));
   }
 }
