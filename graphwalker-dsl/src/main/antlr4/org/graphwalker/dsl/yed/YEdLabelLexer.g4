@@ -38,13 +38,13 @@ JS_METHOD_CALL  :	Identifier '(' (~[)\r\n])* ')';
 
 HTML_TAG_START  : '<html>';
 HTML_TAG_END    : '</html>';
-HTML_TABLE_START: '<table border="1">';
+HTML_TABLE_START: '<table' (WHITESPACE+ Letter+ ASSIGN JS_LITERAL)* '>';
 HTML_TABLE_END  : '</table>';
-HTML_TR_START   : '<tr>';
+HTML_TR_START   : '<tr' (WHITESPACE+ Letter+ ASSIGN JS_LITERAL)* '>';
 HTML_TR_END     : '</tr>';
-HTML_TH_START   : '<th>';
+HTML_TH_START   : '<th' (WHITESPACE+ Letter+ ASSIGN JS_LITERAL)* '>';
 HTML_TH_END     : '</th>';
-HTML_TD_START   : '<td>';
+HTML_TD_START   : '<td' (WHITESPACE+ Letter+ ASSIGN JS_LITERAL)* '>';
 HTML_TD_END     : '</td>';
 
 NestedBrackets

@@ -30,10 +30,11 @@ import java.util.List;
 import java.util.Objects;
 
 import static java.util.stream.Collectors.joining;
-import static org.graphwalker.core.model.CodeTag.TypePrefix.BOOLEAN;
-import static org.graphwalker.core.model.CodeTag.TypePrefix.NUMBER;
-import static org.graphwalker.core.model.CodeTag.TypePrefix.STRING;
-import static org.graphwalker.core.model.CodeTag.TypePrefix.VOID;
+import static org.graphwalker.core.model.TypePrefix.BOOLEAN;
+import static org.graphwalker.core.model.TypePrefix.NUMBER;
+import static org.graphwalker.core.model.TypePrefix.STRING;
+import static org.graphwalker.core.model.TypePrefix.VOID;
+import static org.graphwalker.core.model.TypePrefix.values;
 
 /**
  * <code>@code</code> tag in description block.
@@ -61,21 +62,6 @@ public class CodeTag {
     @Override
     public String toString() {
       return result instanceof String ? "\"" + result + "\"" : result.toString();
-    }
-  }
-
-  public enum TypePrefix {
-    VOID(""), STRING("(String)"), NUMBER("(Number)"), BOOLEAN("(Boolean)");
-
-    private final String value;
-
-    TypePrefix(String value) {
-      this.value = value;
-    }
-
-    @Override
-    public String toString() {
-      return value;
     }
   }
 
@@ -107,7 +93,7 @@ public class CodeTag {
 
     public String asJavaMethodCall() {
       String asYedScript = toString();
-      for (TypePrefix prefix : TypePrefix.values()) {
+      for (TypePrefix prefix : values()) {
         if (!prefix.value.isEmpty()) {
           asYedScript = asYedScript.replace(prefix.value, "");
         }

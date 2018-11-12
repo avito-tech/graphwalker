@@ -122,9 +122,9 @@ import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toMap;
 import static org.apache.commons.lang3.StringEscapeUtils.escapeXml10;
-import static org.graphwalker.core.model.Argument.TypePrefix.BOOLEAN;
-import static org.graphwalker.core.model.Argument.TypePrefix.NUMBER;
-import static org.graphwalker.core.model.Argument.TypePrefix.STRING;
+import static org.graphwalker.core.model.TypePrefix.BOOLEAN;
+import static org.graphwalker.core.model.TypePrefix.NUMBER;
+import static org.graphwalker.core.model.TypePrefix.STRING;
 import static org.graphwalker.dsl.yed.YEdEdgeParser.ActionContext;
 import static org.graphwalker.dsl.yed.YEdEdgeParser.FieldContext;
 import static org.graphwalker.dsl.yed.YEdEdgeParser.ParseContext;
@@ -1193,26 +1193,28 @@ public final class YEdContextFactory implements ContextFactory {
                   for (YEdEdgeParser.TableHeaderCellContext cellContext : field.dataset().htmlTable().tableHeader().tableHeaderCell()) {
                     argumentNames.add(cellContext.Identifier().getText());
                   }
+                  List<List<Argument>> arguments = new ArrayList<>();
                   for (int i = 0; i < field.dataset().htmlTable().tableRow().size(); i++) {
                     YEdEdgeParser.TableRowContext rowContext = field.dataset().htmlTable().tableRow().get(i);
-                    List<Argument> arguments = new ArrayList<>();
+                    List<Argument> argumentsRow = new ArrayList<>();
                     for (int j = 0; j < rowContext.tableBodyCell().size(); j++) {
                       YEdEdgeParser.TableBodyCellContext cellContext = rowContext.tableBodyCell().get(j);
                       String name = argumentNames.get(j);
                       if (null != cellContext.booleanValue()) {
-                        arguments.add(new Argument(BOOLEAN, name, cellContext.booleanValue().BOOLEAN_VALUE().getText()));
+                        argumentsRow.add(new Argument(BOOLEAN, name, cellContext.booleanValue().BOOLEAN_VALUE().getText()));
                       } else if (null != cellContext.stringValue()) {
-                        arguments.add(new Argument(STRING, name, cellContext.stringValue().Identifier().getText()));
+                        argumentsRow.add(new Argument(STRING, name, cellContext.stringValue().Identifier().getText()));
                       } else if (null != cellContext.numericValue()) {
-                        arguments.add(new Argument(NUMBER, name, cellContext.numericValue().Value().getText()));
+                        argumentsRow.add(new Argument(NUMBER, name, cellContext.numericValue().Value().getText()));
                       } else if (null != cellContext.stringQuote()) {
                         String unquotedText = cellContext.stringQuote().JS_LITERAL().getText().replaceAll("^\"|\"$", "");
-                        arguments.add(new Argument(STRING, name, unquotedText));
+                        argumentsRow.add(new Argument(STRING, name, unquotedText));
                       } else {
                         throw new IllegalStateException("Can not determine dataset table field type of: \""
                           + cellContext.getText() + "\"");
                       }
                     }
+                    arguments.add(argumentsRow);
                     if (i == 0) {
                       edge.setArguments(arguments);
                     } else {

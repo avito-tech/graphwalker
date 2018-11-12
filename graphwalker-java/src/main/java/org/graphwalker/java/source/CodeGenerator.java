@@ -37,21 +37,25 @@ import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.body.Parameter;
 import com.github.javaparser.ast.comments.LineComment;
 import com.github.javaparser.ast.expr.AnnotationExpr;
+import com.github.javaparser.ast.expr.ArrayInitializerExpr;
+import com.github.javaparser.ast.expr.Expression;
 import com.github.javaparser.ast.expr.MemberValuePair;
 import com.github.javaparser.ast.expr.Name;
 import com.github.javaparser.ast.expr.NormalAnnotationExpr;
+import com.github.javaparser.ast.expr.SimpleName;
 import com.github.javaparser.ast.expr.StringLiteralExpr;
 import com.github.javaparser.ast.stmt.BlockStmt;
 import com.github.javaparser.ast.stmt.Statement;
-import com.github.javaparser.ast.type.PrimitiveType;
 import com.github.javaparser.ast.type.Type;
 import com.github.javaparser.ast.type.VoidType;
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
 
 import org.apache.commons.collections4.set.ListOrderedSet;
 import org.graphwalker.core.machine.Context;
+import org.graphwalker.core.model.Argument;
 import org.graphwalker.core.model.CodeTag;
 import org.graphwalker.core.model.Edge.RuntimeEdge;
+import org.graphwalker.core.model.TypePrefix;
 import org.graphwalker.core.model.Vertex.RuntimeVertex;
 import org.graphwalker.io.factory.ContextFactory;
 import org.graphwalker.io.factory.ContextFactoryScanner;
@@ -87,15 +91,16 @@ import static java.nio.file.FileVisitResult.CONTINUE;
 import static java.nio.file.FileVisitResult.SKIP_SUBTREE;
 import static java.nio.file.StandardOpenOption.CREATE;
 import static java.nio.file.StandardOpenOption.TRUNCATE_EXISTING;
+import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static java.util.Comparator.comparing;
 import static java.util.EnumSet.noneOf;
 import static java.util.EnumSet.of;
-import static org.graphwalker.core.model.CodeTag.TypePrefix.BOOLEAN;
-import static org.graphwalker.core.model.CodeTag.TypePrefix.NUMBER;
-import static org.graphwalker.core.model.CodeTag.TypePrefix.STRING;
-import static org.graphwalker.core.model.CodeTag.TypePrefix.VOID;
 import static org.graphwalker.core.model.Model.RuntimeModel;
+import static org.graphwalker.core.model.TypePrefix.BOOLEAN;
+import static org.graphwalker.core.model.TypePrefix.NUMBER;
+import static org.graphwalker.core.model.TypePrefix.STRING;
+import static org.graphwalker.core.model.TypePrefix.VOID;
 
 /**
  * @author Nils Olsson
@@ -312,7 +317,8 @@ public final class CodeGenerator extends VoidVisitorAdapter<ChangeContext> {
       compilationUnit.setImports(new NodeList<>(
         new ImportDeclaration(new Name("org.graphwalker.java.annotation.Model"), false, false),
         new ImportDeclaration(new Name("org.graphwalker.java.annotation.Vertex"), false, false),
-        new ImportDeclaration(new Name("org.graphwalker.java.annotation.Edge"), false, false)
+        new ImportDeclaration(new Name("org.graphwalker.java.annotation.Edge"), false, false),
+        new ImportDeclaration(new Name("org.graphwalker.java.annotation.Dataset"), true, true)
       ));
       compilationUnit.addType(getInterfaceName(sourceFile));
     }
@@ -338,12 +344,13 @@ public final class CodeGenerator extends VoidVisitorAdapter<ChangeContext> {
         NodeList<AnnotationExpr> annotations = new NodeList<>();
         Type type;
         CodeTag codeTag;
+        List<Argument> argumentRow = null;
         if (vertices != null) {
           String description = getOrElse(vertices, unquote(RuntimeVertex::getDescription), "");
           codeTag = getOrElse(vertices, RuntimeVertex::getCodeTag, null);
           NodeList<MemberValuePair> memberValuePairs = new NodeList<>(new MemberValuePair("value", new StringLiteralExpr(description)));
           annotations.add(new NormalAnnotationExpr(new Name("Vertex"), memberValuePairs));
-          type = PrimitiveType.booleanType();
+          type = booleanType();
         } else {
           List<RuntimeEdge> edges = changeContext.getModel().findEdges(methodName);
           if (edges != null) {
@@ -351,6 +358,19 @@ public final class CodeGenerator extends VoidVisitorAdapter<ChangeContext> {
             codeTag = getOrElse(edges, RuntimeEdge::getCodeTag, null);
             NodeList<MemberValuePair> memberValuePairs = new NodeList<>(new MemberValuePair("value", new StringLiteralExpr(description)));
             annotations.add(new NormalAnnotationExpr(new Name("Edge"), memberValuePairs));
+            List<List<Argument>> arguments = getOrElse(edges, RuntimeEdge::getArguments, emptyList());
+            for (int i = 0; i < arguments.size(); i++) {
+              argumentRow = arguments.get(i);
+              NodeList<Expression> rowFields = new NodeList<>();
+              for (Argument argument : argumentRow) {
+                NodeList<MemberValuePair> valueAnnotation = new NodeList<>();
+                valueAnnotation.add(new MemberValuePair("name", new StringLiteralExpr(argument.getName())));
+                valueAnnotation.add(new MemberValuePair("value", new StringLiteralExpr(argument.getValue())));
+                rowFields.add(new NormalAnnotationExpr(new Name("Value"), valueAnnotation));
+              }
+              NodeList<MemberValuePair> valueAnnotations = new NodeList<>(new MemberValuePair("value", new ArrayInitializerExpr(rowFields)));
+              annotations.add(new NormalAnnotationExpr(new Name("Row"), valueAnnotations));
+            }
             type = new VoidType();
           } else {
             throw new IllegalStateException("No vertices or edges were found for method: \"" + methodName + "\"");
@@ -367,9 +387,18 @@ public final class CodeGenerator extends VoidVisitorAdapter<ChangeContext> {
               .setAnnotations(annotations)
               .setBody(methodCall));
         } else {
-          abstractNodeMethods.add(
-            new MethodDeclaration(noneOf(Modifier.class), type, methodName).setBody(null)
-              .setAnnotations(annotations));
+          MethodDeclaration methodDeclaration = new MethodDeclaration(noneOf(Modifier.class), type, methodName)
+            .setBody(null)
+            .setAnnotations(annotations);
+          if (argumentRow != null) {
+            NodeList<Parameter> parameters = new NodeList<>();
+            for (Argument argument : argumentRow) {
+              Type argumentType = typePrefixToAstType(argument.getType());
+              parameters.add(new Parameter(argumentType, new SimpleName(argument.getName())));
+            }
+            methodDeclaration.setParameters(parameters);
+          }
+          abstractNodeMethods.add(methodDeclaration);
         }
       }
     }
@@ -389,7 +418,7 @@ public final class CodeGenerator extends VoidVisitorAdapter<ChangeContext> {
     sortedByName.forEach(body::addMember);
   }
 
-  private static Type typePrefixToAstType(CodeTag.TypePrefix typePrefix) {
+  private static Type typePrefixToAstType(TypePrefix typePrefix) {
     switch (typePrefix) {
       case VOID:
         return new VoidType();
@@ -450,7 +479,8 @@ public final class CodeGenerator extends VoidVisitorAdapter<ChangeContext> {
   }
 
   private static <T, V> V getOrElse(List<T> elements, Function<T, V> extractor, V defaultValue) {
-    return elements.isEmpty() ? defaultValue : extractor.apply(elements.iterator().next());
+    V result = elements.isEmpty() ? defaultValue : extractor.apply(elements.iterator().next());
+    return result != null ? result : defaultValue;
   }
 
   static boolean isValidMethodName(String name) {

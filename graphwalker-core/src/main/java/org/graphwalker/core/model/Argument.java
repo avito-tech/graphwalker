@@ -24,8 +24,4 @@ public final class Argument {
     return type;
   }
 
-  public enum TypePrefix {
-    STRING, NUMBER, BOOLEAN;
-  }
-
 }
