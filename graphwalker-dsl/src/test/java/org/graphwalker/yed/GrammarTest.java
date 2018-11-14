@@ -141,7 +141,11 @@ public class GrammarTest {
     "e_Edge /filters.itemType = \"sale\", filters.full = false;\n/* @code run(); Press button */",
     "e_EnterInvalidKey/incorrect=incorrect+1;",
     "e_ShowLessFilters /filters.itemType={a:2, b: 3};\n/* Press [More] */",
-    "<html>e_Edge<br/>/* Text */ \n<table>\n<tr><th bgcolor=\"lime\">label</th></tr>\n<tr><td bgcolor=\"lime\">Car</td></tr>\n</table></html>"
+    "<html>e_Edge<br/>/* Text */ \n<table>\n<tr><th bgcolor=\"lime\">label</th></tr>\n<tr><td bgcolor=\"lime\">Car</td></tr>\n</table></html>",
+    "e_Click [typeof gw != 'undefined' && (((gw || {}).ds || {}).e_ClickClick || {})[0].$open]",
+    "e_Click / var gw = gw || {ds: {}};",
+    "e_Click / value = {user: 'root'};",
+    "e_Click / gw.ds.e_FillCredentials = [{user: \"admin\", $open: false}, {user: \"root\", $open: false}];"
   );
 
   @Test

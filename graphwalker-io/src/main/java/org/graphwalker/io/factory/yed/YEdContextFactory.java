@@ -94,6 +94,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Deque;
 import java.util.HashMap;
@@ -1218,16 +1219,18 @@ public final class YEdContextFactory implements ContextFactory {
                     arguments.add(argumentsRow);
                     if (i == 0) {
                       edge.setArguments(arguments);
-                      edge.addAction(guardDataset(edge.getName(), i));
+                      edge.setGuard(guardDataset(edge.getName(), i));
                     } else {
                       Edge edgeCopy = edge.copy()
                         .setArguments(arguments)
                         .setId(edgeType.getId() + "_" + i)
-                        .addAction(guardDataset(edge.getName(), i));
+                        .setGuard(guardDataset(edge.getName(), i));
                       model.addEdge(edgeCopy);
                     }
                   }
-                  edge.getSourceVertex().addSetAction(initDataset(edge.getName(), arguments));
+                  for (Action action : initDataset(edge.getName(), arguments)) {
+                    edge.getSourceVertex().addSetAction(action);
+                  }
                 }
               }
               if (null != edge.getTargetVertex()) {
@@ -1251,22 +1254,22 @@ public final class YEdContextFactory implements ContextFactory {
     return startEdge;
   }
 
-  private Action initDataset(String datasetVariable, List<List<Argument>> arguments) {
-    StringBuilder sb = new StringBuilder("var gw = gw || {ds: {" + datasetVariable + ": [");
+  private List<Action> initDataset(String datasetVariable, List<List<Argument>> arguments) {
+    StringBuilder sb = new StringBuilder("gw.ds." + datasetVariable + " = [");
     sb.append(arguments.stream().map(row -> {
       return row.stream().map(argument -> argument.getName() + ": '" + argument.getValue() + "'")
         // additionally set guard lock on that dataset value
         .collect(joining(", ")) + ", $open: false";
     }).collect(joining("}, {", "{", "}")));
-    return new Action(sb.append("]}}").toString());
+    return Arrays.asList(new Action("var gw = gw || {ds: {}};"), new Action(sb.append("];").toString()));
   }
 
   /**
    * @param datasetVariable JS variable name
    * @see <a href="http://web.archive.org/web/20161108071447/http://blog.osteele.com/posts/2007/12/cheap-monads/">Explanation</a>
    */
-  private Action guardDataset(String datasetVariable, int id) {
-    return new Action("typeof gw != 'undefined' && (((gw || {}).ds || {})." + datasetVariable + " || {})[" + id + "].$guard");
+  private Guard guardDataset(String datasetVariable, int id) {
+    return new Guard("typeof gw != 'undefined' && (((gw || {}).ds || {})." + datasetVariable + " || {})[" + id + "].$open");
   }
 
   private boolean isSupportedEdge(String xml) {

@@ -36,12 +36,20 @@ action
  ;
 
 actionPart
- : WHITESPACE* Identifier (DOT Identifier)* WHITESPACE* actionOperator? WHITESPACE* ((JS_NOT? Identifier) | (JS_MINUS? Value) | JS_LITERAL | JS_FUNCTION | JS_ARRAY | JS_METHOD_CALL | JS_BRACES)?
+ : WHITESPACE* Identifier (DOT Identifier)* WHITESPACE* actionOperator? WHITESPACE* ((JS_NOT? Identifier) | (JS_MINUS? Value) | JS_LITERAL | JS_FUNCTION | JS_METHOD_CALL | jsObject | jsArray)?
  ;
 
 actionOperator
  : JS_PLUS | JS_MINUS | JS_MUL | SLASH | JS_MOD | JS_INC | JS_DEC
- | ASSIGN | JS_PLUS_ASSIGN | JS_MINUS_ASSIGN | JS_MUL_ASSIGN | JS_DIV_ASSIGN | JS_MOD_ASSIGN
+ | ASSIGN | JS_PLUS_ASSIGN | JS_MINUS_ASSIGN | JS_MUL_ASSIGN | JS_DIV_ASSIGN | JS_MOD_ASSIGN | JS_OR
+ ;
+
+jsObject
+ : JS_BRACES
+ ;
+
+jsArray
+ : JS_ARRAY
  ;
 
 reqtags

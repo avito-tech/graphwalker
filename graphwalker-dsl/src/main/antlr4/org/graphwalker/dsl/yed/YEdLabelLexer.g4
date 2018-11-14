@@ -24,17 +24,26 @@ JS_MOD          :	'%';
 JS_INC          :	'++';
 JS_DEC          :	'--';
 JS_NOT          :	'!';
+JS_OR           :	'||';
 JS_PLUS_ASSIGN  : JS_PLUS ASSIGN;
 JS_MINUS_ASSIGN : JS_MINUS ASSIGN;
 JS_MUL_ASSIGN   : JS_MUL ASSIGN;
 JS_DIV_ASSIGN   : SLASH ASSIGN;
 JS_MOD_ASSIGN   : JS_MOD ASSIGN;
 JS_LITERAL     	:	'"' (~["\r\n])* '"';
-JS_ARRAY      	:	'[' ((Identifier (COMMA Identifier)*)|((JS_MINUS? Value) (COMMA (JS_MINUS? Value))*))? ']';
 JS_FUNCTION     :	'function(' (Identifier (COMMA Identifier)*)? '){' (JS_FOR|(~[}\r\n]))* '}';
 JS_FOR          :	'for(' (~[;\r\n])* ';' (~[;\r\n])* ';' (~[;\r\n])* '){' (~[}\r\n])* '}';
-JS_BRACES      	:	'{' (Identifier COLON WHITESPACE* JS_MINUS? Value (COMMA WHITESPACE* (Identifier COLON WHITESPACE* JS_MINUS? Value))*)? '}';
+JS_BRACES
+ : '{}'
+ | '{' Identifier COLON WHITESPACE* (JS_LITERAL|Value|Identifier|JS_BRACES) '}'
+ | '{' Identifier COLON WHITESPACE* (JS_LITERAL|Value|Identifier|JS_BRACES) (COMMA WHITESPACE* Identifier COLON WHITESPACE* (JS_LITERAL|Value|Identifier|JS_BRACES))+'}';
 JS_METHOD_CALL  :	Identifier '(' (~[)\r\n])* ')';
+JS_ARRAY
+ : '[]'
+ | '[' (Identifier|(JS_MINUS? Value)|JS_BRACES) ']'
+ | '[' (Identifier|(JS_MINUS? Value)|JS_BRACES) (COMMA WHITESPACE* (Identifier|(JS_MINUS? Value)|JS_BRACES))+']';
+ JS_ARRAY_START : '[';
+ JS_ARRAY_END   : ']';
 
 HTML_TAG_START  : '<html>';
 HTML_TAG_END    : '</html>';
