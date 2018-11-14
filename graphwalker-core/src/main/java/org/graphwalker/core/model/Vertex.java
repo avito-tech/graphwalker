@@ -96,8 +96,14 @@ public class Vertex extends CachedBuilder<Vertex, Vertex.RuntimeVertex> {
     return unmodifiableList(setActions);
   }
 
-  public void setSetActions(List<Action> setActions) {
+  public Vertex setSetActions(List<Action> setActions) {
     this.setActions = setActions;
+    return this;
+  }
+
+  public Vertex addSetAction(Action setAction) {
+    this.setActions.add(setAction);
+    return this;
   }
 
   @Override

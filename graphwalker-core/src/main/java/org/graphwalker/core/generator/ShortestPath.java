@@ -30,17 +30,21 @@ import org.graphwalker.core.algorithm.FloydWarshall;
 import org.graphwalker.core.algorithm.Yen;
 import org.graphwalker.core.condition.ReachedStopCondition;
 import org.graphwalker.core.machine.Context;
+import org.graphwalker.core.machine.MachineException;
 import org.graphwalker.core.model.Action;
 import org.graphwalker.core.model.Edge;
 import org.graphwalker.core.model.Element;
 import org.graphwalker.core.model.Path;
 import org.graphwalker.core.model.Vertex;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import javax.script.Bindings;
+import javax.script.ScriptException;
 
 import jdk.nashorn.api.scripting.ScriptObjectMirror;
 import jdk.nashorn.api.scripting.ScriptUtils;
@@ -54,8 +58,18 @@ import static jdk.nashorn.api.scripting.NashornScriptEngine.NASHORN_GLOBAL;
  */
 public class ShortestPath extends PathGeneratorBase<ReachedStopCondition> {
 
+  private static final Logger LOG = LoggerFactory.getLogger(ShortestPath.class);
+
+  private Action[] actionsToBeExecutedBefore;
+
   public ShortestPath(ReachedStopCondition stopCondition) {
     setStopCondition(stopCondition);
+    this.actionsToBeExecutedBefore = null;
+  }
+
+  public ShortestPath(ReachedStopCondition stopCondition, Action ...actionsToBeExecutedBefore) {
+    setStopCondition(stopCondition);
+    this.actionsToBeExecutedBefore = actionsToBeExecutedBefore;
   }
 
   @Override
@@ -85,6 +99,19 @@ public class ShortestPath extends PathGeneratorBase<ReachedStopCondition> {
       Map<String, Object> globalCopy = new HashMap<>();
       for (Map.Entry<String, Object> e : engineBindings.entrySet()) {
         globalCopy.put(e.getKey(), e.getValue());
+      }
+
+      if (actionsToBeExecutedBefore != null) {
+        try {
+          for (Action action : actionsToBeExecutedBefore) {
+            context.getScriptEngine().eval(action.getScript());
+          }
+        } catch (ScriptException e) {
+          LOG.error(e.getMessage());
+          throw new MachineException(context, e);
+        } finally {
+          actionsToBeExecutedBefore = null;
+        }
       }
 
       next:

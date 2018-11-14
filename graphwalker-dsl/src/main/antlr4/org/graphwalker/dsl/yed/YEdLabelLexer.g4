@@ -46,6 +46,7 @@ HTML_TH_START   : '<th' (WHITESPACE+ Letter+ ASSIGN JS_LITERAL)* '>';
 HTML_TH_END     : '</th>';
 HTML_TD_START   : '<td' (WHITESPACE+ Letter+ ASSIGN JS_LITERAL)* '>';
 HTML_TD_END     : '</td>';
+HTML_BR         : '<br/>' -> skip;
 
 NestedBrackets
  :  '[' ( ~('[' | ']') | NestedBrackets )* ']'

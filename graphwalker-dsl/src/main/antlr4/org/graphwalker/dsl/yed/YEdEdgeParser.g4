@@ -23,6 +23,7 @@ field
  | {!$parse::fields.contains("dataset")}? dataset {$parse::fields.add("dataset");}
  | {!$parse::fields.contains("htmlStart")}? htmlStart
  | {!$parse::fields.contains("htmlEnd")}? htmlEnd
+ | {!$parse::fields.contains("htmlBr")}? htmlBr
  | WHITESPACE
  ;
 
@@ -99,6 +100,10 @@ htmlStart
 
 htmlEnd
  : HTML_TAG_END
+ ;
+
+htmlBr
+ : HTML_BR
  ;
 
 dataset
