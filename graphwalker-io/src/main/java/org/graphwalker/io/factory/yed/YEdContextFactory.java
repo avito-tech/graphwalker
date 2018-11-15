@@ -1270,7 +1270,7 @@ public final class YEdContextFactory implements ContextFactory {
     lexer.removeErrorListeners();
     YEdDescriptiveErrorListener listener = YEdDescriptiveErrorListener.INSTANCE;
 
-    Pattern pattern = Pattern.compile("id=\"[a-z][0-9]+\"");
+    Pattern pattern = Pattern.compile("(id=\"([a-z][0-9]+(::[a-z][0-9]+)+)\")|(id=\"[a-z][0-9]+\")");
     Matcher matcher = pattern.matcher(xmlText);
     String id;
 
