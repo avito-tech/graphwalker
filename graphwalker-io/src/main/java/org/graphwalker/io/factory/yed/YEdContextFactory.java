@@ -968,7 +968,7 @@ public final class YEdContextFactory implements ContextFactory {
                   for (NodeLabelType nodeLabel : nodeType.getNodeLabelArray()) {
                     label.append(((NodeLabelTypeImpl) nodeLabel).getStringValue());
                   }
-                  YEdVertexParser parser = new YEdVertexParser(getTokenStream(label.toString()));
+                  YEdVertexParser parser = new YEdVertexParser(getTokenStream(label.toString(), object.xmlText()));
                   parser.removeErrorListeners();
                   parser.addErrorListener(YEdDescriptiveErrorListener.INSTANCE);
                   YEdVertexParser.ParseContext parseContext = parser.parse();
@@ -1135,7 +1135,7 @@ public final class YEdContextFactory implements ContextFactory {
                   label.append(((EdgeLabelTypeImpl) edgeLabel).getStringValue());
                 }
               }
-              YEdEdgeParser parser = new YEdEdgeParser(getTokenStream(label.toString()));
+              YEdEdgeParser parser = new YEdEdgeParser(getTokenStream(label.toString(), object.xmlText()));
               parser.removeErrorListeners();
               parser.addErrorListener(YEdDescriptiveErrorListener.INSTANCE);
               ParseContext parseContext = parser.parse();
@@ -1264,11 +1264,30 @@ public final class YEdContextFactory implements ContextFactory {
     return requirements;
   }
 
-  private CommonTokenStream getTokenStream(String label) {
+  private CommonTokenStream getTokenStream(String label, String xmlText) {
     CharStream inputStream = CharStreams.fromString(label);
     YEdLabelLexer lexer = new YEdLabelLexer(inputStream);
     lexer.removeErrorListeners();
-    lexer.addErrorListener(YEdDescriptiveErrorListener.INSTANCE);
+    YEdDescriptiveErrorListener listener = YEdDescriptiveErrorListener.INSTANCE;
+
+    Pattern pattern = Pattern.compile("id=\"[a-z][0-9]+\"");
+    Matcher matcher = pattern.matcher(xmlText);
+    String id;
+
+    if (matcher.find()) {
+      id = matcher.group(0);
+    } else {
+        id = "";
+    }
+
+    String msg = "Error at element with id [" + id + "]";
+
+    if(xmlText.contains("(No text specified!)")) {
+      msg += ". No text specified for element label.";
+    }
+
+    listener.setCurrentLabel(msg);
+    lexer.addErrorListener(listener);
     return new CommonTokenStream(lexer);
   }
 

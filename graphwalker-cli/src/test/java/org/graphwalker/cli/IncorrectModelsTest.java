@@ -41,6 +41,7 @@ public class IncorrectModelsTest extends CLITestRoot {
   public void wrongVertexSyntax() {
     String args[] = {"offline", "-m", "graphml/IncorrectModels/wrongVertexSyntax.graphml", "random(edge_coverage(100))"};
     Result result = runCommand(args);
+
     Assert.assertThat(result.getError(),
                       is("When parsing model: 'graphml/IncorrectModels/wrongVertexSyntax.graphml' The string '1' did not conform to GraphWalker syntax rules."
                          + System.lineSeparator()
@@ -110,4 +111,5 @@ public class IncorrectModelsTest extends CLITestRoot {
                          + "Model syntax error" + System.lineSeparator() + System.lineSeparator()));
     Assert.assertThat(result.getOutput(), is(""));
   }
+
 }

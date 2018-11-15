@@ -38,14 +38,21 @@ import org.graphwalker.dsl.antlr.DslException;
 public class YEdDescriptiveErrorListener extends BaseErrorListener {
 
   public static final YEdDescriptiveErrorListener INSTANCE = new YEdDescriptiveErrorListener();
+  private String errorMessage = "";
 
   @Override
   public void syntaxError(Recognizer<?, ?> recognizer, Object offendingSymbol,
                           int line, int charPositionInLine,
                           String msg, RecognitionException e) {
-    String message = offendingSymbol != null
-      ? ((CommonToken) offendingSymbol).getInputStream().toString().trim()
-      : msg + "...";
-    throw new DslException("The string '" + message + "' did not conform to GraphWalker syntax rules.");
+
+    if (offendingSymbol != null) {
+      throw new DslException("The string '" + ((CommonToken) offendingSymbol).getInputStream().toString().trim() + "' did not conform to GraphWalker syntax rules.");
+    }
+
+    throw new DslException("Error during parsing model. Possible error at element: " + errorMessage);
+  }
+
+  public void setCurrentLabel(String label) {
+      this.errorMessage = label;
   }
 }
