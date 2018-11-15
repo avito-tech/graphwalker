@@ -1257,9 +1257,10 @@ public final class YEdContextFactory implements ContextFactory {
   private List<Action> initDataset(String datasetVariable, List<List<Argument>> arguments) {
     StringBuilder sb = new StringBuilder("gw.ds." + datasetVariable + " = [");
     sb.append(arguments.stream().map(row -> {
-      return row.stream().map(argument -> argument.getName() + ": '" + argument.getValue() + "'")
-        // additionally set guard lock on that dataset value
-        .collect(joining(", ")) + ", $open: false";
+      return row.stream().map(argument -> argument.getName() + ": \"" + argument.getValue() + "\"")
+        // additionally set guard lock to open on that dataset value,
+        // so by default any dataset path could be passed through
+        .collect(joining(", ")) + ", $open: true";
     }).collect(joining("}, {", "{", "}")));
     return Arrays.asList(new Action("var gw = gw || {ds: {}};"), new Action(sb.append("];").toString()));
   }
@@ -1269,7 +1270,7 @@ public final class YEdContextFactory implements ContextFactory {
    * @see <a href="http://web.archive.org/web/20161108071447/http://blog.osteele.com/posts/2007/12/cheap-monads/">Explanation</a>
    */
   private Guard guardDataset(String datasetVariable, int id) {
-    return new Guard("typeof gw != 'undefined' && (((gw || {}).ds || {})." + datasetVariable + " || {})[" + id + "].$open");
+    return new Guard("typeof gw != \"undefined\" && (((gw || {}).ds || {})." + datasetVariable + " || {})[" + id + "].$open");
   }
 
   private boolean isSupportedEdge(String xml) {
