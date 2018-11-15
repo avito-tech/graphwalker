@@ -72,6 +72,11 @@ public class ShortestPath extends PathGeneratorBase<ReachedStopCondition> {
     this.actionsToBeExecutedBefore = actionsToBeExecutedBefore;
   }
 
+  public ShortestPath(ReachedStopCondition stopCondition, Dataset dataset) {
+    setStopCondition(stopCondition);
+    this.actionsToBeExecutedBefore = dataset.selectPathActions();
+  }
+
   @Override
   public Context getNextStep() {
     Context context = super.getNextStep();
