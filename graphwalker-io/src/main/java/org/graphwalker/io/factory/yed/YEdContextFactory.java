@@ -1164,7 +1164,7 @@ public final class YEdContextFactory implements ContextFactory {
                   } else if (null != field.names().nameArgList()) {
                     String name = field.names().nameArgList().IDENTIFIER_ARG().getText();
                     edge.setName(name.contains("{") ? name.substring(0, name.lastIndexOf('{')) : name);
-                    List<Argument> arguments = new ArrayList<>();
+                    Argument.List arguments = new Argument.List();
                     for (YEdEdgeParser.LabelArgumentContext ctx : field.names().nameArgList().labelArgList().labelArgument()) {
                       String identifier = ctx.parameterName().IDENTIFIER_NAME().getText();
                       if (null != ctx.stringVariable()) {
@@ -1216,10 +1216,10 @@ public final class YEdContextFactory implements ContextFactory {
                   for (YEdEdgeParser.TableHeaderCellContext cellContext : field.dataset().htmlTable().tableHeader().tableHeaderCell()) {
                     argumentNames.add(cellContext.Identifier().getText());
                   }
-                  List<List<Argument>> arguments = new ArrayList<>();
+                  List<Argument.List> arguments = new ArrayList<>();
                   for (int i = 0; i < field.dataset().htmlTable().tableRow().size(); i++) {
                     YEdEdgeParser.TableRowContext rowContext = field.dataset().htmlTable().tableRow().get(i);
-                    List<Argument> argumentsRow = new ArrayList<>();
+                    Argument.List argumentsRow = new Argument.List();
                     for (int j = 0; j < rowContext.tableBodyCell().size(); j++) {
                       YEdEdgeParser.TableBodyCellContext cellContext = rowContext.tableBodyCell().get(j);
                       String name = argumentNames.get(j);
@@ -1279,7 +1279,7 @@ public final class YEdContextFactory implements ContextFactory {
     return startEdge;
   }
 
-  private List<Action> initDataset(String datasetVariable, List<List<Argument>> arguments) {
+  private List<Action> initDataset(String datasetVariable, List<Argument.List> arguments) {
     StringBuilder sb = new StringBuilder("gw.ds." + datasetVariable + " = [");
     sb.append(arguments.stream().map(row -> {
       return row.stream().map(argument -> argument.getName() + ": \"" + argument.getValue() + "\"")

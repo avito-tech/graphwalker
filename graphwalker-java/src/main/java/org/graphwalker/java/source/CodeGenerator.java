@@ -358,7 +358,7 @@ public final class CodeGenerator extends VoidVisitorAdapter<ChangeContext> {
             codeTag = getOrElse(edges, RuntimeEdge::getCodeTag, null);
             NodeList<MemberValuePair> memberValuePairs = new NodeList<>(new MemberValuePair("value", new StringLiteralExpr(description)));
             annotations.add(new NormalAnnotationExpr(new Name("Edge"), memberValuePairs));
-            List<List<Argument>> arguments = getOrElse(edges, RuntimeEdge::getArguments, emptyList());
+            List<Argument.List> arguments = getOrElse(edges, RuntimeEdge::getArguments, emptyList());
             for (int i = 0; i < arguments.size(); i++) {
               argumentRow = arguments.get(i);
               NodeList<Expression> rowFields = new NodeList<>();

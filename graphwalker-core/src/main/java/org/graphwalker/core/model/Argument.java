@@ -1,5 +1,9 @@
 package org.graphwalker.core.model;
 
+import java.util.ArrayList;
+
+import static java.util.stream.Collectors.joining;
+
 public final class Argument {
 
   private final TypePrefix type;
@@ -22,6 +26,22 @@ public final class Argument {
 
   public TypePrefix getType() {
     return type;
+  }
+
+  @Override
+  public String toString() {
+    if (type == TypePrefix.STRING) {
+      return name + ": \"" + value + "\"";
+    }
+    return name + ": " + value + "";
+  }
+
+  public static class List extends ArrayList<Argument> {
+
+    @Override
+    public String toString() {
+      return stream().map(Argument::toString).collect(joining(", ", "{", "}"));
+    }
   }
 
 }
