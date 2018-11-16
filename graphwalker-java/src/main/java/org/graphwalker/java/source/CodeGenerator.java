@@ -91,11 +91,11 @@ import static java.nio.file.FileVisitResult.CONTINUE;
 import static java.nio.file.FileVisitResult.SKIP_SUBTREE;
 import static java.nio.file.StandardOpenOption.CREATE;
 import static java.nio.file.StandardOpenOption.TRUNCATE_EXISTING;
-import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static java.util.Comparator.comparing;
 import static java.util.EnumSet.noneOf;
 import static java.util.EnumSet.of;
+import static java.util.stream.Collectors.toList;
 import static org.graphwalker.core.model.Model.RuntimeModel;
 import static org.graphwalker.core.model.TypePrefix.BOOLEAN;
 import static org.graphwalker.core.model.TypePrefix.NUMBER;
@@ -346,19 +346,23 @@ public final class CodeGenerator extends VoidVisitorAdapter<ChangeContext> {
         CodeTag codeTag;
         List<Argument> argumentRow = null;
         if (vertices != null) {
-          String description = getOrElse(vertices, unquote(RuntimeVertex::getDescription), "");
-          codeTag = getOrElse(vertices, RuntimeVertex::getCodeTag, null);
+          String description = getFirstOrElse(vertices, unquote(RuntimeVertex::getDescription), "");
+          codeTag = getFirstOrElse(vertices, RuntimeVertex::getCodeTag, null);
           NodeList<MemberValuePair> memberValuePairs = new NodeList<>(new MemberValuePair("value", new StringLiteralExpr(description)));
           annotations.add(new NormalAnnotationExpr(new Name("Vertex"), memberValuePairs));
           type = booleanType();
         } else {
           List<RuntimeEdge> edges = changeContext.getModel().findEdges(methodName);
           if (edges != null) {
-            String description = getOrElse(edges, unquote(RuntimeEdge::getDescription), "");
-            codeTag = getOrElse(edges, RuntimeEdge::getCodeTag, null);
+            String description = getFirstOrElse(edges, unquote(RuntimeEdge::getDescription), "");
+            codeTag = getFirstOrElse(edges, RuntimeEdge::getCodeTag, null);
             NodeList<MemberValuePair> memberValuePairs = new NodeList<>(new MemberValuePair("value", new StringLiteralExpr(description)));
             annotations.add(new NormalAnnotationExpr(new Name("Edge"), memberValuePairs));
-            List<Argument.List> arguments = getOrElse(edges, RuntimeEdge::getArguments, emptyList());
+            List<Argument.List> arguments = edges.stream()
+              .map(RuntimeEdge::getArguments)
+              .filter(Objects::nonNull)
+              .sorted()
+              .collect(toList());
             for (int i = 0; i < arguments.size(); i++) {
               argumentRow = arguments.get(i);
               NodeList<Expression> rowFields = new NodeList<>();
@@ -478,7 +482,7 @@ public final class CodeGenerator extends VoidVisitorAdapter<ChangeContext> {
     return extractor.andThen(s -> s.replaceAll("\"", "\\\\\""));
   }
 
-  private static <T, V> V getOrElse(List<T> elements, Function<T, V> extractor, V defaultValue) {
+  private static <T, V> V getFirstOrElse(List<T> elements, Function<T, V> extractor, V defaultValue) {
     V result = elements.isEmpty() ? defaultValue : extractor.apply(elements.iterator().next());
     return result != null ? result : defaultValue;
   }

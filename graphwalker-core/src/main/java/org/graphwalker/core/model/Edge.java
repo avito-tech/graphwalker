@@ -61,7 +61,7 @@ public class Edge extends CachedBuilder<Edge, Edge.RuntimeEdge> {
   private Double weight = 1.0;
   private Integer dependency = 0;
   private CodeTag codeTag;
-  private List<Argument.List> arguments;
+  private Argument.List arguments;
 
   public Edge() {
   }
@@ -73,7 +73,7 @@ public class Edge extends CachedBuilder<Edge, Edge.RuntimeEdge> {
                Double weight,
                Integer dependency,
                CodeTag codeTag,
-               List<Argument.List> arguments) {
+               Argument.List arguments) {
     this.sourceVertex = sourceVertex;
     this.targetVertex = targetVertex;
     this.guard = guard;
@@ -265,12 +265,12 @@ public class Edge extends CachedBuilder<Edge, Edge.RuntimeEdge> {
     return codeTag;
   }
 
-  public Edge setArguments(List<Argument.List> arguments) {
+  public Edge setArguments(Argument.List arguments) {
     this.arguments = arguments;
     return this;
   }
 
-  public List<Argument.List> getArguments() {
+  public Argument.List getArguments() {
     return arguments;
   }
 
@@ -305,7 +305,7 @@ public class Edge extends CachedBuilder<Edge, Edge.RuntimeEdge> {
     private final Double weight;
     private final Integer dependency;
     private final CodeTag codeTag;
-    private final List<Argument.List> arguments;
+    private final Argument.List arguments;
 
     private RuntimeEdge(Edge edge) {
       super(edge.getId(), edge.getName(), edge.getDescription(), edge.getActions(), edge.getRequirements(), edge.getProperties());
@@ -370,7 +370,7 @@ public class Edge extends CachedBuilder<Edge, Edge.RuntimeEdge> {
       return codeTag;
     }
 
-    public List<Argument.List> getArguments() {
+    public Argument.List getArguments() {
       return arguments;
     }
 

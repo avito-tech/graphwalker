@@ -36,11 +36,16 @@ public final class Argument {
     return name + ": " + value + "";
   }
 
-  public static class List extends ArrayList<Argument> {
+  public static class List extends ArrayList<Argument> implements Comparable<List> {
 
     @Override
     public String toString() {
       return stream().map(Argument::toString).collect(joining(", ", "{", "}"));
+    }
+
+    @Override
+    public int compareTo(List arguments) {
+      return this.toString().compareTo(arguments.toString());
     }
   }
 

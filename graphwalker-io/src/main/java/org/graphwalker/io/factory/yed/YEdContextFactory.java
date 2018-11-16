@@ -1177,7 +1177,7 @@ public final class YEdContextFactory implements ContextFactory {
                         throw new IllegalStateException("Can not parse dataset variable " + field.names().nameArgList().getText());
                       }
                     }
-                    edge.setArguments(singletonList(arguments));
+                    edge.setArguments(arguments);
                   } else {
                     throw new IllegalStateException("Can not parse edge name: " + field.getText());
                   }
@@ -1239,20 +1239,16 @@ public final class YEdContextFactory implements ContextFactory {
                     }
                     arguments.add(argumentsRow);
                     if (i == 0) {
-                      edge.setArguments(arguments)
+                      edge.setArguments(arguments.get(i))
                         .setGuard(guardDataset(edge.getTargetVertex().getName(), i));
                     } else {
                       Edge edgeCopy = edge.copy()
-                        .setArguments(arguments)
+                        .setArguments(arguments.get(i))
                         .setId(edgeType.getId() + "_" + i)
-                        .setGuard(guardDataset(edge.getTargetVertex().getName(), i))
-                        .addAction(loadDatasetArguments(arguments.get(i)));
+                        .setGuard(guardDataset(edge.getTargetVertex().getName(), i));
                       model.addEdge(edgeCopy);
                     }
                   }
-                  // the edge load action should be initialized after all,
-                  // otherwise it's actions will be bloated
-                  edge.addAction(loadDatasetArguments(arguments.get(0)));
                   for (Action action : initDataset(edge.getTargetVertex().getName(), arguments)) {
                     edge.getSourceVertex().addSetAction(action);
                   }
@@ -1296,12 +1292,6 @@ public final class YEdContextFactory implements ContextFactory {
    */
   private Guard guardDataset(String datasetVariable, int id) {
     return new Guard("typeof gw != \"undefined\" && (((gw || {}).ds || {})." + datasetVariable + " || {})[" + id + "].$open");
-  }
-
-  private Action loadDatasetArguments(List<Argument> argumentsRow) {
-    // action will be executed before the method call
-    return new Action(argumentsRow.stream().map(argument -> argument.getName() + ": \"" + argument.getValue() + "\"")
-      .collect(joining(", ", "gw.args = {", "};")));
   }
 
   private boolean isSupportedEdge(String xml) {
