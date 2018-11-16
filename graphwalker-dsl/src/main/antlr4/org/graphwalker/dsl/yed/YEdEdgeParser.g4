@@ -73,11 +73,16 @@ blocked
  ;
 
 names
- : name (SEMICOLON name)*
+ : nameList
+ | nameArgList
  ;
 
-name
- : Identifier (DOT Identifier)*
+nameList
+ : Identifier (DOT Identifier)* (SEMICOLON Identifier (DOT Identifier)* )*
+ ;
+
+nameArgList
+ : IDENTIFIER_ARG labelArgList LABEL_ARGS_END
  ;
 
 dependency

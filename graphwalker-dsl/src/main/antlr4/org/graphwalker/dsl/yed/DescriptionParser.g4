@@ -9,7 +9,7 @@ voidMethod
  ;
 
 methodName
- : METHOD_NAME
+ : IDENTIFIER_NAME
  ;
 
 stringMethod
@@ -58,4 +58,18 @@ numberVariable
 
 booleanVariable
  : BOOLEAN_VALUE
+ ;
+
+parameterName
+ : IDENTIFIER_NAME
+ ;
+
+labelArgList
+ : labelArgument (ARG_SPLITTER DOCSPACE* labelArgument)*
+ ;
+
+labelArgument
+ : parameterName DESCRIPTION_COLON DOCSPACE* stringVariable
+ | parameterName DESCRIPTION_COLON DOCSPACE* numberVariable
+ | parameterName DESCRIPTION_COLON DOCSPACE* booleanVariable
  ;

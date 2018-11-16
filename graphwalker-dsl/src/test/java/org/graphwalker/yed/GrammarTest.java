@@ -145,7 +145,8 @@ public class GrammarTest {
     "e_Click [typeof gw != 'undefined' && (((gw || {}).ds || {}).e_ClickClick || {})[0].$open]",
     "e_Click / var gw = gw || {ds: {}};",
     "e_Click / value = {user: 'root'};",
-    "e_Click / gw.ds.e_FillCredentials = [{user: \"admin\", $open: false}, {user: \"root\", $open: false}];"
+    "e_Click / gw.ds.e_FillCredentials = [{user: \"admin\", $open: false}, {user: \"root\", $open: false}];",
+    "e_Click {user: \"admin\", id: 1, active: true}"
   );
 
   @Test

@@ -1159,7 +1159,28 @@ public final class YEdContextFactory implements ContextFactory {
               }
               for (FieldContext field : parseContext.field()) {
                 if (null != field.names()) {
-                  edge.setName(field.names().getText());
+                  if (null != field.names().nameList()) {
+                    edge.setName(field.names().getText());
+                  } else if (null != field.names().nameArgList()) {
+                    String name = field.names().nameArgList().IDENTIFIER_ARG().getText();
+                    edge.setName(name.contains("{") ? name.substring(0, name.lastIndexOf('{')) : name);
+                    List<Argument> arguments = new ArrayList<>();
+                    for (YEdEdgeParser.LabelArgumentContext ctx : field.names().nameArgList().labelArgList().labelArgument()) {
+                      String identifier = ctx.parameterName().IDENTIFIER_NAME().getText();
+                      if (null != ctx.stringVariable()) {
+                        arguments.add(new Argument(STRING, identifier, ctx.stringVariable().getText()));
+                      } else if (null != ctx.booleanVariable()) {
+                        arguments.add(new Argument(BOOLEAN, identifier, ctx.booleanVariable().getText()));
+                      } else if (null != ctx.numberVariable()) {
+                        arguments.add(new Argument(NUMBER, identifier, ctx.numberVariable().getText()));
+                      } else {
+                        throw new IllegalStateException("Can not parse dataset variable " + field.names().nameArgList().getText());
+                      }
+                    }
+                    edge.setArguments(singletonList(arguments));
+                  } else {
+                    throw new IllegalStateException("Can not parse edge name: " + field.getText());
+                  }
                 }
                 if (null != field.guard()) {
                   edge.setGuard(new Guard(field.guard().getText()));
@@ -1218,17 +1239,21 @@ public final class YEdContextFactory implements ContextFactory {
                     }
                     arguments.add(argumentsRow);
                     if (i == 0) {
-                      edge.setArguments(arguments);
-                      edge.setGuard(guardDataset(edge.getName(), i));
+                      edge.setArguments(arguments)
+                        .setGuard(guardDataset(edge.getTargetVertex().getName(), i));
                     } else {
                       Edge edgeCopy = edge.copy()
                         .setArguments(arguments)
                         .setId(edgeType.getId() + "_" + i)
-                        .setGuard(guardDataset(edge.getName(), i));
+                        .setGuard(guardDataset(edge.getTargetVertex().getName(), i))
+                        .addAction(loadDatasetArguments(arguments.get(i)));
                       model.addEdge(edgeCopy);
                     }
                   }
-                  for (Action action : initDataset(edge.getName(), arguments)) {
+                  // the edge load action should be initialized after all,
+                  // otherwise it's actions will be bloated
+                  edge.addAction(loadDatasetArguments(arguments.get(0)));
+                  for (Action action : initDataset(edge.getTargetVertex().getName(), arguments)) {
                     edge.getSourceVertex().addSetAction(action);
                   }
                 }
@@ -1271,6 +1296,12 @@ public final class YEdContextFactory implements ContextFactory {
    */
   private Guard guardDataset(String datasetVariable, int id) {
     return new Guard("typeof gw != \"undefined\" && (((gw || {}).ds || {})." + datasetVariable + " || {})[" + id + "].$open");
+  }
+
+  private Action loadDatasetArguments(List<Argument> argumentsRow) {
+    // action will be executed before the method call
+    return new Action(argumentsRow.stream().map(argument -> argument.getName() + ": \"" + argument.getValue() + "\"")
+      .collect(joining(", ", "gw.args = {", "};")));
   }
 
   private boolean isSupportedEdge(String xml) {

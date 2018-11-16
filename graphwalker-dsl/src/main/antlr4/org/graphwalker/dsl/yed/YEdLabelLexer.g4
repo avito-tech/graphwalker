@@ -65,6 +65,10 @@ Identifier
  : Letter LetterOrDigit*
  ;
 
+IDENTIFIER_ARG
+ : ('v_'|'e_') LetterOrDigit+ WHITESPACE* '{' -> pushMode(IN_DESCRIPTION)
+ ;
+
 Value
  : Integer | Integer? ('.' Digit+)
  ;
@@ -125,16 +129,17 @@ mode IN_DESCRIPTION;
 MINUS            : '-';
 PLUS             : '+';
 ARG_SPLITTER     : ',';
-ROOT_METHOD_END  : ';';
 CODE_TAG         : '@code' DOCSPACE+;
 BOOLEAN_VALUE    : 'true'|'false';
 STRING_CAST      : '(String)'|'(string)';
 NUMBER_CAST      : '(Number)'|'(number)';
 BOOLEAN_CAST     : '(Boolean)'|'(boolean)';
-METHOD_NAME      : LowerCaseLetter MethodLetter*;
+IDENTIFIER_NAME  : Letter LetterOrDigit*;
 ARGS_START       : '(';
 ARGS_END         : ')';
 JAVADOC_END      : WHITESPACE? STAR* '*/' -> popMode;
+LABEL_ARGS_END   : '}' -> popMode;
+DESCRIPTION_COLON: ':';
 
 DESCRIPTION_COMMENT
  : (';' | '\r' '\n' | '\n' | '\r') (~'*' | '*' ~'/')*
