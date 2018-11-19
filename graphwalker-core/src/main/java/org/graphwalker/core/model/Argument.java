@@ -1,6 +1,7 @@
 package org.graphwalker.core.model;
 
 import java.util.ArrayList;
+import java.util.Collections;
 
 import static java.util.stream.Collectors.joining;
 
@@ -24,17 +25,20 @@ public final class Argument {
     return value;
   }
 
+  public String getQuotedValue() {
+    return type == TypePrefix.STRING ? "\"" + value + "\"" : value;
+  }
+
   public TypePrefix getType() {
     return type;
   }
 
   @Override
   public String toString() {
-    if (type == TypePrefix.STRING) {
-      return name + ": \"" + value + "\"";
-    }
-    return name + ": " + value + "";
+    return name + ": " + getQuotedValue();
   }
+
+  public static final java.util.List<Argument> EMPTY_LIST = Collections.unmodifiableList(new List());
 
   public static class List extends ArrayList<Argument> implements Comparable<List> {
 

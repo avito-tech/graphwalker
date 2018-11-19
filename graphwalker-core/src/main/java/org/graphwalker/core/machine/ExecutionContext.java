@@ -29,6 +29,7 @@ package org.graphwalker.core.machine;
 import org.graphwalker.core.algorithm.Algorithm;
 import org.graphwalker.core.generator.PathGenerator;
 import org.graphwalker.core.model.Action;
+import org.graphwalker.core.model.Argument;
 import org.graphwalker.core.model.Builder;
 import org.graphwalker.core.model.Element;
 import org.graphwalker.core.model.Model;
@@ -59,6 +60,7 @@ import javax.script.SimpleScriptContext;
 
 import jdk.internal.dynalink.beans.StaticClass;
 
+import static java.util.stream.Collectors.joining;
 import static org.graphwalker.core.common.Objects.isNotNull;
 import static org.graphwalker.core.model.Edge.RuntimeEdge;
 import static org.graphwalker.core.model.Model.RuntimeModel;
@@ -79,6 +81,7 @@ public abstract class ExecutionContext extends SimpleScriptContext implements Co
   private static final Logger LOG = LoggerFactory.getLogger(ExecutionContext.class);
 
   private final static String DEFAULT_SCRIPT_LANGUAGE = "JavaScript";
+  private static final Class[] NO_PARAMETERS = new Class[0];
   private ScriptEngine scriptEngine;
 
   private RuntimeModel model;
@@ -386,7 +389,7 @@ public abstract class ExecutionContext extends SimpleScriptContext implements Co
   }
 
   @Override
-  public void execute(String methodName, String groupName) {
+  public void execute(String methodName, String groupName, List<Argument> arguments) {
     LOG.debug("Execute: '{}' in model: '{}'", methodName, getModel().getName());
     try {
       Object impl = this;
@@ -396,8 +399,14 @@ public abstract class ExecutionContext extends SimpleScriptContext implements Co
         impl = groups().get(groupName);
       }
       // provoke a NoSuchMethodException exception if the method doesn't exist
-      impl.getClass().getMethod(methodName);
-      getScriptEngine().eval(functionName + "()");
+      Class[] parameterTypes = arguments != null
+        ? arguments.stream().map(arg -> arg.getType().getTypeClass()).toArray(Class[]::new)
+        : NO_PARAMETERS;
+      impl.getClass().getMethod(methodName, parameterTypes);
+      String commaSeparatedValues = arguments != null
+        ? arguments.stream().map(Argument::getQuotedValue).collect(joining(",", "(", ")"))
+        : "()";
+      getScriptEngine().eval(functionName + commaSeparatedValues);
     } catch (NoSuchMethodException e) {
       // ignore, method is not defined in the execution context
     } catch (Throwable t) {

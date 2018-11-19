@@ -345,8 +345,9 @@ public final class YEdContextFactory implements ContextFactory {
   }
 
   private static void appendEdge(StringBuilder str, String id, String srcId, String destId,
-                                 String name, Guard guard, List<Action> actions, int dependency,
-                                 String description, Double weight, Color col) {
+                                 String name, Argument.List arguments, Guard guard,
+                                 List<Action> actions, int dependency, String description,
+                                 Double weight, Color col) {
     String newLine = System.lineSeparator();
     String colorCode = format("#%02x%02x%02x", col.getRed(), col.getGreen(), col.getBlue());
 
@@ -369,6 +370,9 @@ public final class YEdContextFactory implements ContextFactory {
     if (!name.isEmpty()) {
       String label = name;
 
+      if (arguments != null && !arguments.isEmpty()) {
+        label += " " + arguments;
+      }
       if (actions != null && !actions.isEmpty()) {
         label += " /";
         for (Action action : actions) {
@@ -505,6 +509,7 @@ public final class YEdContextFactory implements ContextFactory {
         IndexedCollection<RuntimeVertex> destGroup = groupedVertices.getOrDefault(((RuntimeEdge) context.getNextElement()).getTargetVertex().getGroupName(), NO_GROUP);
         appendEdge(str, "e" + e, "n" + n, destGroup + uniqueVertices.get(((RuntimeEdge) context.getNextElement()).getTargetVertex()),
           context.getNextElement().getName(),
+          ((RuntimeEdge) context.getNextElement()).getArguments(),
           ((RuntimeEdge) context.getNextElement()).getGuard(),
           context.getNextElement().getActions(),
           ((RuntimeEdge) context.getNextElement()).getDependency(),
@@ -549,6 +554,7 @@ public final class YEdContextFactory implements ContextFactory {
 
         appendEdge(str, id, srcId, destId,
           edgeName,
+          e.getArguments(),
           e.hasGuard() ? e.getGuard() : null,
           e.hasActions() ? e.getActions() : emptyList(),
           e.getDependency(),
@@ -702,6 +708,7 @@ public final class YEdContextFactory implements ContextFactory {
         IndexedCollection<RuntimeVertex> destGroup = groupedVertices.getOrDefault(((RuntimeEdge) context.getNextElement()).getTargetVertex().getGroupName(), NO_GROUP);
         appendEdge(str, "e" + e, "n" + n, destGroup + uniqueVertices.get(((RuntimeEdge) context.getNextElement()).getTargetVertex()),
           context.getNextElement().getName(),
+          ((RuntimeEdge) context.getNextElement()).getArguments(),
           ((RuntimeEdge) context.getNextElement()).getGuard(),
           context.getNextElement().getActions(),
           ((RuntimeEdge) context.getNextElement()).getDependency(),
@@ -748,6 +755,7 @@ public final class YEdContextFactory implements ContextFactory {
 
         appendEdge(str, id, srcId, destId,
           edgeName,
+          e.getArguments(),
           e.hasGuard() ? e.getGuard() : null,
           e.hasActions() ? e.getActions() : emptyList(),
           e.getDependency(),
@@ -1163,12 +1171,12 @@ public final class YEdContextFactory implements ContextFactory {
                     edge.setName(field.names().getText());
                   } else if (null != field.names().nameArgList()) {
                     String name = field.names().nameArgList().IDENTIFIER_ARG().getText();
-                    edge.setName(name.contains("{") ? name.substring(0, name.lastIndexOf('{')) : name);
+                    edge.setName(name.contains("{") ? name.substring(0, name.lastIndexOf('{')).trim() : name);
                     Argument.List arguments = new Argument.List();
                     for (YEdEdgeParser.LabelArgumentContext ctx : field.names().nameArgList().labelArgList().labelArgument()) {
                       String identifier = ctx.parameterName().IDENTIFIER_NAME().getText();
                       if (null != ctx.stringVariable()) {
-                        arguments.add(new Argument(STRING, identifier, ctx.stringVariable().getText()));
+                        arguments.add(new Argument(STRING, identifier, unquote(ctx.stringVariable().getText())));
                       } else if (null != ctx.booleanVariable()) {
                         arguments.add(new Argument(BOOLEAN, identifier, ctx.booleanVariable().getText()));
                       } else if (null != ctx.numberVariable()) {
@@ -1230,7 +1238,7 @@ public final class YEdContextFactory implements ContextFactory {
                       } else if (null != cellContext.numericValue()) {
                         argumentsRow.add(new Argument(NUMBER, name, cellContext.numericValue().Value().getText()));
                       } else if (null != cellContext.stringQuote()) {
-                        String unquotedText = cellContext.stringQuote().JS_LITERAL().getText().replaceAll("^\"|\"$", "");
+                        String unquotedText = unquote(cellContext.stringQuote().JS_LITERAL().getText());
                         argumentsRow.add(new Argument(STRING, name, unquotedText));
                       } else {
                         throw new IllegalStateException("Can not determine dataset table field type of: \""
@@ -1377,6 +1385,10 @@ public final class YEdContextFactory implements ContextFactory {
     listener.setCurrentLabel(msg);
     lexer.addErrorListener(listener);
     return new CommonTokenStream(lexer);
+  }
+
+  private String unquote(String quotedString) {
+    return quotedString.replaceAll("^\"|\"$", "");
   }
 
 }

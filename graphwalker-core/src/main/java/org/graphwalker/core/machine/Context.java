@@ -29,6 +29,7 @@ package org.graphwalker.core.machine;
 import org.graphwalker.core.algorithm.Algorithm;
 import org.graphwalker.core.generator.PathGenerator;
 import org.graphwalker.core.model.Action;
+import org.graphwalker.core.model.Argument;
 import org.graphwalker.core.model.Builder;
 import org.graphwalker.core.model.Element;
 import org.graphwalker.core.model.Requirement;
@@ -92,7 +93,7 @@ public interface Context {
 
   void execute(Action action);
 
-  void execute(String methodName, String groupName);
+  void execute(String methodName, String groupName, List<Argument> arguments);
 
   Map<String, String> getKeys();
 }
