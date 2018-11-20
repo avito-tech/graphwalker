@@ -37,6 +37,7 @@ import java.util.List;
 
 import static java.lang.Boolean.parseBoolean;
 import static java.lang.Double.parseDouble;
+import static org.graphwalker.core.model.TypePrefix.STRING;
 
 /**
  * @author Ivan Bonkin
@@ -109,6 +110,12 @@ final class CodeTagParser {
         }
       }
       return new CodeTag.BooleanMethod(methodName, arguments);
+
+    } else if (ctx instanceof YEdEdgeParser.DatasetVariableContext) {
+      return new CodeTag.DatasetVariable<String>(trim(ctx.getChild(0).getText(), "${", "}"));
+
+    } else if (ctx instanceof YEdEdgeParser.DatasetStringVariableContext) {
+      return new CodeTag.TypedDatasetVariable<String>(trim(ctx.getChild(0).getText(), "\"${", "}\""), STRING);
 
     } else {
       throw new IllegalStateException("Can't parse rule " + ctx.getClass().getSimpleName());
@@ -203,6 +210,12 @@ final class CodeTagParser {
       }
       return new CodeTag.BooleanMethod(methodName, arguments);
 
+    } else if (ctx instanceof YEdVertexParser.DatasetVariableContext) {
+      return new CodeTag.TypedDatasetVariable<String>(trim(ctx.getChild(0).getText(), "\"${", "}\""), STRING);
+
+    } else if (ctx instanceof YEdVertexParser.DatasetStringVariableContext) {
+      return new CodeTag.DatasetVariable<String>(trim(ctx.getChild(0).getText(), "\"${", "}\""));
+
     } else {
       throw new IllegalStateException("Can't parse rule " + ctx.getClass().getSimpleName());
     }
@@ -235,6 +248,12 @@ final class CodeTagParser {
       }
     }
     return arguments;
+  }
+
+  private static String trim(String value, String prefix, String suffix) {
+    int indexOfLast = value.lastIndexOf(suffix);
+    String noSuffix = value.substring(0, indexOfLast);
+    return noSuffix.substring(noSuffix.startsWith(prefix) ? prefix.length() : 0);
   }
 
 }

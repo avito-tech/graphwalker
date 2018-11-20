@@ -61,11 +61,13 @@ import static java.util.Collections.singleton;
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.both;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.hasProperty;
 import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.hasToString;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -730,5 +732,47 @@ public class YEdContextFactoryTest {
       both(hasItem(both(hasProperty("name", equalTo("username"))).and(hasProperty("value", equalTo("root")))))
         .and(hasItem(both(hasProperty("name", equalTo("password"))).and(hasProperty("value", equalTo("secret")))))
     )));
+  }
+
+  @Test
+  public void readDatasetCodeTagSingleEdge() throws IOException {
+    Context context = new YEdContextFactory().create(Paths.get("graphml/dataset/codeTagSingleEdge.graphml")).get(0);
+    RuntimeModel model = context.getModel();
+    List<RuntimeEdge> edges = model.getEdges();
+    assertThat("Should be init edge and two parametrized", edges, hasSize(3));
+    assertThat("First row should have username=admin,password=pass", edges, hasItem(hasProperty("arguments",
+      both(hasItem(both(hasProperty("name", equalTo("username"))).and(hasProperty("value", equalTo("admin")))))
+        .and(hasItem(both(hasProperty("name", equalTo("password"))).and(hasProperty("value", equalTo("pass"))))))
+    ));
+    assertThat("Second row should have username=root,password=secret", edges, hasItem(hasProperty("arguments",
+      both(hasItem(both(hasProperty("name", equalTo("username"))).and(hasProperty("value", equalTo("root")))))
+        .and(hasItem(both(hasProperty("name", equalTo("password"))).and(hasProperty("value", equalTo("secret")))))
+    )));
+    assertThat("Edges should be correctly initialized", edges, allOf(
+      hasItem(hasProperty("codeTag", hasToString("@code fill(username, password);")))));
+  }
+
+  @Test
+  public void readDatasetCodeTagMultiEdge() throws IOException {
+    Context context = new YEdContextFactory().create(Paths.get("graphml/dataset/codeTagMultiEdge.graphml")).get(0);
+    RuntimeModel model = context.getModel();
+    List<RuntimeEdge> edges = model.getEdges();
+    List<RuntimeVertex> vertices = model.getVertices();
+    assertThat("Should be init edge and four parametrized", edges, hasSize(5));
+    assertThat("First row should have username=admin,password=pass", edges, hasItem(hasProperty("arguments",
+      both(hasItem(both(hasProperty("name", equalTo("username"))).and(hasProperty("value", equalTo("admin")))))
+        .and(hasItem(both(hasProperty("name", equalTo("password"))).and(hasProperty("value", equalTo("true"))))))
+    ));
+    assertThat("Second row should have username=root,password=secret", edges, hasItem(hasProperty("arguments",
+      both(hasItem(both(hasProperty("name", equalTo("username"))).and(hasProperty("value", equalTo("root")))))
+        .and(hasItem(both(hasProperty("name", equalTo("password"))).and(hasProperty("value", equalTo("false")))))
+    )));
+    assertThat("Edges should be correctly initialized", edges, allOf(
+      hasItem(hasProperty("codeTag", hasToString("@code fillUser(username);"))),
+      hasItem(hasProperty("codeTag", hasToString("@code fillPass(password);")))
+    ));
+    assertThat("Vertices should be correctly initialized", vertices, allOf(
+      hasItem(hasProperty("codeTag", hasToString("@code (Boolean)isAlert(username);")))
+    ));
   }
 }

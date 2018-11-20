@@ -36,7 +36,7 @@ action
  ;
 
 actionPart
- : WHITESPACE* Identifier (DOT Identifier)* WHITESPACE* actionOperator? WHITESPACE* ((JS_NOT? Identifier) | (JS_MINUS? Value) | JS_LITERAL | JS_FUNCTION | JS_METHOD_CALL | jsObject | jsArray)?
+ : WHITESPACE* Identifier (DOT Identifier)* WHITESPACE* actionOperator? WHITESPACE* ((JS_NOT? Identifier) | (JS_MINUS? Value) | JS_LITERAL | JS_FUNCTION | JS_METHOD_CALL | jsObject | jsArray | BOOLEAN)?
  ;
 
 actionOperator
@@ -148,7 +148,7 @@ numericValue
  ;
 
 booleanValue
- : BOOLEAN_VALUE
+ : BOOLEAN
  ;
 
 stringValue

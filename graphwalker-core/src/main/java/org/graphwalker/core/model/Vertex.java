@@ -122,7 +122,7 @@ public class Vertex extends CachedBuilder<Vertex, Vertex.RuntimeVertex> {
     for (Action action : setActions) {
       actionsCopy.add(new Action(action.getScript()));
     }
-    CodeTag codeTagCopy = codeTag != null ? new CodeTag((CodeTag.Expression) codeTag.getMethod()) : null;
+    CodeTag codeTagCopy = codeTag != null ? new CodeTag((CodeTag.Expression) codeTag.getMethod().copy()) : null;
     return new Vertex(sharedState, groupName, actionsCopy, codeTagCopy)
       .setName(getName())
       .setDescription(getDescription())

@@ -160,7 +160,7 @@ public final class CodeGenerator extends VoidVisitorAdapter<ChangeContext> {
           cache.add(file, new CacheEntry(file.toFile().lastModified(), true));
 
         } catch (Throwable t) {
-          logger.error(t.getMessage());
+          logger.error("Error during code generation phase", t.getMessage());
           cache.add(file, new CacheEntry(file.toFile().lastModified(), false));
         }
       }
@@ -380,29 +380,30 @@ public final class CodeGenerator extends VoidVisitorAdapter<ChangeContext> {
             throw new IllegalStateException("No vertices or edges were found for method: \"" + methodName + "\"");
           }
         }
+        MethodDeclaration methodDeclaration;
         if (codeTag != null) {
           List<MethodDeclaration> extractedMethods = extractMethods(codeTag.getMethod());
           codeTagMethods.addAll(extractedMethods);
           String stmtStart = type.isVoidType() ? "" : "return ";
           Statement statement = JavaParser.parseStatement(stmtStart + codeTag.getMethod().asJavaMethodCall());
           BlockStmt methodCall = new BlockStmt(new NodeList<>(statement));
-          defaultNodeMethods.add(
-            new MethodDeclaration(of(DEFAULT), type, methodName)
-              .setAnnotations(annotations)
-              .setBody(methodCall));
+          methodDeclaration = new MethodDeclaration(of(DEFAULT), type, methodName)
+            .setAnnotations(annotations)
+            .setBody(methodCall);
+          defaultNodeMethods.add(methodDeclaration);
         } else {
-          MethodDeclaration methodDeclaration = new MethodDeclaration(noneOf(Modifier.class), type, methodName)
+          methodDeclaration = new MethodDeclaration(noneOf(Modifier.class), type, methodName)
             .setBody(null)
             .setAnnotations(annotations);
-          if (argumentRow != null) {
-            NodeList<Parameter> parameters = new NodeList<>();
-            for (Argument argument : argumentRow) {
-              Type argumentType = typePrefixToAstType(argument.getType());
-              parameters.add(new Parameter(argumentType, new SimpleName(argument.getName())));
-            }
-            methodDeclaration.setParameters(parameters);
-          }
           abstractNodeMethods.add(methodDeclaration);
+        }
+        if (argumentRow != null) {
+          NodeList<Parameter> parameters = new NodeList<>();
+          for (Argument argument : argumentRow) {
+            Type argumentType = typePrefixToAstType(argument.getType());
+            parameters.add(new Parameter(argumentType, new SimpleName(argument.getName())));
+          }
+          methodDeclaration.setParameters(parameters);
         }
       }
     }
@@ -472,6 +473,15 @@ public final class CodeGenerator extends VoidVisitorAdapter<ChangeContext> {
         parameters.add(new Parameter(
           valueToAstType((CodeTag.Value) expression),
           "arg" + parameters.size()));
+
+      } else if (expression instanceof CodeTag.TypedDatasetVariable) {
+        parameters.add(new Parameter(
+          typePrefixToAstType(((CodeTag.TypedDatasetVariable<?>) expression).getTypePrefix()),
+          expression.toString()));
+
+      } else {
+        throw new IllegalStateException(
+          "Can not parse @code expression \"" + expression + "\" of class \"" + expression.getClass().getSimpleName() + "\"");
       }
     }
     methods.add(0, methodDeclaration.setParameters(parameters));

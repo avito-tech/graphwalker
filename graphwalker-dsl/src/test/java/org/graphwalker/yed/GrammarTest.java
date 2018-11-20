@@ -38,7 +38,8 @@ import org.junit.Test;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.hamcrest.core.Is.is;
+import static org.hamcrest.CoreMatchers.is;
+
 
 /**
  * @author Nils Olsson
@@ -141,12 +142,13 @@ public class GrammarTest {
     "e_Edge /filters.itemType = \"sale\", filters.full = false;\n/* @code run(); Press button */",
     "e_EnterInvalidKey/incorrect=incorrect+1;",
     "e_ShowLessFilters /filters.itemType={a:2, b: 3};\n/* Press [More] */",
-    "<html>e_Edge<br/>/* Text */ \n<table>\n<tr><th bgcolor=\"lime\">label</th></tr>\n<tr><td bgcolor=\"lime\">Car</td></tr>\n</table></html>",
+    "<html>e_Edge<br/>/* Text */ \n<table>\n<tr><th bgcolor=\"lime\">label</th></tr>\n<tr><td bgcolor=\"lime\">\"Car\"</td></tr>\n</table></html>",
     "e_Click [typeof gw != 'undefined' && (((gw || {}).ds || {}).e_ClickClick || {})[0].$open]",
     "e_Click / var gw = gw || {ds: {}};",
     "e_Click / value = {user: 'root'};",
     "e_Click / gw.ds.e_FillCredentials = [{user: \"admin\", $open: false}, {user: \"root\", $open: false}];",
-    "e_Click {user: \"admin\", id: 1, active: true}"
+    "e_Click {user: \"admin\", id: 1, active: true}",
+    "<html>e_Edge<br/>/* @code drive(\"${vehicle}\"); Text */ \n<table>\n<tr><th>vehicle</th></tr>\n<tr><td>\"Car\"</td></tr>\n</table></html>"
   );
 
   @Test
@@ -172,4 +174,31 @@ public class GrammarTest {
       Assert.assertThat("Parse syntax errors in edge " + edge, parser.getNumberOfSyntaxErrors(), is(0));
     }
   }
+
+//  @Test
+//  public void tableEdgeValuesParser() {
+//    CharStream inputStream = CharStreams.fromString(
+//      "<html> e_FillCredentials /* @code fill(\"${username}\", \"${password}\", ${readonly}); Fill credentials */ \n" +
+//      "<table>\n" +
+//      "<tr> \n" +
+//      "  <th bgcolor=\"lime\">id</th> \n" +
+//      "  <th bgcolor=\"yellow\">password</th>\n" +
+//      "  <th bgcolor=\"orange\">readonly</th>\n" +
+//      "</tr>\n" +
+//      "<tr>\n" +
+//      "  <td bgcolor=\"lime\">1</td>\n" +
+//      "  <td bgcolor=\"yellow\">pass</td>\n" +
+//      "  <td bgcolor=\"orange\">true</td>\n" +
+//      "</tr>\n" +
+//      "</table>\n" +
+//      "</html>");
+//    YEdLabelLexer lexer = new YEdLabelLexer(inputStream);
+//    CommonTokenStream tokens = new CommonTokenStream(lexer);
+//    YEdEdgeParser parser = new YEdEdgeParser(tokens);
+//    YEdEdgeParser.ParseContext parseCtx = parser.parse();
+//    Assert.assertThat("Parse syntax errors occurred", parser.getNumberOfSyntaxErrors(), is(0));
+//    Assert.assertThat("Numeric values reading error", parser.dataset().htmlTable().tableRow(1).tableBodyCell(0).numericValue(), is(not(null)));
+//    Assert.assertThat("String values reading error", parser.dataset().htmlTable().tableRow(1).tableBodyCell(1).stringValue(), is(not(null)));
+//    Assert.assertThat("Boolean values reading error", parser.dataset().htmlTable().tableRow(1).tableBodyCell(2).booleanValue(), is(not(null)));
+//  }
 }

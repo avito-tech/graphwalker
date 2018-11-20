@@ -61,6 +61,11 @@ NestedBrackets
  :  '[' ( ~('[' | ']') | NestedBrackets )* ']'
  ;
 
+BOOLEAN
+ : 'true'
+ | 'false'
+ ;
+
 Identifier
  : Letter LetterOrDigit*
  ;
@@ -154,7 +159,15 @@ DOCSPACE
  ;
 
 STRING_LITERAL
-	:	'"' StringCharacters? '"'
+	:	'"' (~[$] | ([$] ~[{])) StringCharacters? '"'
+	;
+
+DATASET_STRING_PARAMETER
+	:	'"${' IDENTIFIER_NAME '}"'
+	;
+
+DATASET_PARAMETER
+	:	'${' IDENTIFIER_NAME '}'
 	;
 
 fragment

@@ -281,7 +281,7 @@ public class Edge extends CachedBuilder<Edge, Edge.RuntimeEdge> {
       actionsCopy.add(new Action(action.getScript()));
     }
     Guard guardCopy = guard != null ? new Guard(guard.getScript()) : null;
-    CodeTag codeTagCopy = codeTag != null ? new CodeTag((CodeTag.Expression) codeTag.getMethod()) : null;
+    CodeTag codeTagCopy = codeTag != null ? new CodeTag((CodeTag.Expression) codeTag.getMethod().copy()) : null;
     return new Edge(sourceVertex, targetVertex, guardCopy, actionsCopy, weight, dependency, codeTagCopy, arguments)
       .setName(getName())
       .setDescription(getDescription())

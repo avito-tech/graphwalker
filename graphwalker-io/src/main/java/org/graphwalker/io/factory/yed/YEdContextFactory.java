@@ -71,6 +71,7 @@ import org.graphwalker.core.model.Edge.RuntimeEdge;
 import org.graphwalker.core.model.Guard;
 import org.graphwalker.core.model.Model;
 import org.graphwalker.core.model.Requirement;
+import org.graphwalker.core.model.TypePrefix;
 import org.graphwalker.core.model.Vertex;
 import org.graphwalker.core.model.Vertex.RuntimeVertex;
 import org.graphwalker.dsl.antlr.yed.YEdDescriptiveErrorListener;
@@ -101,6 +102,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -607,7 +609,7 @@ public final class YEdContextFactory implements ContextFactory {
             color = MAGENTA;
           } else if (hasNoOutput.contains(v)) {
             logger.warn("Vertex " + v + " has no output edges (marked with \"red\" color). " +
-              "Most of path generating techniques will not work correctly with that graph!");
+              "Some of path generating techniques will not work correctly with that graph!");
             color = RED;
           } else {
             color = YELLOW;
@@ -777,7 +779,7 @@ public final class YEdContextFactory implements ContextFactory {
           }
         } else if (hasNoOutput.contains(v) && !outdegrees.containsKey(v)) {
           logger.warn("Vertex " + v + " has no output edges (marked with \"red\" color). " +
-            "Most of path generating techniques will not work correctly with that graph!");
+            "Some of path generating techniques will not work correctly with that graph!");
           color = RED;
         } else {
           color = YELLOW;
@@ -1247,7 +1249,7 @@ public final class YEdContextFactory implements ContextFactory {
                       YEdEdgeParser.TableBodyCellContext cellContext = rowContext.tableBodyCell().get(j);
                       String name = argumentNames.get(j);
                       if (null != cellContext.booleanValue()) {
-                        argumentsRow.add(new Argument(BOOLEAN, name, cellContext.booleanValue().BOOLEAN_VALUE().getText()));
+                        argumentsRow.add(new Argument(BOOLEAN, name, cellContext.booleanValue().BOOLEAN().getText()));
                       } else if (null != cellContext.stringValue()) {
                         argumentsRow.add(new Argument(STRING, name, cellContext.stringValue().Identifier().getText()));
                       } else if (null != cellContext.numericValue()) {
@@ -1292,28 +1294,46 @@ public final class YEdContextFactory implements ContextFactory {
     nextDataset:
     for (YEdDataset dataset : datasets) {
       Vertex[] target = new Vertex[dataset.getArgumentLists().size()];
+      @SuppressWarnings("unchecked")
+      Map<String, TypePrefix>[] argumentValues = new Map[dataset.getArgumentLists().size()];
       Edge e, closer;
       for (e = closer = incoming.into(dataset.getTarget()); e != null; e = incoming.into(e.getSourceVertex())) {
         boolean reachedStart = dataset.getSource().equals(e.getSourceVertex());
-        for (int i = 0; i < dataset.getArgumentLists().size(); i++) {
+        for (int i = dataset.getArgumentLists().size() - 1; i >= 0; i--) {
           Argument.List arguments = dataset.getArgumentLists().get(i);
+          if (null == argumentValues[i]) {
+            argumentValues[i] = null != e.getCodeTag()
+              ? arguments.stream().collect(toMap(Argument::getName, Argument::getType))
+              : emptyMap();
+          }
           if (i == 0) {
             e.setArguments(arguments);
             if (reachedStart) {
               e.setGuard(guardDataset(closer.getTargetVertex().getName(), i));
+            } else if (null != e.getSourceVertex().getCodeTag()) {
+              parametrize(e.getSourceVertex().getCodeTag().getMethod(), argumentValues[i]);
+            }
+            if (!argumentValues[i].isEmpty()) {
+              parametrize(e.getCodeTag().getMethod(), argumentValues[i]);
             }
           } else {
             Edge edgeCopy = e.copy()
               .setArguments(arguments)
               .setId(e.getId() + "_" + i);
-            if (target[i] != null) {
+            if (null != target[i]) {
               edgeCopy.setTargetVertex(target[i]);
+            }
+            if (!argumentValues[i].isEmpty()) {
+              parametrize(edgeCopy.getCodeTag().getMethod(), argumentValues[i]);
             }
             if (reachedStart) {
               edgeCopy.setGuard(guardDataset(closer.getTargetVertex().getName(), i));
               target[i] = e.getSourceVertex();
             } else {
               target[i] = e.getSourceVertex().copy();
+              if (null != target[i].getCodeTag()) {
+                parametrize(target[i].getCodeTag().getMethod(), argumentValues[i]);
+              }
             }
             edgeCopy.setSourceVertex(target[i]);
             model.addEdge(edgeCopy);
@@ -1330,6 +1350,21 @@ public final class YEdContextFactory implements ContextFactory {
     }
 
     return startEdge;
+  }
+
+  private <T extends CodeTag.AbstractMethod> void parametrize(T method, Map<String, TypePrefix> argumentTypes) {
+    ListIterator<CodeTag.Expression> listIterator = method.getArguments().listIterator();
+    while (listIterator.hasNext()) {
+      CodeTag.Expression expression = listIterator.next();
+      TypePrefix matchedType;
+      if (expression instanceof CodeTag.AbstractMethod) {
+        parametrize((CodeTag.AbstractMethod) expression, argumentTypes);
+
+      } else if (expression instanceof CodeTag.DatasetVariable
+        && (matchedType = argumentTypes.get(((CodeTag.DatasetVariable<String>) expression).result())) != null) {
+        listIterator.set(new CodeTag.TypedDatasetVariable<String>(((CodeTag.DatasetVariable<String>) expression).result(), matchedType));
+      }
+    }
   }
 
   private List<Action> initDataset(String datasetVariable, List<Argument.List> arguments) {

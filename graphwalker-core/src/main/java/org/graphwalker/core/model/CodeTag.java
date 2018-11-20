@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.Objects;
 
 import static java.util.stream.Collectors.joining;
+import static java.util.stream.Collectors.toList;
 import static org.graphwalker.core.model.TypePrefix.BOOLEAN;
 import static org.graphwalker.core.model.TypePrefix.NUMBER;
 import static org.graphwalker.core.model.TypePrefix.STRING;
@@ -45,6 +46,7 @@ public class CodeTag {
 
   public interface Expression<T> {
 
+    Expression<T> copy();
   }
 
   public static class Value<T> implements Expression<T> {
@@ -63,6 +65,48 @@ public class CodeTag {
     public String toString() {
       return result instanceof String ? "\"" + result + "\"" : result.toString();
     }
+
+    @Override
+    public Value<T> copy() {
+      return new Value<T>(result);
+    }
+  }
+
+  public static class DatasetVariable<T> implements Expression<T> {
+
+    private final T result;
+
+    public DatasetVariable(T result) {
+      this.result = result;
+    }
+
+    public T result() {
+      return result;
+    }
+
+    @Override
+    public String toString() {
+      return result.toString();
+    }
+
+    @Override
+    public DatasetVariable<T> copy() {
+      return new DatasetVariable<T>(result);
+    }
+  }
+
+  public static class TypedDatasetVariable<T> extends DatasetVariable<T> {
+
+    private final TypePrefix typePrefix;
+
+    public TypedDatasetVariable(T result, TypePrefix typePrefix) {
+      super(result);
+      this.typePrefix = typePrefix;
+    }
+
+    public TypePrefix getTypePrefix() {
+      return typePrefix;
+    }
   }
 
   public static abstract class AbstractMethod {
@@ -71,6 +115,8 @@ public class CodeTag {
     final String name;
 
     final List<Expression> arguments;
+
+    public abstract AbstractMethod copy();
 
     AbstractMethod(TypePrefix typePrefix, String name, List<Expression> arguments) {
       Objects.requireNonNull(name, "Method name should be initialized");
@@ -128,6 +174,11 @@ public class CodeTag {
     public VoidMethod(String name, List<Expression> arguments) {
       super(VOID, name, arguments);
     }
+
+    @Override
+    public VoidMethod copy() {
+      return new VoidMethod(name, arguments.stream().map(Expression::copy).collect(toList()));
+    }
   }
 
   public static class BooleanMethod extends AbstractMethod implements Expression<Boolean> {
@@ -135,12 +186,22 @@ public class CodeTag {
     public BooleanMethod(String name, List<Expression> arguments) {
       super(BOOLEAN, name, arguments);
     }
+
+    @Override
+    public BooleanMethod copy() {
+      return new BooleanMethod(name, arguments.stream().map(Expression::copy).collect(toList()));
+    }
   }
 
-  public static class StringMethod extends AbstractMethod implements Expression<Boolean> {
+  public static class StringMethod extends AbstractMethod implements Expression<String> {
 
     public StringMethod(String name, List<Expression> arguments) {
       super(STRING, name, arguments);
+    }
+
+    @Override
+    public StringMethod copy() {
+      return new StringMethod(name, arguments.stream().map(Expression::copy).collect(toList()));
     }
   }
 
@@ -148,6 +209,11 @@ public class CodeTag {
 
     public DoubleMethod(String name, List<Expression> arguments) {
       super(NUMBER, name, arguments);
+    }
+
+    @Override
+    public DoubleMethod copy() {
+      return new DoubleMethod(name, arguments.stream().map(Expression::copy).collect(toList()));
     }
   }
 

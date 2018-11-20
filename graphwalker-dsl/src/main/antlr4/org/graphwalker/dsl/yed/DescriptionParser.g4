@@ -29,7 +29,7 @@ argList
  ;
 
 argument
- : (stringExpression|numberExpression|booleanExpression)
+ : (stringExpression|numberExpression|datasetVariable|datasetStringVariable|booleanExpression)
  ;
 
 voidExpression
@@ -46,6 +46,14 @@ numberExpression
 
 booleanExpression
  : booleanVariable|booleanMethod
+ ;
+
+datasetVariable
+ : DATASET_PARAMETER
+ ;
+
+datasetStringVariable
+ : DATASET_STRING_PARAMETER
  ;
 
 stringVariable
