@@ -715,4 +715,20 @@ public class YEdContextFactoryTest {
         .and(hasItem(both(hasProperty("name", equalTo("password"))).and(hasProperty("value", equalTo("secret")))))
     )));
   }
+
+  @Test
+  public void readDatasetMultiEdge() throws IOException {
+    Context context = new YEdContextFactory().create(Paths.get("graphml/dataset/multiEdge.graphml")).get(0);
+    RuntimeModel model = context.getModel();
+    List<RuntimeEdge> edges = model.getEdges();
+    assertThat("Should be init edge and four parametrized", edges, hasSize(5));
+    assertThat("First row should have username=admin,password=pass", edges, hasItem(hasProperty("arguments",
+      both(hasItem(both(hasProperty("name", equalTo("username"))).and(hasProperty("value", equalTo("admin")))))
+        .and(hasItem(both(hasProperty("name", equalTo("password"))).and(hasProperty("value", equalTo("pass"))))))
+    ));
+    assertThat("Second row should have username=root,password=secret", edges, hasItem(hasProperty("arguments",
+      both(hasItem(both(hasProperty("name", equalTo("username"))).and(hasProperty("value", equalTo("root")))))
+        .and(hasItem(both(hasProperty("name", equalTo("password"))).and(hasProperty("value", equalTo("secret")))))
+    )));
+  }
 }

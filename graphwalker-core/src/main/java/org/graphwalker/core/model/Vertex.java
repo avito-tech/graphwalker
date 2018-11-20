@@ -54,6 +54,16 @@ public class Vertex extends CachedBuilder<Vertex, Vertex.RuntimeVertex> {
   private List<Action> setActions = new ArrayList<>();
   private CodeTag codeTag;
 
+  public Vertex() {
+  }
+
+  private Vertex(String sharedState, String groupName, List<Action> setActions, CodeTag codeTag) {
+    this.sharedState = sharedState;
+    this.groupName = groupName;
+    this.setActions = setActions;
+    this.codeTag = codeTag;
+  }
+
   /**
    * Gets the name of the shared state.
    *
@@ -104,6 +114,20 @@ public class Vertex extends CachedBuilder<Vertex, Vertex.RuntimeVertex> {
   public Vertex addSetAction(Action setAction) {
     this.setActions.add(setAction);
     return this;
+  }
+
+  public Vertex copy() {
+    // deep copy actions but not arguments
+    List<Action> actionsCopy = new ArrayList<>();
+    for (Action action : setActions) {
+      actionsCopy.add(new Action(action.getScript()));
+    }
+    CodeTag codeTagCopy = codeTag != null ? new CodeTag((CodeTag.Expression) codeTag.getMethod()) : null;
+    return new Vertex(sharedState, groupName, actionsCopy, codeTagCopy)
+      .setName(getName())
+      .setDescription(getDescription())
+      .setRequirements(getRequirements())
+      .setProperties(getProperties());
   }
 
   @Override
@@ -213,7 +237,9 @@ public class Vertex extends CachedBuilder<Vertex, Vertex.RuntimeVertex> {
         return false;
       }
       RuntimeVertex that = (RuntimeVertex) o;
-      return Objects.equals(sharedState, that.sharedState);
+      return Objects.equals(sharedState, that.sharedState)
+        && Objects.equals(groupName, that.groupName)
+        && Objects.equals(codeTag, that.codeTag);
     }
   }
 }

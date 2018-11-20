@@ -1109,8 +1109,21 @@ public final class YEdContextFactory implements ContextFactory {
     return emptyList();
   }
 
+  private class SingleIndegrees extends HashMap<Vertex, Edge> {
+
+    public Edge update(Vertex vertex, Edge indegree) {
+      return put(vertex, containsKey(indegree) ? null : indegree);
+    }
+
+    public Edge into(Vertex vertex) {
+      return getOrDefault(vertex, null);
+    }
+
+  }
+
   private Edge addEdges(Model model, GraphmlDocument document, Map<String, Vertex> elements, Vertex startVertex) throws XmlException {
     Edge startEdge = null;
+    List<YEdDataset> datasets = new ArrayList<>();
 
     List<KeyType> keys = getKeyArray(document);
     Map<String, KeyType> propKeys = new HashMap<>();
@@ -1119,6 +1132,8 @@ public final class YEdContextFactory implements ContextFactory {
         propKeys.put(key.getId(), key);
       }
     }
+
+    SingleIndegrees incoming = new SingleIndegrees();
 
     for (XmlObject object : document.selectPath(NAMESPACE + "$this/xq:graphml/xq:graph/xq:edge")) {
       if (object instanceof org.graphdrawing.graphml.xmlns.EdgeType) {
@@ -1224,7 +1239,7 @@ public final class YEdContextFactory implements ContextFactory {
                   for (YEdEdgeParser.TableHeaderCellContext cellContext : field.dataset().htmlTable().tableHeader().tableHeaderCell()) {
                     argumentNames.add(cellContext.Identifier().getText());
                   }
-                  List<Argument.List> arguments = new ArrayList<>();
+                  YEdDataset dataset = new YEdDataset(edge.getSourceVertex(), edge.getTargetVertex());
                   for (int i = 0; i < field.dataset().htmlTable().tableRow().size(); i++) {
                     YEdEdgeParser.TableRowContext rowContext = field.dataset().htmlTable().tableRow().get(i);
                     Argument.List argumentsRow = new Argument.List();
@@ -1245,34 +1260,27 @@ public final class YEdContextFactory implements ContextFactory {
                           + cellContext.getText() + "\"");
                       }
                     }
-                    arguments.add(argumentsRow);
-                    if (i == 0) {
-                      edge.setArguments(arguments.get(i))
-                        .setGuard(guardDataset(edge.getTargetVertex().getName(), i));
-                    } else {
-                      Edge edgeCopy = edge.copy()
-                        .setArguments(arguments.get(i))
-                        .setId(edgeType.getId() + "_" + i)
-                        .setGuard(guardDataset(edge.getTargetVertex().getName(), i));
-                      model.addEdge(edgeCopy);
-                    }
+                    dataset.addArguments(argumentsRow);
                   }
-                  for (Action action : initDataset(edge.getTargetVertex().getName(), arguments)) {
-                    edge.getSourceVertex().addSetAction(action);
-                  }
+                  datasets.add(dataset);
                 }
               }
-              if (null != edge.getTargetVertex()) {
+              Vertex edgeTarget = edge.getTargetVertex();
+              if (null != edgeTarget
+                && (null != edge.getName() || datasets.stream().noneMatch(ds -> ds.hasTarget(edgeTarget)))) {
+
                 if (null != startVertex &&
                   null != edgeType.getSource() &&
                   edgeType.getSource().equals(startVertex.getId())) {
                   edge.setSourceVertex(null);
                   edge.setId(edgeType.getId());
                   model.addEdge(edge);
+                  incoming.update(edgeTarget, edge);
                   startEdge = edge;
                 } else if (null != edge.getSourceVertex()) {
                   edge.setId(edgeType.getId());
                   model.addEdge(edge);
+                  incoming.update(edgeTarget, edge);
                 }
               }
             }
@@ -1280,17 +1288,57 @@ public final class YEdContextFactory implements ContextFactory {
         }
       }
     }
+
+    nextDataset:
+    for (YEdDataset dataset : datasets) {
+      Vertex[] target = new Vertex[dataset.getArgumentLists().size()];
+      Edge e, closer;
+      for (e = closer = incoming.into(dataset.getTarget()); e != null; e = incoming.into(e.getSourceVertex())) {
+        boolean reachedStart = dataset.getSource().equals(e.getSourceVertex());
+        for (int i = 0; i < dataset.getArgumentLists().size(); i++) {
+          Argument.List arguments = dataset.getArgumentLists().get(i);
+          if (i == 0) {
+            e.setArguments(arguments);
+            if (reachedStart) {
+              e.setGuard(guardDataset(closer.getTargetVertex().getName(), i));
+            }
+          } else {
+            Edge edgeCopy = e.copy()
+              .setArguments(arguments)
+              .setId(e.getId() + "_" + i);
+            if (target[i] != null) {
+              edgeCopy.setTargetVertex(target[i]);
+            }
+            if (reachedStart) {
+              edgeCopy.setGuard(guardDataset(closer.getTargetVertex().getName(), i));
+              target[i] = e.getSourceVertex();
+            } else {
+              target[i] = e.getSourceVertex().copy();
+            }
+            edgeCopy.setSourceVertex(target[i]);
+            model.addEdge(edgeCopy);
+          }
+        }
+        if (reachedStart) {
+          for (Action action : initDataset(closer.getTargetVertex().getName(), dataset.getArgumentLists())) {
+            e.getSourceVertex().addSetAction(action);
+          }
+          continue nextDataset;
+        }
+      }
+      throw new IllegalStateException("Dataset edge \"" + e  + "\" parsing error");
+    }
+
     return startEdge;
   }
 
   private List<Action> initDataset(String datasetVariable, List<Argument.List> arguments) {
     StringBuilder sb = new StringBuilder("gw.ds." + datasetVariable + " = [");
-    sb.append(arguments.stream().map(row -> {
-      return row.stream().map(argument -> argument.getName() + ": \"" + argument.getValue() + "\"")
-        // additionally set guard lock to open on that dataset value,
-        // so by default any dataset path could be passed through
-        .collect(joining(", ")) + ", $open: true";
-    }).collect(joining("}, {", "{", "}")));
+    sb.append(arguments.stream().map(row -> row
+      .stream().map(argument -> argument.getName() + ": \"" + argument.getValue() + "\"")
+      // additionally set guard lock to open on that dataset value,
+      // so by default any dataset path could be passed through
+      .collect(joining(", ")) + ", $open: true").collect(joining("}, {", "{", "}")));
     return Arrays.asList(new Action("var gw = gw || {ds: {}};"), new Action(sb.append("];").toString()));
   }
 
