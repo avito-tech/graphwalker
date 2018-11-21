@@ -1111,14 +1111,19 @@ public final class YEdContextFactory implements ContextFactory {
     return emptyList();
   }
 
-  private class SingleIndegrees extends HashMap<Vertex, Edge> {
+  private class SingleIndegrees extends HashMap<Vertex, List<Edge>> {
 
-    public Edge update(Vertex vertex, Edge indegree) {
-      return put(vertex, containsKey(indegree) ? null : indegree);
+    public List<Edge> update(Vertex vertex, Edge indegree) {
+      List<Edge> single = new ArrayList<>(asList(indegree));
+      if (null != indegree.getCodeTag()) {
+        return merge(vertex, single, (v1, v2) -> {v1.addAll(v2); return v1;});
+      }
+      return put(vertex, containsKey(indegree) ? null : single);
     }
 
     public Edge into(Vertex vertex) {
-      return getOrDefault(vertex, null);
+      List<Edge> edges = getOrDefault(vertex, null);
+      return edges != null ? edges.remove(0) : null;
     }
 
   }
@@ -1190,6 +1195,7 @@ public final class YEdContextFactory implements ContextFactory {
                     String name = field.names().nameArgList().IDENTIFIER_ARG().getText();
                     edge.setName(name.contains("{") ? name.substring(0, name.lastIndexOf('{')).trim() : name);
                     Argument.List arguments = new Argument.List();
+                    YEdDataset dataset = new YEdDataset(edge.getSourceVertex(), edge.getTargetVertex());
                     for (YEdEdgeParser.LabelArgumentContext ctx : field.names().nameArgList().labelArgList().labelArgument()) {
                       String identifier = ctx.parameterName().IDENTIFIER_NAME().getText();
                       if (null != ctx.stringVariable()) {
@@ -1202,6 +1208,8 @@ public final class YEdContextFactory implements ContextFactory {
                         throw new IllegalStateException("Can not parse dataset variable " + field.names().nameArgList().getText());
                       }
                     }
+                    dataset.addArguments(arguments);
+                    datasets.add(dataset);
                     edge.setArguments(arguments);
                   } else {
                     throw new IllegalStateException("Can not parse edge name: " + field.getText());
