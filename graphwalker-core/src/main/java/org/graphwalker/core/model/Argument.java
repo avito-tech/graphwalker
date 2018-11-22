@@ -2,6 +2,7 @@ package org.graphwalker.core.model;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Objects;
 
 import static java.util.stream.Collectors.joining;
 
@@ -36,6 +37,21 @@ public final class Argument {
   @Override
   public String toString() {
     return name + ": " + getQuotedValue();
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    Argument argument = (Argument) o;
+    return type == argument.type &&
+      Objects.equals(name, argument.name) &&
+      Objects.equals(value, argument.value);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(type, name, value);
   }
 
   public static final java.util.List<Argument> EMPTY_LIST = Collections.unmodifiableList(new List());

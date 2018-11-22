@@ -1307,6 +1307,7 @@ public final class YEdContextFactory implements ContextFactory {
       Edge e, closer;
       for (e = closer = incoming.into(dataset.getTarget()); e != null; e = incoming.into(e.getSourceVertex())) {
         boolean reachedStart = dataset.getSource().equals(e.getSourceVertex());
+        boolean multipleRows = null != dataset.getArgumentLists() && dataset.getArgumentLists().size() > 1;
         for (int i = dataset.getArgumentLists().size() - 1; i >= 0; i--) {
           Argument.List arguments = dataset.getArgumentLists().get(i);
           if (null == argumentValues[i]) {
@@ -1316,12 +1317,14 @@ public final class YEdContextFactory implements ContextFactory {
           }
           if (i == 0) {
             e.setArguments(arguments);
-            if (reachedStart) {
+            e.getTargetVertex().addArguments(arguments);
+            if (reachedStart && multipleRows) {
               e.setGuard(guardDataset(closer.getTargetVertex().getName(), i));
-            } else if (null != e.getSourceVertex().getCodeTag()) {
+            }
+            if (null != e.getSourceVertex().getCodeTag()) {
               parametrize(e.getSourceVertex().getCodeTag().getMethod(), argumentValues[i]);
             }
-            if (!argumentValues[i].isEmpty()) {
+            if (!argumentValues[i].isEmpty() && null != e.getCodeTag()) {
               parametrize(e.getCodeTag().getMethod(), argumentValues[i]);
             }
           } else {
@@ -1331,15 +1334,16 @@ public final class YEdContextFactory implements ContextFactory {
             if (null != target[i]) {
               edgeCopy.setTargetVertex(target[i]);
             }
-            if (!argumentValues[i].isEmpty()) {
+            edgeCopy.getTargetVertex().addArguments(arguments);
+            if (!argumentValues[i].isEmpty() && null != edgeCopy.getCodeTag()) {
               parametrize(edgeCopy.getCodeTag().getMethod(), argumentValues[i]);
             }
-            if (reachedStart) {
+            if (reachedStart && multipleRows) {
               edgeCopy.setGuard(guardDataset(closer.getTargetVertex().getName(), i));
               target[i] = e.getSourceVertex();
             } else {
               target[i] = e.getSourceVertex().copy();
-              if (null != target[i].getCodeTag()) {
+              if (null != target[i].getCodeTag() && null != target[i].getCodeTag()) {
                 parametrize(target[i].getCodeTag().getMethod(), argumentValues[i]);
               }
             }
@@ -1348,8 +1352,10 @@ public final class YEdContextFactory implements ContextFactory {
           }
         }
         if (reachedStart) {
-          for (Action action : initDataset(closer.getTargetVertex().getName(), dataset.getArgumentLists())) {
-            e.getSourceVertex().addSetAction(action);
+          if (multipleRows){
+            for (Action action : initDataset(closer.getTargetVertex().getName(), dataset.getArgumentLists())) {
+              e.getSourceVertex().addSetAction(action);
+            }
           }
           continue nextDataset;
         }

@@ -211,10 +211,10 @@ final class CodeTagParser {
       return new CodeTag.BooleanMethod(methodName, arguments);
 
     } else if (ctx instanceof YEdVertexParser.DatasetVariableContext) {
-      return new CodeTag.TypedDatasetVariable<String>(trim(ctx.getChild(0).getText(), "\"${", "}\""), STRING);
+      return new CodeTag.DatasetVariable<String>(trim(ctx.getChild(0).getText(), "${", "}"));
 
     } else if (ctx instanceof YEdVertexParser.DatasetStringVariableContext) {
-      return new CodeTag.DatasetVariable<String>(trim(ctx.getChild(0).getText(), "\"${", "}\""));
+      return new CodeTag.TypedDatasetVariable<String>(trim(ctx.getChild(0).getText(), "\"${", "}\""), STRING);
 
     } else {
       throw new IllegalStateException("Can't parse rule " + ctx.getClass().getSimpleName());
@@ -251,9 +251,13 @@ final class CodeTagParser {
   }
 
   private static String trim(String value, String prefix, String suffix) {
-    int indexOfLast = value.lastIndexOf(suffix);
-    String noSuffix = value.substring(0, indexOfLast);
-    return noSuffix.substring(noSuffix.startsWith(prefix) ? prefix.length() : 0);
+    try {
+      int indexOfLast = value.lastIndexOf(suffix);
+      String noSuffix = value.substring(0, indexOfLast);
+      return noSuffix.substring(noSuffix.startsWith(prefix) ? prefix.length() : 0);
+    } catch (StringIndexOutOfBoundsException e) {
+      throw new StringIndexOutOfBoundsException("Can not trim \"" + value + "\" with prefix: \"" + prefix + "\" and suffix: \"" + suffix + "\"");
+    }
   }
 
 }

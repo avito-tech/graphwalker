@@ -345,12 +345,18 @@ public final class CodeGenerator extends VoidVisitorAdapter<ChangeContext> {
         Type type;
         CodeTag codeTag;
         List<Argument> argumentRow = null;
+        List<Argument.List> arguments = null;
         if (vertices != null) {
           String description = getFirstOrElse(vertices, unquote(RuntimeVertex::getDescription), "");
           codeTag = getFirstOrElse(vertices, RuntimeVertex::getCodeTag, null);
           NodeList<MemberValuePair> memberValuePairs = new NodeList<>(new MemberValuePair("value", new StringLiteralExpr(description)));
           annotations.add(new NormalAnnotationExpr(new Name("Vertex"), memberValuePairs));
           type = booleanType();
+          arguments = vertices.stream()
+            .flatMap(v -> v.getArguments().stream())
+            .filter(Objects::nonNull)
+            .sorted()
+            .collect(toList());
         } else {
           List<RuntimeEdge> edges = changeContext.getModel().findEdges(methodName);
           if (edges != null) {
@@ -358,26 +364,29 @@ public final class CodeGenerator extends VoidVisitorAdapter<ChangeContext> {
             codeTag = getFirstOrElse(edges, RuntimeEdge::getCodeTag, null);
             NodeList<MemberValuePair> memberValuePairs = new NodeList<>(new MemberValuePair("value", new StringLiteralExpr(description)));
             annotations.add(new NormalAnnotationExpr(new Name("Edge"), memberValuePairs));
-            List<Argument.List> arguments = edges.stream()
+            arguments = edges.stream()
               .map(RuntimeEdge::getArguments)
               .filter(Objects::nonNull)
               .sorted()
               .collect(toList());
-            for (int i = 0; i < arguments.size(); i++) {
-              argumentRow = arguments.get(i);
-              NodeList<Expression> rowFields = new NodeList<>();
-              for (Argument argument : argumentRow) {
-                NodeList<MemberValuePair> valueAnnotation = new NodeList<>();
-                valueAnnotation.add(new MemberValuePair("name", new StringLiteralExpr(argument.getName())));
-                valueAnnotation.add(new MemberValuePair("value", new StringLiteralExpr(argument.getValue())));
-                rowFields.add(new NormalAnnotationExpr(new Name("Value"), valueAnnotation));
-              }
-              NodeList<MemberValuePair> valueAnnotations = new NodeList<>(new MemberValuePair("value", new ArrayInitializerExpr(rowFields)));
-              annotations.add(new NormalAnnotationExpr(new Name("Row"), valueAnnotations));
-            }
             type = new VoidType();
           } else {
             throw new IllegalStateException("No vertices or edges were found for method: \"" + methodName + "\"");
+          }
+        }
+        for (int i = 0; i < arguments.size(); i++) {
+          argumentRow = arguments.get(i);
+          NodeList<Expression> rowFields = new NodeList<>();
+          for (Argument argument : argumentRow) {
+            NodeList<MemberValuePair> valueAnnotation = new NodeList<>();
+            valueAnnotation.add(new MemberValuePair("name", new StringLiteralExpr(argument.getName())));
+            valueAnnotation.add(new MemberValuePair("value", new StringLiteralExpr(argument.getValue())));
+            rowFields.add(new NormalAnnotationExpr(new Name("Value"), valueAnnotation));
+          }
+          if (rowFields.isNonEmpty()) {
+            MemberValuePair rowValue = new MemberValuePair("value", new ArrayInitializerExpr(rowFields));
+            NodeList<MemberValuePair> valueAnnotations = new NodeList<>(rowValue);
+            annotations.add(new NormalAnnotationExpr(new Name("Row"), valueAnnotations));
           }
         }
         MethodDeclaration methodDeclaration;
@@ -479,6 +488,9 @@ public final class CodeGenerator extends VoidVisitorAdapter<ChangeContext> {
           typePrefixToAstType(((CodeTag.TypedDatasetVariable<?>) expression).getTypePrefix()),
           expression.toString()));
 
+      } else if (expression instanceof CodeTag.DatasetVariable) {
+        throw new IllegalStateException(
+          "Can not parse @code expression \"" + expression + "\". Probably some of @code inline parameters was not declared in dataset");
       } else {
         throw new IllegalStateException(
           "Can not parse @code expression \"" + expression + "\" of class \"" + expression.getClass().getSimpleName() + "\"");

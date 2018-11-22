@@ -67,6 +67,9 @@ public class ShortestPath extends PathGeneratorBase<ReachedStopCondition> {
     this.actionsToBeExecutedBefore = null;
   }
 
+  /**
+   * @param actionsToBeExecutedBefore actions to be executed <em>after</em> speculative execution of the first edge of the route
+   */
   public ShortestPath(ReachedStopCondition stopCondition, Action ...actionsToBeExecutedBefore) {
     setStopCondition(stopCondition);
     this.actionsToBeExecutedBefore = actionsToBeExecutedBefore;
@@ -106,27 +109,27 @@ public class ShortestPath extends PathGeneratorBase<ReachedStopCondition> {
         globalCopy.put(e.getKey(), e.getValue());
       }
 
-      if (actionsToBeExecutedBefore != null) {
-        try {
-          for (Action action : actionsToBeExecutedBefore) {
-            context.getScriptEngine().eval(action.getScript());
-          }
-        } catch (ScriptException e) {
-          LOG.error(e.getMessage());
-          throw new MachineException(context, e);
-        } finally {
-          actionsToBeExecutedBefore = null;
-        }
-      }
-
       next:
       while (iterator.hasNext()) {
         try {
           Path<Element> path = iterator.next();
+          Action[] actions = actionsToBeExecutedBefore;
 
           for (Element element : path) {
 
             if (element instanceof Edge.RuntimeEdge) {
+              if (actions != null) {
+                try {
+                  for (Action action : actions) {
+                    context.getScriptEngine().eval(action.getScript());
+                  }
+                } catch (ScriptException e) {
+                  LOG.error(e.getMessage());
+                  throw new MachineException(context, e);
+                } finally {
+                  actions = null;
+                }
+              }
               if (!context.isAvailable((Edge.RuntimeEdge) element)) {
                 iterator.remove();
                 continue next;
@@ -139,7 +142,14 @@ public class ShortestPath extends PathGeneratorBase<ReachedStopCondition> {
           }
 
           path.pollFirst();
-          return context.setCurrentElement(path.pollFirst());
+          Element nextElement = path.pollFirst();
+          if (null != actionsToBeExecutedBefore
+            && nextElement instanceof Edge.RuntimeEdge
+            && null != ((Edge.RuntimeEdge) nextElement).getArguments()
+            && !((Edge.RuntimeEdge) nextElement).getArguments().isEmpty()) {
+            actionsToBeExecutedBefore = null;
+          }
+          return context.setCurrentElement(nextElement);
 
         } finally {
           Bindings localBindings = context.getScriptEngine().createBindings();

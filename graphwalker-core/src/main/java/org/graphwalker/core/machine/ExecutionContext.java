@@ -406,7 +406,8 @@ public abstract class ExecutionContext extends SimpleScriptContext implements Co
       String commaSeparatedValues = arguments != null
         ? arguments.stream().map(Argument::getQuotedValue).collect(joining(",", "(", ")"))
         : "()";
-      getScriptEngine().eval(functionName + commaSeparatedValues);
+      String implPrefix = methodName.startsWith("v_") && parameterTypes.length > 0 ? "impl." : "";
+      getScriptEngine().eval(implPrefix + functionName + commaSeparatedValues);
     } catch (NoSuchMethodException e) {
       // ignore, method is not defined in the execution context
     } catch (Throwable t) {

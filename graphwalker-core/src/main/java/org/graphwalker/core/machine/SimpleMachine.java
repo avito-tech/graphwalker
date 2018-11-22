@@ -29,7 +29,6 @@ package org.graphwalker.core.machine;
 import org.graphwalker.core.event.EventType;
 import org.graphwalker.core.generator.NoPathFoundException;
 import org.graphwalker.core.model.Action;
-import org.graphwalker.core.model.Argument;
 import org.graphwalker.core.model.Element;
 import org.graphwalker.core.model.Requirement;
 import org.slf4j.Logger;
@@ -288,6 +287,8 @@ public class SimpleMachine extends MachineBase {
         edge.getName(),
         edge.getTargetVertex().getGroupName(),
         edge.getArguments());
+      // select used arguments set for the next vertex
+      edge.getTargetVertex().selectArguments(edge.getArguments());
     }
   }
 
@@ -299,7 +300,7 @@ public class SimpleMachine extends MachineBase {
 
   private void execute(RuntimeVertex vertex) {
     if (vertex.hasName()) {
-      getCurrentContext().execute(vertex.getName(), vertex.getGroupName(), Argument.EMPTY_LIST);
+      getCurrentContext().execute(vertex.getName(), vertex.getGroupName(), vertex.getSelectedArguments());
     }
   }
 

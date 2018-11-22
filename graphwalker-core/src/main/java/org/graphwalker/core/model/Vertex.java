@@ -29,6 +29,7 @@ package org.graphwalker.core.model;
 import org.graphwalker.core.common.Objects;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import static org.graphwalker.core.common.Objects.isNotNullOrEmpty;
@@ -53,6 +54,7 @@ public class Vertex extends CachedBuilder<Vertex, Vertex.RuntimeVertex> {
   private String groupName;
   private List<Action> setActions = new ArrayList<>();
   private CodeTag codeTag;
+  private List<Argument.List> arguments = new ArrayList<>();
 
   public Vertex() {
   }
@@ -153,6 +155,11 @@ public class Vertex extends CachedBuilder<Vertex, Vertex.RuntimeVertex> {
     return codeTag;
   }
 
+  public Vertex addArguments(Argument.List arguments) {
+    this.arguments.add(arguments);
+    return this;
+  }
+
   /**
    * <h1>RuntimeVertex</h1>
    * Immutable class for Vertex
@@ -169,6 +176,7 @@ public class Vertex extends CachedBuilder<Vertex, Vertex.RuntimeVertex> {
 
     private final String groupName;
     private final CodeTag codeTag;
+    private final List<Argument.List> arguments;
 
     private RuntimeVertex(Vertex vertex) {
       super(vertex.getId(), vertex.getName(), vertex.getDescription(), vertex.getRequirements(), vertex.getProperties());
@@ -177,6 +185,7 @@ public class Vertex extends CachedBuilder<Vertex, Vertex.RuntimeVertex> {
       this.outdegrees = vertex.hasOutdegrees();
       this.groupName = vertex.groupName;
       this.codeTag = vertex.getCodeTag();
+      this.arguments = vertex.arguments;
     }
 
     public boolean hasIndegrees() {
@@ -212,6 +221,24 @@ public class Vertex extends CachedBuilder<Vertex, Vertex.RuntimeVertex> {
 
     public CodeTag getCodeTag() {
       return codeTag;
+    }
+
+    public List<Argument.List> getArguments() {
+      return arguments;
+    }
+
+    public List<Argument> getSelectedArguments() {
+      return arguments != null && !arguments.isEmpty() ? arguments.get(0) : Argument.EMPTY_LIST;
+    }
+
+    /**
+     * If it is possible, moves specified arguments to position with index=0.
+     */
+    public void selectArguments(Argument.List arguments) {
+      int index;
+      if (null != arguments && (index = this.arguments.indexOf(arguments)) > 0) {
+        Collections.swap(this.arguments, 0, index);
+      }
     }
 
     /**

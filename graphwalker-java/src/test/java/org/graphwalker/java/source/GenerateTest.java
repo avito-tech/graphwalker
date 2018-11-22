@@ -417,7 +417,9 @@ public class GenerateTest {
         "    boolean v_AuthWindow();\n" +
         "\n" +
         "    @Vertex(value = \"Filled credentials\")\n" +
-        "    boolean v_FilledCredentials();\n" +
+        "    @Row(value = { @Value(name = \"username\", value = \"admin\"), @Value(name = \"password\", value = \"pass\"), @Value(name = \"readonly\", value = \"true\") })\n" +
+        "    @Row(value = { @Value(name = \"username\", value = \"root\"), @Value(name = \"password\", value = \"secret\"), @Value(name = \"readonly\", value = \"false\") })\n" +
+        "    boolean v_FilledCredentials(java.lang.String username, java.lang.String password, boolean readonly);\n" +
         "\n" +
         "    @Edge(value = \"Fill credentials\")\n" +
         "    @Row(value = { @Value(name = \"username\", value = \"admin\"), @Value(name = \"password\", value = \"pass\"), @Value(name = \"readonly\", value = \"true\") })\n" +
@@ -471,7 +473,9 @@ public class GenerateTest {
         "    boolean v_AuthWindow();\n" +
         "\n" +
         "    @Vertex(value = \"Filled credentials\")\n" +
-        "    boolean v_FilledCredentials();\n" +
+        "    @Row(value = { @Value(name = \"username\", value = \"admin\"), @Value(name = \"password\", value = \"pass\"), @Value(name = \"readonly\", value = \"true\") })\n" +
+        "    @Row(value = { @Value(name = \"username\", value = \"root\"), @Value(name = \"password\", value = \"secret\"), @Value(name = \"readonly\", value = \"false\") })\n" +
+        "    boolean v_FilledCredentials(java.lang.String username, java.lang.String password, boolean readonly);\n" +
         "}\n"
     ));
   }
@@ -520,7 +524,9 @@ public class GenerateTest {
         "    boolean v_AuthWindow();\n" +
         "\n" +
         "    @Vertex(value = \"Filled credentials\")\n" +
-        "    boolean v_FilledCredentials();\n" +
+        "    @Row(value = { @Value(name = \"username\", value = \"admin\"), @Value(name = \"id\", value = \"1\"), @Value(name = \"admin\", value = \"true\") })\n" +
+        "    @Row(value = { @Value(name = \"username\", value = \"user\"), @Value(name = \"id\", value = \"10\"), @Value(name = \"admin\", value = \"false\") })\n" +
+        "    boolean v_FilledCredentials(java.lang.String username, double id, boolean admin);\n" +
         "}\n"
     ));
   }
