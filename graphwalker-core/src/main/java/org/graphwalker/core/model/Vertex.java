@@ -251,22 +251,20 @@ public class Vertex extends CachedBuilder<Vertex, Vertex.RuntimeVertex> {
 
     @Override
     public int hashCode() {
-      final int prime = 31;
-      int result = super.hashCode();
-      result = prime * result
-               + ((sharedState == null) ? 0 : sharedState.hashCode());
-      return result;
+      return Objects.hash(super.hashCode(), sharedState, indegrees, outdegrees, groupName, codeTag);
     }
 
     @Override
     public boolean equals(Object o) {
-      if (!super.equals(o)) {
-        return false;
-      }
+      if (this == o) return true;
+      if (o == null || getClass() != o.getClass()) return false;
+      if (!super.equals(o)) return false;
       RuntimeVertex that = (RuntimeVertex) o;
-      return Objects.equals(sharedState, that.sharedState)
-        && Objects.equals(groupName, that.groupName)
-        && Objects.equals(codeTag, that.codeTag);
+      return indegrees == that.indegrees &&
+        outdegrees == that.outdegrees &&
+        Objects.equals(sharedState, that.sharedState) &&
+        Objects.equals(groupName, that.groupName) &&
+        Objects.equals(codeTag, that.codeTag);
     }
   }
 }

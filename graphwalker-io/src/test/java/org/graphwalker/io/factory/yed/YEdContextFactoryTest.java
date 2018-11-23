@@ -708,14 +708,12 @@ public class YEdContextFactoryTest {
     RuntimeModel model = context.getModel();
     List<RuntimeEdge> edges = model.getEdges();
     assertThat("Should be init edge and two parametrized", edges, hasSize(3));
-    assertThat("First row should have username=admin,password=pass", edges, hasItem(hasProperty("arguments",
-      both(hasItem(both(hasProperty("name", equalTo("username"))).and(hasProperty("value", equalTo("admin")))))
-        .and(hasItem(both(hasProperty("name", equalTo("password"))).and(hasProperty("value", equalTo("pass"))))))
+    assertThat("First row should have username=admin", edges, hasItem(hasProperty("arguments",
+      hasItem(both(hasProperty("name", equalTo("username"))).and(hasProperty("value", equalTo("admin")))))
     ));
-    assertThat("Second row should have username=root,password=secret", edges, hasItem(hasProperty("arguments",
-      both(hasItem(both(hasProperty("name", equalTo("username"))).and(hasProperty("value", equalTo("root")))))
-        .and(hasItem(both(hasProperty("name", equalTo("password"))).and(hasProperty("value", equalTo("secret")))))
-    )));
+    assertThat("Second row should have username=root", edges, hasItem(hasProperty("arguments",
+      hasItem(both(hasProperty("name", equalTo("username"))).and(hasProperty("value", equalTo("root")))))
+    ));
   }
 
   @Test

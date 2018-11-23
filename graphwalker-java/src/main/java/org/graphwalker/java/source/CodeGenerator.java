@@ -160,7 +160,7 @@ public final class CodeGenerator extends VoidVisitorAdapter<ChangeContext> {
           cache.add(file, new CacheEntry(file.toFile().lastModified(), true));
 
         } catch (Throwable t) {
-          logger.error("Error during code generation phase", t.getMessage());
+          logger.error("Error during code generation phase visiting file \"" + file.getFileName().toString() + "\"", t.getMessage());
           cache.add(file, new CacheEntry(file.toFile().lastModified(), false));
         }
       }
@@ -228,7 +228,7 @@ public final class CodeGenerator extends VoidVisitorAdapter<ChangeContext> {
             cache.add(file, new CacheEntry(file.toFile().lastModified(), true));
           }
         } catch (Throwable t) {
-          logger.error(t.getMessage());
+          logger.error("Code generator: visitFile(" + file.getFileName() + ") error", t.getMessage());
           cache.add(file, new CacheEntry(file.toFile().lastModified(), false));
         }
       }

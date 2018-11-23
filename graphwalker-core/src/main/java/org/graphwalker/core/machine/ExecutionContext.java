@@ -394,9 +394,11 @@ public abstract class ExecutionContext extends SimpleScriptContext implements Co
     try {
       Object impl = this;
       String functionName = methodName;
+      boolean groupNameInGroups = false;
       if (groups().containsKey(groupName)) {
         functionName = getFunctionName(methodName, groupName);
         impl = groups().get(groupName);
+        groupNameInGroups = true;
       }
       // provoke a NoSuchMethodException exception if the method doesn't exist
       Class[] parameterTypes = arguments != null
@@ -406,8 +408,15 @@ public abstract class ExecutionContext extends SimpleScriptContext implements Co
       String commaSeparatedValues = arguments != null
         ? arguments.stream().map(Argument::getQuotedValue).collect(joining(",", "(", ")"))
         : "()";
-      String implPrefix = methodName.startsWith("v_") && parameterTypes.length > 0 ? "impl." : "";
-      getScriptEngine().eval(implPrefix + functionName + commaSeparatedValues);
+      if (methodName.startsWith("v_") && parameterTypes.length > 0) {
+        if (groupNameInGroups) {
+          getScriptEngine().eval(groupName + "." + methodName + commaSeparatedValues);
+        } else {
+          getScriptEngine().eval("impl" + "." + functionName + commaSeparatedValues);
+        }
+      } else {
+        getScriptEngine().eval(functionName + commaSeparatedValues);
+      }
     } catch (NoSuchMethodException e) {
       // ignore, method is not defined in the execution context
     } catch (Throwable t) {

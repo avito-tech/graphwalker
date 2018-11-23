@@ -26,6 +26,8 @@ package org.graphwalker.core.model;
  * #L%
  */
 
+import java.util.Objects;
+
 /**
  * <h1>Action</h1>
  * The  Action is a script of code executed after an edge has been run.
@@ -45,5 +47,18 @@ public class Action {
 
   public String getScript() {
     return script;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    Action action = (Action) o;
+    return Objects.equals(script, action.script);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(script);
   }
 }

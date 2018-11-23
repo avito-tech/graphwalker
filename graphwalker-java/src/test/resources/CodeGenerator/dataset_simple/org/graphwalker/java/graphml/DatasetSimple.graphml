@@ -16,7 +16,7 @@
     <node id="n0">
       <data key="d5">
         <y:ShapeNode>
-          <y:Geometry height="30.0" width="95.0" x="55.0" y="0.0"/>
+          <y:Geometry height="30.0" width="95.0" x="80.5" y="28.0"/>
           <y:Fill color="#CCCCFF" transparent="false"/>
           <y:BorderStyle color="#000000" type="line" width="1.0"/>
           <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="35.65234375" horizontalTextPosition="center" iconTextGap="4" modelName="internal" modelPosition="c" textColor="#000000" verticalTextPosition="bottom" visible="true" width="33.70703125" x="30.646484375" y="-2.826171875">Start
@@ -28,7 +28,7 @@
     <node id="n1">
       <data key="d5">
         <y:ShapeNode>
-          <y:Geometry height="60.0" width="350.0" x="-72.5" y="166.47851562500003"/>
+          <y:Geometry height="60.0" width="350.0" x="-47.0" y="194.47851562500003"/>
           <y:Fill color="#CCCCFF" transparent="false"/>
           <y:BorderStyle color="#000000" type="line" width="1.0"/>
           <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="51.478515625" horizontalTextPosition="center" iconTextGap="4" modelName="internal" modelPosition="c" textColor="#000000" verticalTextPosition="bottom" visible="true" width="155.98046875" x="97.009765625" y="4.2607421875">v_AuthWindow
@@ -41,7 +41,7 @@
     <node id="n2">
       <data key="d5">
         <y:ShapeNode>
-          <y:Geometry height="60.0" width="350.0" x="-72.5" y="362.95703125000006"/>
+          <y:Geometry height="60.0" width="350.0" x="-47.0" y="390.95703125000006"/>
           <y:Fill color="#CCCCFF" transparent="false"/>
           <y:BorderStyle color="#000000" type="line" width="1.0"/>
           <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="51.478515625" horizontalTextPosition="center" iconTextGap="4" modelName="internal" modelPosition="c" textColor="#000000" verticalTextPosition="bottom" visible="true" width="156.185546875" x="96.9072265625" y="4.2607421875">v_FilledCredentials
@@ -71,15 +71,15 @@
           <y:Path sx="0.0" sy="0.0" tx="0.0" ty="0.0"/>
           <y:LineStyle color="#000000" type="line" width="1.0"/>
           <y:Arrows source="none" target="standard"/>
-          <y:EdgeLabel alignment="center" configuration="AutoFlippingLabel" distance="2.0" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="125.0" horizontalTextPosition="center" iconTextGap="4" modelName="custom" preferredPlacement="anywhere" ratio="0.5" textColor="#000000" verticalTextPosition="bottom" visible="true" width="111.0" x="15.0" y="5.572563620372307">&lt;html&gt; e_FillCredentials &lt;br/&gt; /* Fill credentials */ 
-&lt;table border="1"&gt;
-&lt;tr&gt; 
+          <y:EdgeLabel alignment="center" configuration="AutoFlippingLabel" distance="2.0" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="98.0" horizontalTextPosition="center" iconTextGap="4" modelName="custom" preferredPlacement="anywhere" ratio="0.5" textColor="#000000" verticalTextPosition="bottom" visible="true" width="202.0" x="15.0" y="16.028467831767784">&lt;html&gt; e_FillCredentials /* Fill credentials */ 
+&lt;table&gt;
+&lt;tr bgcolor="lime"&gt; 
   &lt;th&gt;username&lt;/th&gt; 
 &lt;/tr&gt;
-&lt;tr&gt;
+&lt;tr bgcolor="yellow"&gt;
   &lt;td&gt;admin&lt;/td&gt;
 &lt;/tr&gt;
-&lt;tr&gt;
+&lt;tr bgcolor="orange"&gt;
   &lt;td&gt;root&lt;/td&gt;
 &lt;/tr&gt;
 &lt;/table&gt;

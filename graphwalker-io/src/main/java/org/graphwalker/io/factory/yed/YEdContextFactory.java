@@ -259,6 +259,19 @@ public final class YEdContextFactory implements ContextFactory {
           startEdge = edge;
         }
       }
+      for (Edge edge : model.getEdges()) {
+        Vertex target;
+        if (null != (target = edge.getTargetVertex())) {
+          List<Action> setActions = target.getSetActions();
+          if (!setActions.isEmpty()) {
+            for (Action set : setActions) {
+              if (!edge.getActions().contains(set)) {
+                edge.addAction(set);
+              }
+            }
+          }
+        }
+      }
       for (Map.Entry<String, Collection<IndegreeVertex>> indegreeEntry : indegrees.asMap().entrySet()) {
         String edgeName = indegreeEntry.getKey();
         for (Vertex out : outdegrees.get(edgeName)) {
@@ -1115,15 +1128,12 @@ public final class YEdContextFactory implements ContextFactory {
 
     public List<Edge> update(Vertex vertex, Edge indegree) {
       List<Edge> single = new ArrayList<>(asList(indegree));
-      if (null != indegree.getCodeTag()) {
-        return merge(vertex, single, (v1, v2) -> {v1.addAll(v2); return v1;});
-      }
-      return put(vertex, containsKey(indegree) ? null : single);
+      return merge(vertex, single, (v1, v2) -> {v1.addAll(v2); return v1;});
     }
 
     public Edge into(Vertex vertex) {
       List<Edge> edges = getOrDefault(vertex, null);
-      return edges != null ? edges.remove(0) : null;
+      return edges != null && !edges.isEmpty() ? edges.remove(0) : null;
     }
 
   }
