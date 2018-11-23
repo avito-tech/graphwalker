@@ -112,16 +112,23 @@ public class Yen implements Algorithm {
       this.candidates = new PriorityQueue<>(new Comparator<Path<Element>>() {
         @Override
         public int compare(Path<Element> elements, Path<Element> other) {
+          int thisLength = 0, otherLength = 0;
           double thisWeight = 0, otherWeight = 0;
           for (Element element : elements) {
             if (element instanceof RuntimeEdge) {
               thisWeight += 1.0;
+              thisLength += 1;
             }
           }
           for (Element element : other) {
             if (element instanceof RuntimeEdge) {
               otherWeight += 1.0;
+              otherLength += 1;
             }
+          }
+          int lengthCompared = Integer.compare(thisLength, otherLength);
+          if (lengthCompared != 0) {
+            return lengthCompared;
           }
           return Double.compare(thisWeight, otherWeight);
         }
