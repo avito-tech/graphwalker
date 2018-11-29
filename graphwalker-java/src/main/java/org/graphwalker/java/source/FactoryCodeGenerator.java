@@ -98,20 +98,27 @@ public final class FactoryCodeGenerator {
     ClassOrInterfaceDeclaration body = (ClassOrInterfaceDeclaration) compilationUnit.getTypes().get(0);
 
     for (Path filePath : linkedFiles) {
-      String filename = filePath.getFileName().toString();
-      String className = toValidMethodOrClassName(removeExtension(filename));
-      if (!className.isEmpty()) {
-        String methodName = isLowerCase(className.charAt(0)) || className.contains("_")
-          ? "get_" + className
-          : "get" + className;
-        Type type = JavaParser.parseClassOrInterfaceType(className);
-        MethodDeclaration methodDeclaration = new MethodDeclaration(noneOf(Modifier.class), type, methodName)
-          .setJavadocComment(new JavadocComment(
-            "Implementation of " + filename + " model file.\n\n@return partial model implementation"))
-          .setBody(null);
+      MethodDeclaration methodDeclaration = getMethodDeclaration(filePath);
+      if (null != methodDeclaration) {
         body.addMember(methodDeclaration);
       }
     }
+  }
+
+  static MethodDeclaration getMethodDeclaration(Path filePath) {
+    String filename = filePath.getFileName().toString();
+    String className = toValidMethodOrClassName(removeExtension(filename));
+    if (!className.isEmpty()) {
+      String methodName = isLowerCase(className.charAt(0)) || className.contains("_")
+        ? "get_" + className
+        : "get" + className;
+      Type type = JavaParser.parseClassOrInterfaceType(className);
+      return new MethodDeclaration(noneOf(Modifier.class), type, methodName)
+        .setJavadocComment(new JavadocComment(
+          "Implementation of " + filename + " model file.\n\n@return partial model implementation"))
+        .setBody(null);
+    }
+    return null;
   }
 
 }

@@ -531,6 +531,8 @@ public final class CodeGenerator extends VoidVisitorAdapter<ChangeContext> {
       char ch = name.charAt(i);
       if (Character.isJavaIdentifierPart(ch)) {
         sb.append(ch);
+      } else if (ch == ' ') {
+        sb.append('_');
       }
     }
     return sb.toString();
