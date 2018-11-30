@@ -47,7 +47,6 @@ import javax.script.Bindings;
 import javax.script.ScriptException;
 
 import jdk.nashorn.api.scripting.ScriptObjectMirror;
-import jdk.nashorn.api.scripting.ScriptUtils;
 
 import static java.lang.Integer.MAX_VALUE;
 import static javax.script.ScriptContext.ENGINE_SCOPE;
@@ -142,6 +141,9 @@ public class ShortestPath extends PathGeneratorBase<ReachedStopCondition> {
           }
 
           path.pollFirst();
+
+          LOG.info("Found shortest path: \"{}\"", path);
+
           Element nextElement = path.pollFirst();
           if (null != actionsToBeExecutedBefore
             && nextElement instanceof Edge.RuntimeEdge
