@@ -156,7 +156,7 @@ public class ShortestPath extends PathGeneratorBase<ReachedStopCondition> {
         } finally {
           Bindings localBindings = context.getScriptEngine().createBindings();
           localBindings.putAll(globalCopy);
-          ScriptObjectMirror mirror = ScriptUtils.wrap(localBindings);
+          ScriptObjectMirror mirror = (ScriptObjectMirror)localBindings;
           context.getScriptEngine().getBindings(ENGINE_SCOPE).put(NASHORN_GLOBAL, mirror);
         }
       }
