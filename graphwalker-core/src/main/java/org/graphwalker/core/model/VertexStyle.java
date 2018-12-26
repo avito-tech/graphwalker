@@ -3,14 +3,17 @@ package org.graphwalker.core.model;
 
 import java.awt.Color;
 import java.util.Objects;
+import java.util.stream.Stream;
 
 import static java.lang.String.format;
+import static java.util.stream.Collectors.joining;
 
-class AbstractType implements CharSequence {
-  final String value;
+class AbstractNullableType implements CharSequence {
+  final String value, name;
 
-  public AbstractType(String value) {
+  public AbstractNullableType(String value, String name) {
     this.value = value;
+    this.name = name;
   }
 
   @Override
@@ -30,14 +33,14 @@ class AbstractType implements CharSequence {
 
   @Override
   public String toString() {
-    return value;
+    return value != null ? name + "=\"" + value + "\"" : "";
   }
 
   @Override
   public boolean equals(Object o) {
     if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;
-    AbstractType that = (AbstractType) o;
+    AbstractNullableType that = (AbstractNullableType) o;
     return value.equals(that.value);
   }
 
@@ -120,92 +123,78 @@ public class VertexStyle {
 
   @Override
   public String toString() {
-    return "VertexStyle{" +
-      "configuration=" + configuration +
-      ", geometry=" + geometry +
-      ", fill=" + fill +
-      ", border=" + border +
-      ", label=" + label +
-      '}';
+    return "VertexStyle{" + joinWithComma(configuration, geometry, fill, border, label) + '}';
   }
 
   public static class Geometry {
 
-    private final double width, height, x, y;
+    private final Property<Double> width, height, x, y;
 
     public Geometry(double width, double height, double x, double y) {
-      this.width = width;
-      this.height = height;
-      this.x = x;
-      this.y = y;
+      this.width = new Property<Double>(width, "width");
+      this.height = new Property<Double>(height, "height");
+      this.x = new Property<Double>(x, "x");
+      this.y = new Property<Double>(y, "y");
     }
 
-    public double getWidth() {
+    public Property<Double> getWidth() {
       return width;
     }
 
-    public double getHeight() {
+    public Property<Double> getHeight() {
       return height;
     }
 
-    public double getX() {
+    public Property<Double> getX() {
       return x;
     }
 
-    public double getY() {
+    public Property<Double> getY() {
       return y;
     }
 
     @Override
     public String toString() {
-      return "Geometry{" +
-        "width=" + width +
-        ", height=" + height +
-        ", x=" + x +
-        ", y=" + y +
-        '}';
+      return "Geometry{" + joinWithComma(width, height, x, y) + '}';
     }
   }
 
   public static class Fill {
 
-    private final String color, color2;
+    private final Property<String> color, color2;
 
     public Fill(String color, String color2) {
-      this.color = color;
-      this.color2 = color2;
+      this.color = new Property<String>(color, "color");
+      this.color2 = new Property<String>(color2, "color2");
     }
 
-    public String getColor() {
+    public Property<String> getColor() {
       return color;
     }
 
-    public String getColor2() {
+    public Property<String> getColor2() {
       return color2;
     }
 
     @Override
     public String toString() {
-      return "Fill{" +
-        "color='" + color + '\'' +
-        ", color2='" + color2 + '\'' +
-        '}';
+      return "Fill{" + joinWithComma(color, color2) + '}';
     }
   }
 
   public static class Border {
 
-    private final String color;
+    private final Property<String> color;
     private final LineType line;
-    private final double width;
+    private final Property<Double> width;
 
     public Border(String color, LineType line, double width) {
-      this.color = color;
+      this.color = new Property<String>(color, "color");
       this.line = line;
-      this.width = width;
+      this.width = new Property<Double>(width, "width");
     }
 
-    public String getColor() {
+    public Property<String> getColor() {
       return color;
     }
 
@@ -213,53 +202,62 @@ public class VertexStyle {
       return line;
     }
 
-    public double getWidth() {
+    public Property<Double> getWidth() {
       return width;
     }
 
     @Override
     public String toString() {
-      return "Border{" +
-        "color='" + color + '\'' +
-        ", line=" + line +
-        ", width=" + width +
-        '}';
+      return "Border{" + joinWithComma(color, line, width) + '}';
     }
   }
 
-  public static class Configuration  extends AbstractType implements CharSequence {
+  public static class Configuration  extends AbstractNullableType implements CharSequence {
     public Configuration(String value) {
-      super(value);
+      super(value, "configuration");
     }
   }
 
-  public static class LineType extends AbstractType implements CharSequence {
+  public static class LineType extends AbstractNullableType implements CharSequence {
     public LineType(String value) {
-      super(value);
+      super(value, "type");
     }
   }
 
-  public static class Alignment extends AbstractType implements CharSequence {
+  public static class Alignment extends AbstractNullableType implements CharSequence {
     public Alignment(String value) {
-      super(value);
+      super(value, "alignment");
     }
   }
 
-  public static class FontFamily extends AbstractType implements CharSequence {
+  public static class FontFamily extends AbstractNullableType implements CharSequence {
     public FontFamily(String value) {
-      super(value);
+      super(value, "fontFamily");
     }
   }
 
-  public static class FontStyle extends AbstractType implements CharSequence {
+  public static class FontStyle extends AbstractNullableType implements CharSequence {
     public FontStyle(String value) {
-      super(value);
+      super(value, "fontStyle");
     }
   }
 
-  public static class TextColor extends AbstractType implements CharSequence {
+  public static class TextColor extends AbstractNullableType implements CharSequence {
     public TextColor(String value) {
-      super(value);
+      super(value, "textColor");
+    }
+  }
+
+  public static class Property<T> extends AbstractNullableType implements CharSequence {
+    final T value;
+
+    public Property(T value, String name) {
+      super(value != null ? value.toString() : null, name);
+      this.value = value;
+    }
+
+    public T getValue() {
+      return value;
     }
   }
 
@@ -269,7 +267,7 @@ public class VertexStyle {
     private final Alignment alignment;
     private final FontFamily fontFamily;
     private final FontStyle fontStyle;
-    private final short fontSize;
+    private final Property<Short> fontSize;
     private final TextColor textColor;
 
     public Label(Geometry geometry, Alignment alignment, FontFamily fontFamily, FontStyle fontStyle, short fontSize, TextColor textColor) {
@@ -277,7 +275,7 @@ public class VertexStyle {
       this.alignment = alignment;
       this.fontFamily = fontFamily;
       this.fontStyle = fontStyle;
-      this.fontSize = fontSize;
+      this.fontSize = new Property<Short>(fontSize, "fontSize");
       this.textColor = textColor;
     }
 
@@ -297,13 +295,22 @@ public class VertexStyle {
       return fontStyle;
     }
 
-    public short getFontSize() {
+    public Property<Short> getFontSize() {
       return fontSize;
     }
 
     public TextColor getTextColor() {
       return textColor;
     }
+
+    @Override
+    public String toString() {
+      return "Label{" + joinWithComma(geometry, alignment, fontFamily, fontStyle, fontSize, textColor) + '}';
+    }
+  }
+
+  private static String joinWithComma(Object ... objects) {
+    return Stream.of(objects).map(Object::toString).filter(s -> !s.isEmpty()).collect(joining(", "));
   }
 
 }

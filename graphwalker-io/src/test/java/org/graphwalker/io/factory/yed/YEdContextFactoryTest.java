@@ -783,8 +783,8 @@ public class YEdContextFactoryTest {
     assertThat("Should be five vertices", vertices, hasSize(5));
     assertThat("First vertex should be orange with yellow", vertices, hasItem(hasProperty("style", allOf(
       hasProperty("fill", allOf(
-        hasProperty("color", equalTo("#FF9900")),
-        hasProperty("color2", equalTo("#FFFF00"))
+        hasProperty("color", hasProperty("value", equalTo("#FF9900"))),
+        hasProperty("color2", hasProperty("value", equalTo("#FFFF00")))
       )),
       hasProperty("configuration", equalTo(new Configuration("BevelNode2"))
     )))));

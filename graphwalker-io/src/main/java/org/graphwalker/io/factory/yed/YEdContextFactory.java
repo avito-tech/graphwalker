@@ -111,6 +111,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
 
 import static java.awt.Color.BLACK;
 import static java.awt.Color.GREEN;
@@ -334,14 +335,14 @@ public final class YEdContextFactory implements ContextFactory {
 
     String newLine = System.lineSeparator();
     str.append("    <node id=\"" + id + "\">").append(newLine);
-    str.append("      <data key=\"d0\" >").append(newLine);
-    str.append("        <y:GenericNode configuration=\"" + configuration + "\" >").append(newLine);
-    str.append("          <y:Geometry  x=\"" + geometry.getX() + "\" y=\"" + geometry.getY() + "\" width=\"" + scale * geometry.getWidth() + "\" height=\"" + scale * geometry.getHeight() + "\"/>").append(newLine);
-    str.append("          <y:Fill color=\"" + fill.getColor() + "\" " + (fill.getColor2() != null ? "color2=\"" + fill.getColor2() + "\" ": "") + "transparent=\"false\"/>").append(newLine);
-    str.append("          <y:BorderStyle type=\"" + border.getLine() + "\" width=\"" + border.getWidth() + "\" color=\"" + border.getColor() + "\" />").append(newLine);
-    str.append("          <y:NodeLabel x=\"" + labelGeometry.getX() + "\" y=\"" + labelGeometry.getY() + "\" width=\"" + labelGeometry.getWidth() + "\" height=\"" + labelGeometry.getHeight() + "\" "
-      + "visible=\"true\" alignment=\"" + label.getAlignment() + "\" fontFamily=\"" + label.getFontFamily() + "\" fontSize=\"" + label.getFontSize() + "\" "
-      + "fontStyle=\"" + label.getFontStyle() + "\" textColor=\"" + label.getTextColor() + "\" modelName=\"internal\" modelPosition=\"c\" autoSizePolicy=\"content\">"
+    str.append("      <data key=\"d0\">").append(newLine);
+    str.append("        <y:GenericNode " + configuration + ">").append(newLine);
+    str.append("          <y:Geometry" + joinWithSpace(geometry.getX(), geometry.getY(), geometry.getWidth(), geometry.getHeight()) + "/>").append(newLine);
+    str.append("          <y:Fill transparent=\"false\"" + joinWithSpace(fill.getColor(), fill.getColor2()) + "/>").append(newLine);
+    str.append("          <y:BorderStyle" + joinWithSpace(border.getLine(), border.getWidth(), border.getColor()) + "/>").append(newLine);
+    str.append("          <y:NodeLabel visible=\"true\" modelName=\"internal\" modelPosition=\"c\" autoSizePolicy=\"content\"" + joinWithSpace(
+      labelGeometry.getX(), labelGeometry.getY(), labelGeometry.getWidth(), labelGeometry.getHeight(),
+      label.getAlignment(), label.getFontFamily(), label.getFontSize(), label.getFontStyle(), label.getTextColor()) + ">"
       + name);
 
     if (description != null && !description.trim().isEmpty()) {
@@ -1542,4 +1543,7 @@ public final class YEdContextFactory implements ContextFactory {
     return quotedString.replaceAll("^\"|\"$", "");
   }
 
+  private static String joinWithSpace(Object ... objects) {
+    return Stream.of(objects).map(Object::toString).filter(s -> !s.isEmpty()).collect(joining(" ", " ", ""));
+  }
 }
