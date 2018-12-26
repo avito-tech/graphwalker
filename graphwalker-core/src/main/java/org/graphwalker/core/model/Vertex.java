@@ -34,6 +34,7 @@ import java.util.List;
 
 import static org.graphwalker.core.common.Objects.isNotNullOrEmpty;
 import static org.graphwalker.core.common.Objects.unmodifiableList;
+import static org.graphwalker.core.model.VertexStyle.DEFAULT_VERTEX_STYLE;
 
 /**
  * <h1>Vertex</h1>
@@ -55,15 +56,17 @@ public class Vertex extends CachedBuilder<Vertex, Vertex.RuntimeVertex> {
   private List<Action> setActions = new ArrayList<>();
   private CodeTag codeTag;
   private List<Argument.List> arguments = new ArrayList<>();
+  private VertexStyle style;
 
   public Vertex() {
   }
 
-  private Vertex(String sharedState, String groupName, List<Action> setActions, CodeTag codeTag) {
+  private Vertex(String sharedState, String groupName, List<Action> setActions, CodeTag codeTag, VertexStyle style) {
     this.sharedState = sharedState;
     this.groupName = groupName;
     this.setActions = setActions;
     this.codeTag = codeTag;
+    this.style = style;
   }
 
   /**
@@ -118,6 +121,10 @@ public class Vertex extends CachedBuilder<Vertex, Vertex.RuntimeVertex> {
     return this;
   }
 
+  public void setStyle(VertexStyle vertexStyle) {
+    this.style = vertexStyle;
+  }
+
   public Vertex copy() {
     // deep copy actions but not arguments
     List<Action> actionsCopy = new ArrayList<>();
@@ -125,7 +132,7 @@ public class Vertex extends CachedBuilder<Vertex, Vertex.RuntimeVertex> {
       actionsCopy.add(new Action(action.getScript()));
     }
     CodeTag codeTagCopy = codeTag != null ? new CodeTag((CodeTag.Expression) codeTag.getMethod().copy()) : null;
-    return new Vertex(sharedState, groupName, actionsCopy, codeTagCopy)
+    return new Vertex(sharedState, groupName, actionsCopy, codeTagCopy, style)
       .setName(getName())
       .setDescription(getDescription())
       .setRequirements(getRequirements())
@@ -177,6 +184,7 @@ public class Vertex extends CachedBuilder<Vertex, Vertex.RuntimeVertex> {
     private final String groupName;
     private final CodeTag codeTag;
     private final List<Argument.List> arguments;
+    private final VertexStyle vertexStyle;
 
     private RuntimeVertex(Vertex vertex) {
       super(vertex.getId(), vertex.getName(), vertex.getDescription(), vertex.getRequirements(), vertex.getProperties());
@@ -186,6 +194,7 @@ public class Vertex extends CachedBuilder<Vertex, Vertex.RuntimeVertex> {
       this.groupName = vertex.groupName;
       this.codeTag = vertex.getCodeTag();
       this.arguments = vertex.arguments;
+      this.vertexStyle = vertex.style != null ? vertex.style : DEFAULT_VERTEX_STYLE;
     }
 
     public boolean hasIndegrees() {
@@ -229,6 +238,10 @@ public class Vertex extends CachedBuilder<Vertex, Vertex.RuntimeVertex> {
 
     public List<Argument> getSelectedArguments() {
       return arguments != null && !arguments.isEmpty() ? arguments.get(0) : Argument.EMPTY_LIST;
+    }
+
+    public VertexStyle getStyle() {
+      return vertexStyle;
     }
 
     /**

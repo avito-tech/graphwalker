@@ -60,6 +60,7 @@ import java.util.List;
 import static java.util.Collections.singleton;
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
+import static org.graphwalker.core.model.VertexStyle.Configuration;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.both;
@@ -772,5 +773,20 @@ public class YEdContextFactoryTest {
     assertThat("Vertices should be correctly initialized", vertices, allOf(
       hasItem(hasProperty("codeTag", hasToString("@code (Boolean)isAlert(username);")))
     ));
+  }
+
+  @Test
+  public void readStyledVertices() throws IOException {
+    Context context = new YEdContextFactory().create(Paths.get("graphml/style/vertexStyle.graphml")).get(0);
+    RuntimeModel model = context.getModel();
+    List<RuntimeVertex> vertices = model.getVertices();
+    assertThat("Should be five vertices", vertices, hasSize(5));
+    assertThat("First vertex should be orange with yellow", vertices, hasItem(hasProperty("style", allOf(
+      hasProperty("fill", allOf(
+        hasProperty("color", equalTo("#FF9900")),
+        hasProperty("color2", equalTo("#FFFF00"))
+      )),
+      hasProperty("configuration", equalTo(new Configuration("BevelNode2"))
+    )))));
   }
 }

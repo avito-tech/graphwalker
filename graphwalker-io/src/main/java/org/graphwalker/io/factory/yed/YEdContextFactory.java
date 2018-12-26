@@ -36,6 +36,8 @@ import com.yworks.xml.graphml.EdgeLabelType;
 import com.yworks.xml.graphml.GenericEdgeDocument;
 import com.yworks.xml.graphml.GenericGroupNodeDocument;
 import com.yworks.xml.graphml.GenericNodeDocument;
+import com.yworks.xml.graphml.GenericNodeType;
+import com.yworks.xml.graphml.GeometryType;
 import com.yworks.xml.graphml.GroupNodeDocument;
 import com.yworks.xml.graphml.ImageNodeDocument;
 import com.yworks.xml.graphml.NodeLabelType;
@@ -74,6 +76,7 @@ import org.graphwalker.core.model.Requirement;
 import org.graphwalker.core.model.TypePrefix;
 import org.graphwalker.core.model.Vertex;
 import org.graphwalker.core.model.Vertex.RuntimeVertex;
+import org.graphwalker.core.model.VertexStyle;
 import org.graphwalker.dsl.antlr.yed.YEdDescriptiveErrorListener;
 import org.graphwalker.dsl.yed.YEdEdgeParser;
 import org.graphwalker.dsl.yed.YEdLabelLexer;
@@ -113,7 +116,6 @@ import static java.awt.Color.BLACK;
 import static java.awt.Color.GREEN;
 import static java.awt.Color.MAGENTA;
 import static java.awt.Color.RED;
-import static java.awt.Color.YELLOW;
 import static java.lang.Double.parseDouble;
 import static java.lang.Integer.parseInt;
 import static java.lang.String.format;
@@ -129,6 +131,17 @@ import static org.apache.commons.lang3.StringEscapeUtils.escapeXml10;
 import static org.graphwalker.core.model.TypePrefix.BOOLEAN;
 import static org.graphwalker.core.model.TypePrefix.NUMBER;
 import static org.graphwalker.core.model.TypePrefix.STRING;
+import static org.graphwalker.core.model.VertexStyle.Alignment;
+import static org.graphwalker.core.model.VertexStyle.Border;
+import static org.graphwalker.core.model.VertexStyle.Configuration;
+import static org.graphwalker.core.model.VertexStyle.DEFAULT_VERTEX_STYLE;
+import static org.graphwalker.core.model.VertexStyle.Fill;
+import static org.graphwalker.core.model.VertexStyle.FontFamily;
+import static org.graphwalker.core.model.VertexStyle.FontStyle;
+import static org.graphwalker.core.model.VertexStyle.Geometry;
+import static org.graphwalker.core.model.VertexStyle.Label;
+import static org.graphwalker.core.model.VertexStyle.LineType;
+import static org.graphwalker.core.model.VertexStyle.TextColor;
 import static org.graphwalker.dsl.yed.YEdEdgeParser.ActionContext;
 import static org.graphwalker.dsl.yed.YEdEdgeParser.FieldContext;
 import static org.graphwalker.dsl.yed.YEdEdgeParser.ParseContext;
@@ -306,22 +319,29 @@ public final class YEdContextFactory implements ContextFactory {
     return context;
   }
 
-  private static void appendVertex(StringBuilder str, String id, String name, String description,
+  private static void appendVertex(StringBuilder str, String id, String name, String description, VertexStyle style,
                                    List<Action> actions, List<String> outdegrees,
-                                   List<IndegreeLabel> indegrees, Color col) {
+                                   List<IndegreeLabel> indegrees) {
 
     double scale = !actions.isEmpty() || (description != null && description.length() >= 50) ? 1.7 : 1.0;
+
+    Geometry geometry = style.getGeometry();
+    Fill fill = style.getFill();
+    Label label = style.getLabel();
+    Border border = style.getBorder();
+    Geometry labelGeometry = label.getGeometry();
+    Configuration configuration = style.getConfiguration();
 
     String newLine = System.lineSeparator();
     str.append("    <node id=\"" + id + "\">").append(newLine);
     str.append("      <data key=\"d0\" >").append(newLine);
-    str.append("        <y:ShapeNode >").append(newLine);
-    str.append("          <y:Geometry  x=\"250.000\" y=\"150.000\" width=\"" + scale * 250.0 + "\" height=\"" + scale * 60 + "\"/>").append(newLine);
-    str.append("          <y:Fill color=\"" + format("#%02x%02x%02x", col.getRed(), col.getGreen(), col.getBlue()) + "\"  transparent=\"false\"/>").append(newLine);
-    str.append("          <y:BorderStyle type=\"line\" width=\"1.0\" color=\"#000000\" />").append(newLine);
-    str.append("          <y:NodeLabel x=\"1.5\" y=\"5.500\" width=\"100.0\" height=\"20.000\" "
-      + "visible=\"true\" alignment=\"center\" fontFamily=\"Dialog\" fontSize=\"12\" "
-      + "fontStyle=\"plain\" textColor=\"#000000\" modelName=\"internal\" modelPosition=\"c\" autoSizePolicy=\"content\">"
+    str.append("        <y:GenericNode configuration=\"" + configuration + "\" >").append(newLine);
+    str.append("          <y:Geometry  x=\"" + geometry.getX() + "\" y=\"" + geometry.getY() + "\" width=\"" + scale * geometry.getWidth() + "\" height=\"" + scale * geometry.getHeight() + "\"/>").append(newLine);
+    str.append("          <y:Fill color=\"" + fill.getColor() + "\" " + (fill.getColor2() != null ? "color2=\"" + fill.getColor2() + "\" ": "") + "transparent=\"false\"/>").append(newLine);
+    str.append("          <y:BorderStyle type=\"" + border.getLine() + "\" width=\"" + border.getWidth() + "\" color=\"" + border.getColor() + "\" />").append(newLine);
+    str.append("          <y:NodeLabel x=\"" + labelGeometry.getX() + "\" y=\"" + labelGeometry.getY() + "\" width=\"" + labelGeometry.getWidth() + "\" height=\"" + labelGeometry.getHeight() + "\" "
+      + "visible=\"true\" alignment=\"" + label.getAlignment() + "\" fontFamily=\"" + label.getFontFamily() + "\" fontSize=\"" + label.getFontSize() + "\" "
+      + "fontStyle=\"" + label.getFontStyle() + "\" textColor=\"" + label.getTextColor() + "\" modelName=\"internal\" modelPosition=\"c\" autoSizePolicy=\"content\">"
       + name);
 
     if (description != null && !description.trim().isEmpty()) {
@@ -354,7 +374,7 @@ public final class YEdContextFactory implements ContextFactory {
 
     str.append("</y:NodeLabel>").append(newLine);
     str.append("          <y:Shape type=\"rectangle\"/>").append(newLine);
-    str.append("        </y:ShapeNode>").append(newLine);
+    str.append("        </y:GenericNode>").append(newLine);
     str.append("      </data>").append(newLine);
     str.append("    </node>").append(newLine);
   }
@@ -368,7 +388,7 @@ public final class YEdContextFactory implements ContextFactory {
 
     str.append("    <edge id=\"" + id + "\" source=\"" + srcId + "\" target=\"" + destId + "\">").append(newLine);
     str.append("      <data key=\"d1\" >").append(newLine);
-    str.append("        <y:PolyLineEdge >").append(newLine);
+    str.append("        <y:BezierEdge >").append(newLine);
     str.append("          <y:Path sx=\"-23.75\" sy=\"15.0\" tx=\"-23.75\" ty=\"-15.0\">").append(newLine);
     str.append("            <y:Point x=\"273.0\" y=\"95.0\"/>").append(newLine);
     str.append("            <y:Point x=\"209.0\" y=\"95.0\"/>").append(newLine);
@@ -420,7 +440,7 @@ public final class YEdContextFactory implements ContextFactory {
     }
 
     str.append("          <y:BendStyle smoothed=\"true\"/>").append(newLine);
-    str.append("        </y:PolyLineEdge>").append(newLine);
+    str.append("        </y:BezierEdge>").append(newLine);
     str.append("      </data>").append(newLine);
     str.append("    </edge>").append(newLine);
   }
@@ -520,7 +540,7 @@ public final class YEdContextFactory implements ContextFactory {
         while (uniqueEdges.containsValue("e" + e)) {
           e++;
         }
-        appendVertex(str, "n" + n, "Start", null, emptyList(), emptyList(), emptyList(), GREEN);
+        appendVertex(str, "n" + n, "Start", null, DEFAULT_VERTEX_STYLE, emptyList(), emptyList(), emptyList());
         IndexedCollection<RuntimeVertex> destGroup = groupedVertices.getOrDefault(((RuntimeEdge) context.getNextElement()).getTargetVertex().getGroupName(), NO_GROUP);
         appendEdge(str, "e" + e, "n" + n, destGroup + uniqueVertices.get(((RuntimeEdge) context.getNextElement()).getTargetVertex()),
           context.getNextElement().getName(),
@@ -615,19 +635,17 @@ public final class YEdContextFactory implements ContextFactory {
           String id = group.getKey() != null && g > 1
             ? "n" + group.getValue().index + "::" + uniqueVertices.get(v)
             : uniqueVertices.get(v);
-          Color color;
+          VertexStyle vertexStyle = v.getStyle();
           if (hasNoInput.contains(v)) {
-            logger.warn("Vertex " + v + " has no input edges (marked with \"magenta\" color). " +
+            logger.warn("Vertex " + v + " has no input edges (marked with \"red\" color). " +
               "It could not be tested!");
-            color = MAGENTA;
+            vertexStyle = vertexStyle.withBorderColor(RED);
           } else if (hasNoOutput.contains(v)) {
-            logger.warn("Vertex " + v + " has no output edges (marked with \"red\" color). " +
+            logger.warn("Vertex " + v + " has no output edges (marked with \"magenta\" color). " +
               "Some of path generating techniques will not work correctly with that graph!");
-            color = RED;
-          } else {
-            color = YELLOW;
+            vertexStyle = vertexStyle.withBorderColor(MAGENTA);
           }
-          appendVertex(str, id, v.getName(), v.getDescription(), v.getActions(), emptyList(), emptyList(), color);
+          appendVertex(str, id, v.getName(), v.getDescription(), vertexStyle, v.getActions(), emptyList(), emptyList());
         }
         if (group.getKey() != null && g > 1) {
           str.append("</graph>").append(newLine);
@@ -719,7 +737,7 @@ public final class YEdContextFactory implements ContextFactory {
         while (uniqueEdges.containsValue("e" + e)) {
           e++;
         }
-        appendVertex(str, "n" + n, "Start", null, emptyList(), emptyList(), emptyList(), GREEN);
+        appendVertex(str, "n" + n, "Start", null, DEFAULT_VERTEX_STYLE, emptyList(), emptyList(), emptyList());
         IndexedCollection<RuntimeVertex> destGroup = groupedVertices.getOrDefault(((RuntimeEdge) context.getNextElement()).getTargetVertex().getGroupName(), NO_GROUP);
         appendEdge(str, "e" + e, "n" + n, destGroup + uniqueVertices.get(((RuntimeEdge) context.getNextElement()).getTargetVertex()),
           context.getNextElement().getName(),
@@ -781,25 +799,22 @@ public final class YEdContextFactory implements ContextFactory {
 
       for (RuntimeVertex v : groupedVertices.get(selectOnlyGroup).items) {
         String id = uniqueVertices.get(v);
-        Color color;
+        VertexStyle vertexStyle = v.getStyle();
         if (hasNoInput.contains(v) && !indegrees.containsKey(v)) {
           if (v.hasName() && v.getName().equalsIgnoreCase("start")) {
-            color = GREEN;
+            vertexStyle = vertexStyle.withBorderColor(GREEN);
           } else {
-            logger.warn("Vertex " + v + " has no input edges (marked with \"magenta\" color). " +
+            logger.warn("Vertex " + v + " has no input edges (marked with \"red\" color). " +
               "It could not be tested!");
-            color = MAGENTA;
+            vertexStyle = vertexStyle.withBorderColor(RED);
           }
         } else if (hasNoOutput.contains(v) && !outdegrees.containsKey(v)) {
-          logger.warn("Vertex " + v + " has no output edges (marked with \"red\" color). " +
+          logger.warn("Vertex " + v + " has no output edges (marked with \"magenta\" color). " +
             "Some of path generating techniques will not work correctly with that graph!");
-          color = RED;
-        } else {
-          color = YELLOW;
+          vertexStyle = vertexStyle.withBorderColor(MAGENTA);
         }
-        appendVertex(str, id, v.getName(), v.getDescription(), v.getActions(),
-          new ArrayList<>(outdegrees.getOrDefault(v, emptyMap()).values()),
-          indegrees.getOrDefault(v, emptyList()), color);
+        appendVertex(str, id, v.getName(), v.getDescription(), vertexStyle, v.getActions(), new ArrayList<>(outdegrees.getOrDefault(v, emptyMap()).values()),
+          indegrees.getOrDefault(v, emptyList()));
       }
 
       str.append("  </graph>").append(newLine);
@@ -984,6 +999,35 @@ public final class YEdContextFactory implements ContextFactory {
                 propName = currentKey.getAttrName();
                 propCurrentValue = ((DataTypeImpl) data).getStringValue().trim();
                 vertex.setProperty(propName, propCurrentValue);
+              }
+
+              XmlObject[] objects = data.selectPath(Y + "$this//y:GenericNode");
+              if (objects instanceof GenericNodeType[]) {
+                GenericNodeType[] labels = (GenericNodeType[]) objects;
+                for (GenericNodeType label : labels) {
+                  GeometryType geometry = label.getGeometry();
+                  NodeLabelType nodeLabel;
+                  try {
+                    nodeLabel = label.getNodeLabelArray()[0];
+                  } catch (IndexOutOfBoundsException e) {
+                    throw new IndexOutOfBoundsException("Node label not found for node with key=\"" + key + "\"");
+                  }
+                  VertexStyle style = new VertexStyle(
+                    new Configuration(label.getConfiguration()),
+                    new Geometry(geometry.getWidth(), geometry.getHeight(), geometry.getX(), geometry.getY()),
+                    new Fill(label.getFill().getColor(), label.getFill().getColor2()),
+                    new Border(label.getBorderStyle().getColor(), new LineType(label.getBorderStyle().getType().toString()), label.getBorderStyle().getWidth()),
+                    new Label(
+                      new Geometry(nodeLabel.getWidth(), nodeLabel.getHeight(), nodeLabel.getX(), nodeLabel.getY()),
+                      new Alignment(nodeLabel.getAlignment().toString()),
+                      new FontFamily(nodeLabel.getFontFamily()),
+                      new FontStyle(nodeLabel.getFontStyle().toString()),
+                      nodeLabel.getFontSize(),
+                      new TextColor(nodeLabel.getTextColor())
+                    )
+                  );
+                  vertex.setStyle(style);
+                }
               }
 
               if (0 < data.getDomNode().getChildNodes().getLength()) {
