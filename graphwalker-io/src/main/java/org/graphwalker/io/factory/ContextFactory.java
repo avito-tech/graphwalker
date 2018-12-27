@@ -49,4 +49,13 @@ public interface ContextFactory {
   boolean accept(Path path);
 
   Set<String> getSupportedFileTypes();
+
+  /**
+   * Set factory option, if supported.
+   *
+   * @param key option name
+   * @param value new value
+   * @return true, if option was accepted
+   */
+  boolean setOption(String key, Object value);
 }

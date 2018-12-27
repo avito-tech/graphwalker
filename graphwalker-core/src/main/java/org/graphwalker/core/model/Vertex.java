@@ -34,7 +34,6 @@ import java.util.List;
 
 import static org.graphwalker.core.common.Objects.isNotNullOrEmpty;
 import static org.graphwalker.core.common.Objects.unmodifiableList;
-import static org.graphwalker.core.model.VertexStyle.DEFAULT_VERTEX_STYLE;
 
 /**
  * <h1>Vertex</h1>
@@ -194,7 +193,7 @@ public class Vertex extends CachedBuilder<Vertex, Vertex.RuntimeVertex> {
       this.groupName = vertex.groupName;
       this.codeTag = vertex.getCodeTag();
       this.arguments = vertex.arguments;
-      this.vertexStyle = vertex.style != null ? vertex.style : DEFAULT_VERTEX_STYLE;
+      this.vertexStyle = vertex.style;
     }
 
     public boolean hasIndegrees() {

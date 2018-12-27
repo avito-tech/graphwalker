@@ -79,6 +79,12 @@ public final class JavaContextFactory implements ContextFactory {
     throw new NotImplementedException("Currently only YEdContextFactory supports graph partitioning");
   }
 
+  @Override
+  public boolean setOption(String key, Object value) {
+    logger.info("Option \"" + key + "\" was rejected by JavaContextFactory");
+    return false;
+  }
+
   public static final List<String>
       javaCodeTemplate = ImmutableList.of(
       "import org.graphwalker.core.condition.*;",

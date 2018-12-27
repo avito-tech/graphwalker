@@ -26,13 +26,14 @@ package org.graphwalker.maven.plugin;
  * #L%
  */
 
-import java.io.File;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
+
+import java.io.File;
 
 /**
  * @author Nils Olsson
@@ -43,9 +44,20 @@ public final class GenerateTestMojo extends GenerateMojoBase {
   @Parameter(property = "graphwalker.generate.test.directory", defaultValue = "${project.build.directory}/generated-test-sources/graphwalker")
   private File generatedSourcesDirectory;
 
+  /**
+   * Set to false if you would like to skip reusing user defined styles in generated yEd file in /link directory and use default styling.
+   */
+  @Parameter(defaultValue = "true")
+  private boolean linkYEdStyles;
+
   @Override
   protected File getGeneratedSourcesDirectory() {
     return generatedSourcesDirectory;
+  }
+
+  @Override
+  public boolean isLinkYEdStyles() {
+    return linkYEdStyles;
   }
 
   @Override

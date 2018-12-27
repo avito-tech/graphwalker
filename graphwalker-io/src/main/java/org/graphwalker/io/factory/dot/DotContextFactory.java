@@ -97,6 +97,12 @@ public final class DotContextFactory implements ContextFactory {
     throw new NotImplementedException("Currently only YEdContextFactory supports graph partitioning");
   }
 
+  @Override
+  public boolean setOption(String key, Object value) {
+    logger.info("Option \"" + key + "\" was rejected by DotContextFactory");
+    return false;
+  }
+
   private Context read(Path path) {
     Context context = new DotContext();
     // Model model = new Model();

@@ -142,6 +142,7 @@ import static org.graphwalker.core.model.VertexStyle.FontStyle;
 import static org.graphwalker.core.model.VertexStyle.Geometry;
 import static org.graphwalker.core.model.VertexStyle.Label;
 import static org.graphwalker.core.model.VertexStyle.LineType;
+import static org.graphwalker.core.model.VertexStyle.SCALED_VERTEX_STYLE;
 import static org.graphwalker.core.model.VertexStyle.TextColor;
 import static org.graphwalker.dsl.yed.YEdEdgeParser.ActionContext;
 import static org.graphwalker.dsl.yed.YEdEdgeParser.FieldContext;
@@ -159,6 +160,8 @@ public final class YEdContextFactory implements ContextFactory {
   private static final String Y = "declare namespace y='http://www.yworks.com/xml/graphml';";
   private static final String FILE_TYPE = "graphml";
   private static final Set<String> SUPPORTED_TYPE = new HashSet<>(asList("**/*.graphml"));
+
+  private boolean linkStyles = true;
 
   @Override
   public Set<String> getSupportedFileTypes() {
@@ -202,6 +205,18 @@ public final class YEdContextFactory implements ContextFactory {
       throw new ContextFactoryException("Could not read the file.");
     }
     return read(FilenameUtils.getBaseName(paths.get(0).toString()), documents);
+  }
+
+  @Override
+  public boolean setOption(String key, Object value) {
+    switch (key) {
+      case "linkYEdStyles":
+        linkStyles = (boolean) value;
+        return true;
+      default:
+        logger.info("Option \"" + key + "\" was rejected by YEdContextFactory");
+        return false;
+    }
   }
 
   public List<Context> create(String graphmlStr) {
@@ -323,9 +338,6 @@ public final class YEdContextFactory implements ContextFactory {
   private static void appendVertex(StringBuilder str, String id, String name, String description, VertexStyle style,
                                    List<Action> actions, List<String> outdegrees,
                                    List<IndegreeLabel> indegrees) {
-
-    double scale = !actions.isEmpty() || (description != null && description.length() >= 50) ? 1.7 : 1.0;
-
     Geometry geometry = style.getGeometry();
     Fill fill = style.getFill();
     Label label = style.getLabel();
@@ -637,6 +649,11 @@ public final class YEdContextFactory implements ContextFactory {
             ? "n" + group.getValue().index + "::" + uniqueVertices.get(v)
             : uniqueVertices.get(v);
           VertexStyle vertexStyle = v.getStyle();
+          if (null == vertexStyle) {
+            vertexStyle = !v.getActions().isEmpty() || (v.getDescription() != null && v.getDescription().length() >= 50)
+              ? SCALED_VERTEX_STYLE
+              : DEFAULT_VERTEX_STYLE;
+          }
           if (hasNoInput.contains(v)) {
             logger.warn("Vertex " + v + " has no input edges (marked with \"red\" color). " +
               "It could not be tested!");
@@ -801,6 +818,11 @@ public final class YEdContextFactory implements ContextFactory {
       for (RuntimeVertex v : groupedVertices.get(selectOnlyGroup).items) {
         String id = uniqueVertices.get(v);
         VertexStyle vertexStyle = v.getStyle();
+        if (null == vertexStyle) {
+          vertexStyle = !v.getActions().isEmpty() || (v.getDescription() != null && v.getDescription().length() >= 50)
+            ? SCALED_VERTEX_STYLE
+            : DEFAULT_VERTEX_STYLE;
+        }
         if (hasNoInput.contains(v) && !indegrees.containsKey(v)) {
           if (v.hasName() && v.getName().equalsIgnoreCase("start")) {
             vertexStyle = vertexStyle.withBorderColor(GREEN);
@@ -833,7 +855,7 @@ public final class YEdContextFactory implements ContextFactory {
     folder.mkdirs();
     Path graphmlFile = Paths.get(folder.toString(), contexts.get(0).getModel().getName() + ".graphml");
     try (OutputStream outputStream = Files.newOutputStream(graphmlFile)) {
-      outputStream.write(String.valueOf(getAsString(contexts)).getBytes());
+      outputStream.write(getAsString(contexts).getBytes());
     }
   }
 
@@ -1002,32 +1024,34 @@ public final class YEdContextFactory implements ContextFactory {
                 vertex.setProperty(propName, propCurrentValue);
               }
 
-              XmlObject[] objects = data.selectPath(Y + "$this//y:GenericNode");
-              if (objects instanceof GenericNodeType[]) {
-                GenericNodeType[] labels = (GenericNodeType[]) objects;
-                for (GenericNodeType label : labels) {
-                  GeometryType geometry = label.getGeometry();
-                  NodeLabelType nodeLabel;
-                  try {
-                    nodeLabel = label.getNodeLabelArray()[0];
-                  } catch (IndexOutOfBoundsException e) {
-                    throw new IndexOutOfBoundsException("Node label not found for node with key=\"" + key + "\"");
+              if (linkStyles) {
+                XmlObject[] objects = data.selectPath(Y + "$this//y:GenericNode");
+                if (objects instanceof GenericNodeType[]) {
+                  GenericNodeType[] labels = (GenericNodeType[]) objects;
+                  for (GenericNodeType label : labels) {
+                    GeometryType geometry = label.getGeometry();
+                    NodeLabelType nodeLabel;
+                    try {
+                      nodeLabel = label.getNodeLabelArray()[0];
+                    } catch (IndexOutOfBoundsException e) {
+                      throw new IndexOutOfBoundsException("Node label not found for node with key=\"" + key + "\"");
+                    }
+                    VertexStyle style = new VertexStyle(
+                      new Configuration(label.getConfiguration()),
+                      new Geometry(geometry.getWidth(), geometry.getHeight(), geometry.getX(), geometry.getY()),
+                      new Fill(label.getFill().getColor(), label.getFill().getColor2()),
+                      new Border(label.getBorderStyle().getColor(), new LineType(label.getBorderStyle().getType().toString()), label.getBorderStyle().getWidth()),
+                      new Label(
+                        new Geometry(nodeLabel.getWidth(), nodeLabel.getHeight(), nodeLabel.getX(), nodeLabel.getY()),
+                        new Alignment(nodeLabel.getAlignment().toString()),
+                        new FontFamily(nodeLabel.getFontFamily()),
+                        new FontStyle(nodeLabel.getFontStyle().toString()),
+                        nodeLabel.getFontSize(),
+                        new TextColor(nodeLabel.getTextColor())
+                      )
+                    );
+                    vertex.setStyle(style);
                   }
-                  VertexStyle style = new VertexStyle(
-                    new Configuration(label.getConfiguration()),
-                    new Geometry(geometry.getWidth(), geometry.getHeight(), geometry.getX(), geometry.getY()),
-                    new Fill(label.getFill().getColor(), label.getFill().getColor2()),
-                    new Border(label.getBorderStyle().getColor(), new LineType(label.getBorderStyle().getType().toString()), label.getBorderStyle().getWidth()),
-                    new Label(
-                      new Geometry(nodeLabel.getWidth(), nodeLabel.getHeight(), nodeLabel.getX(), nodeLabel.getY()),
-                      new Alignment(nodeLabel.getAlignment().toString()),
-                      new FontFamily(nodeLabel.getFontFamily()),
-                      new FontStyle(nodeLabel.getFontStyle().toString()),
-                      nodeLabel.getFontSize(),
-                      new TextColor(nodeLabel.getTextColor())
-                    )
-                  );
-                  vertex.setStyle(style);
                 }
               }
 

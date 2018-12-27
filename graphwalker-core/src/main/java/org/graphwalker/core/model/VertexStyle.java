@@ -67,6 +67,21 @@ public class VertexStyle {
     )
   );
 
+  public static final VertexStyle SCALED_VERTEX_STYLE = new VertexStyle(
+    new Configuration("BevelNode2"),
+    new Geometry(450, 200, 0, 0),
+    new Fill("#00FF00", "#00FF33"),
+    new Border("#030303", new LineType("line"), 1.0),
+    new Label(
+      new Geometry(100, 20, 0, 0),
+      new Alignment("left"),
+      new FontFamily("Dialog"),
+      new FontStyle("plain"),
+      (short) 12,
+      new TextColor("#000000")
+    )
+  );
+
   private final Configuration configuration;
 
   private final Geometry geometry;

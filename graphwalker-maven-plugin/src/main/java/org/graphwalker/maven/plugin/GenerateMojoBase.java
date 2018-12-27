@@ -26,10 +26,13 @@ package org.graphwalker.maven.plugin;
  * #L%
  */
 
-import java.io.File;
-import java.util.List;
 import org.apache.maven.model.Resource;
 import org.graphwalker.java.source.CodeGenerator;
+
+import java.io.File;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -42,15 +45,18 @@ public abstract class GenerateMojoBase extends DefaultMojoBase {
 
   protected abstract File getGeneratedSourcesDirectory();
 
+  protected abstract boolean isLinkYEdStyles();
+
   protected void generate(List<Resource> resources) {
+    Map<String, Object> options = new HashMap<>();
+    options.put("linkYEdStyles", isLinkYEdStyles());
     for (Resource resource : resources) {
-      generate(resource);
+      generate(resource, options);
     }
   }
 
-  private void generate(Resource resource) {
+  private void generate(Resource resource, Map<String, Object> options) {
     File baseDirectory = new File(resource.getDirectory());
-    CodeGenerator.generate(baseDirectory.toPath(), getGeneratedSourcesDirectory().toPath());
+    CodeGenerator.generate(baseDirectory.toPath(), getGeneratedSourcesDirectory().toPath(), options);
   }
-
 }

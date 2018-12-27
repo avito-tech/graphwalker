@@ -43,6 +43,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.util.Collections.emptyMap;
 import static org.graphwalker.java.utils.OccurrencesOfString.occurrencesOfString;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.not;
@@ -158,7 +159,7 @@ public class GenerateTest {
     Path tmpFolder = testFolder.getRoot().toPath();
 
     new CodeGenerator().generate(
-      ResourceUtils.getResourceAsFile("/CodeGenerator/graphml/").toPath(), tmpFolder
+      ResourceUtils.getResourceAsFile("/CodeGenerator/graphml/").toPath(), tmpFolder, emptyMap()
     );
 
     File cacheFile = new File(tmpFolder + "/cache.json");
@@ -213,7 +214,7 @@ public class GenerateTest {
     Path tmpFolder = testFolder.getRoot().toPath();
 
     CodeGenerator.generate(
-      ResourceUtils.getResourceAsFile("/CodeGenerator/linked_graphml/").toPath(), tmpFolder
+      ResourceUtils.getResourceAsFile("/CodeGenerator/linked_graphml/").toPath(), tmpFolder, emptyMap()
     );
 
     File cacheFile = new File(tmpFolder + "/cache.json");
@@ -301,7 +302,7 @@ public class GenerateTest {
     Path tmpFolder = testFolder.getRoot().toPath();
 
     new CodeGenerator().generate(
-      ResourceUtils.getResourceAsFile("/CodeGenerator/incorrect_graphml/").toPath(), tmpFolder
+      ResourceUtils.getResourceAsFile("/CodeGenerator/incorrect_graphml/").toPath(), tmpFolder, emptyMap()
     );
 
     File cacheFile = new File(tmpFolder + "/cache.json");
@@ -336,7 +337,7 @@ public class GenerateTest {
     Path tmpFolder = testFolder.getRoot().toPath();
 
     new CodeGenerator().generate(
-      ResourceUtils.getResourceAsFile("/CodeGenerator/code_tag/").toPath(), tmpFolder
+      ResourceUtils.getResourceAsFile("/CodeGenerator/code_tag/").toPath(), tmpFolder, emptyMap()
     );
 
     File sourceFile = new File(tmpFolder + "/org/graphwalker/java/graphml/MyModel.java");
@@ -387,7 +388,7 @@ public class GenerateTest {
     Path tmpFolder = testFolder.getRoot().toPath();
 
     new CodeGenerator().generate(
-      ResourceUtils.getResourceAsFile("/CodeGenerator/dataset_simple/").toPath(), tmpFolder
+      ResourceUtils.getResourceAsFile("/CodeGenerator/dataset_simple/").toPath(), tmpFolder, emptyMap()
     );
 
     File sourceFile = new File(tmpFolder + "/org/graphwalker/java/graphml/DatasetSimple.java");
@@ -434,7 +435,7 @@ public class GenerateTest {
     Path tmpFolder = testFolder.getRoot().toPath();
 
     new CodeGenerator().generate(
-      ResourceUtils.getResourceAsFile("/CodeGenerator/dataset_edge/").toPath(), tmpFolder
+      ResourceUtils.getResourceAsFile("/CodeGenerator/dataset_edge/").toPath(), tmpFolder, emptyMap()
     );
 
     File sourceFile = new File(tmpFolder + "/org/graphwalker/java/graphml/DatasetModel.java");
@@ -481,7 +482,7 @@ public class GenerateTest {
     Path tmpFolder = testFolder.getRoot().toPath();
 
     new CodeGenerator().generate(
-      ResourceUtils.getResourceAsFile("/CodeGenerator/dataset_default/").toPath(), tmpFolder
+      ResourceUtils.getResourceAsFile("/CodeGenerator/dataset_default/").toPath(), tmpFolder, emptyMap()
     );
 
     File sourceFile = new File(tmpFolder + "/org/graphwalker/java/graphml/MyModel.java");
@@ -532,7 +533,7 @@ public class GenerateTest {
     Path tmpFolder = testFolder.getRoot().toPath();
 
     new CodeGenerator().generate(
-      ResourceUtils.getResourceAsFile("/CodeGenerator/parametrized_default/").toPath(), tmpFolder
+      ResourceUtils.getResourceAsFile("/CodeGenerator/parametrized_default/").toPath(), tmpFolder, emptyMap()
     );
 
     File sourceFile = new File(tmpFolder + "/org/graphwalker/java/graphml/ParametrizedModel.java");

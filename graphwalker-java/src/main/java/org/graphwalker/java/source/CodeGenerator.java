@@ -78,6 +78,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.TreeSet;
@@ -179,12 +180,14 @@ public final class CodeGenerator extends VoidVisitorAdapter<ChangeContext> {
     private final Path input, output;
     private final List<Path> linkedFiles;
     private final SimpleCache cache;
+    private final Map<String, Object> options;
 
-    public MergeLinkedFileVisitor(Path input, Path output, List<Path> linkedFiles) {
+    public MergeLinkedFileVisitor(Path input, Path output, List<Path> linkedFiles, Map<String, Object> options) {
       this.input = input;
       this.output = output;
       this.linkedFiles = linkedFiles;
       this.cache = new SimpleCache(output);
+      this.options = options;
       if (!linkedFiles.isEmpty()) {
         FactoryCodeGenerator.writeFactorySource(
           linkedFiles,
@@ -201,6 +204,7 @@ public final class CodeGenerator extends VoidVisitorAdapter<ChangeContext> {
         Path entry = linkedFiles.get(0);
         try {
           ContextFactory factory = ContextFactoryScanner.get(entry);
+          options.forEach(factory::setOption);
           Context context = factory.create(linkedFiles);
           for (Path linkedFile : linkedFiles) {
             SourceFile sourceFile = new SourceFile(new ClassName(linkedFile), linkedFile, input, output);
@@ -221,6 +225,7 @@ public final class CodeGenerator extends VoidVisitorAdapter<ChangeContext> {
       if ((!cache.contains(file) || isModified(file, cache)) && !linkedFiles.contains(file)) {
         try {
           ContextFactory factory = ContextFactoryScanner.get(file);
+          options.forEach(factory::setOption);
           List<Context> contexts = factory.create(file);
           for (Context context : contexts) {
             SourceFile sourceFile = new SourceFile(new ClassName(context.getModel().getName()), file, input, output);
@@ -246,11 +251,11 @@ public final class CodeGenerator extends VoidVisitorAdapter<ChangeContext> {
     return !Files.getLastModifiedTime(file).equals(cache.get(file).getLastModifiedTime());
   }
 
-  public static void generate(final Path input, final Path output) {
+  public static void generate(final Path input, final Path output, Map<String, Object> options) {
     SearchForLinkedFileVisitor searchForLinkedFileVisitor = new SearchForLinkedFileVisitor(output);
     try {
       Files.walkFileTree(input, searchForLinkedFileVisitor);
-      Files.walkFileTree(input, new MergeLinkedFileVisitor(input, output, searchForLinkedFileVisitor.getLinkedFiles()));
+      Files.walkFileTree(input, new MergeLinkedFileVisitor(input, output, searchForLinkedFileVisitor.getLinkedFiles(), options));
     } catch (IOException e) {
       logger.error(e.getMessage());
       throw new CodeGeneratorException(e);

@@ -126,6 +126,12 @@ public final class JsonContextFactory implements ContextFactory {
     throw new NotImplementedException("Currently only YEdContextFactory supports graph partitioning");
   }
 
+  @Override
+  public boolean setOption(String key, Object value) {
+    logger.info("Option \"" + key + "\" was rejected by JsonContextFactory");
+    return false;
+  }
+
   private List<Context> read(Path file) {
     StringBuilder jsonStr = new StringBuilder();
     String line;
