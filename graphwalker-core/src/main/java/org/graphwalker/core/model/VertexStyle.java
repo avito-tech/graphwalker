@@ -63,8 +63,8 @@ public class VertexStyle {
       new FontFamily("Dialog"),
       new FontStyle("plain"),
       (short) 12,
-      new TextColor("#000000")
-    )
+      new TextColor("#000000"),
+      null, null)
   );
 
   public static final VertexStyle SCALED_VERTEX_STYLE = new VertexStyle(
@@ -78,8 +78,8 @@ public class VertexStyle {
       new FontFamily("Dialog"),
       new FontStyle("plain"),
       (short) 12,
-      new TextColor("#000000")
-    )
+      new TextColor("#000000"),
+      null, null)
   );
 
   private final Configuration configuration;
@@ -284,14 +284,18 @@ public class VertexStyle {
     private final FontStyle fontStyle;
     private final Property<Short> fontSize;
     private final TextColor textColor;
+    private final Property<String> lineColor;
+    private final Property<String> backgroundColor;
 
-    public Label(Geometry geometry, Alignment alignment, FontFamily fontFamily, FontStyle fontStyle, short fontSize, TextColor textColor) {
+    public Label(Geometry geometry, Alignment alignment, FontFamily fontFamily, FontStyle fontStyle, short fontSize, TextColor textColor, String lineColor, String backgroundColor) {
       this.geometry = geometry;
       this.alignment = alignment;
       this.fontFamily = fontFamily;
       this.fontStyle = fontStyle;
       this.fontSize = new Property<Short>(fontSize, "fontSize");
       this.textColor = textColor;
+      this.lineColor = new Property<String>(lineColor, "lineColor");
+      this.backgroundColor = new Property<String>(backgroundColor, "backgroundColor");
     }
 
     public Geometry getGeometry() {
@@ -318,9 +322,17 @@ public class VertexStyle {
       return textColor;
     }
 
+    public Property<String> getLineColor() {
+      return lineColor;
+    }
+
+    public Property<String> getBackgroundColor() {
+      return backgroundColor;
+    }
+
     @Override
     public String toString() {
-      return "Label{" + joinWithComma(geometry, alignment, fontFamily, fontStyle, fontSize, textColor) + '}';
+      return "Label{" + joinWithComma(geometry, alignment, fontFamily, fontStyle, fontSize, textColor, lineColor, backgroundColor) + '}';
     }
   }
 

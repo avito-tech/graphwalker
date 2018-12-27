@@ -378,7 +378,8 @@ public final class YEdContextFactory implements ContextFactory {
     str.append("          <y:BorderStyle" + joinWithSpace(border.getLine(), border.getWidth(), border.getColor()) + "/>").append(newLine);
     str.append("          <y:NodeLabel visible=\"true\" modelName=\"internal\" modelPosition=\"c\" autoSizePolicy=\"content\"" + joinWithSpace(
       labelGeometry.getX(), labelGeometry.getY(), labelGeometry.getWidth(), labelGeometry.getHeight(),
-      label.getAlignment(), label.getFontFamily(), label.getFontSize(), label.getFontStyle(), label.getTextColor()) + ">"
+      label.getAlignment(), label.getFontFamily(), label.getFontSize(), label.getFontStyle(),
+      label.getTextColor(), label.getLineColor(), label.getBackgroundColor()) + ">"
       + name);
 
     if (description != null && !description.trim().isEmpty()) {
@@ -1077,7 +1078,9 @@ public final class YEdContextFactory implements ContextFactory {
                         new FontFamily(nodeLabel.getFontFamily()),
                         new FontStyle(nodeLabel.getFontStyle().toString()),
                         nodeLabel.getFontSize(),
-                        new TextColor(nodeLabel.getTextColor())
+                        new TextColor(nodeLabel.getTextColor()),
+                        nodeLabel.getLineColor(),
+                        nodeLabel.getBackgroundColor()
                       )
                     );
                     vertex.setStyle(style);
