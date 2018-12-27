@@ -33,6 +33,7 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 
 /**
@@ -45,11 +46,14 @@ public abstract class GenerateMojoBase extends DefaultMojoBase {
 
   protected abstract File getGeneratedSourcesDirectory();
 
-  protected abstract boolean isLinkYEdStyles();
+  protected abstract GenerateMainMojo.YEd getYEd();
 
   protected void generate(List<Resource> resources) {
+    YEd yEd = getYEd();
     Map<String, Object> options = new HashMap<>();
-    options.put("linkYEdStyles", isLinkYEdStyles());
+    if (null != yEd) {
+      options.putAll(yEd.getProperties());
+    }
     for (Resource resource : resources) {
       generate(resource, options);
     }
@@ -58,5 +62,41 @@ public abstract class GenerateMojoBase extends DefaultMojoBase {
   private void generate(Resource resource, Map<String, Object> options) {
     File baseDirectory = new File(resource.getDirectory());
     CodeGenerator.generate(baseDirectory.toPath(), getGeneratedSourcesDirectory().toPath(), options);
+  }
+
+  public static class YEd {
+
+    /**
+     * Set to false if you would like to skip reusing user defined styles in generated yEd file in /link directory and use default styling.
+     */
+    public boolean linkStyles;
+
+    /**
+     * Edge source arrow between different groups in generated /link file.
+     */
+    protected String crossGroupSourceArrow;
+
+    protected String sameGroupSourceArrow;
+
+    protected String crossGroupTargetArrow;
+
+    protected String sameGroupTargetArrow;
+
+    protected String crossGroupLineStyle;
+
+    protected String sameGroupLineStyle;
+
+    public Map<String, Object> getProperties() {
+      Map<String, Object> map = new HashMap<>();
+      map.put("linkStyles", linkStyles);
+      map.put("crossGroupSourceArrow", crossGroupSourceArrow);
+      map.put("sameGroupSourceArrow", sameGroupSourceArrow);
+      map.put("crossGroupTargetArrow", crossGroupTargetArrow);
+      map.put("sameGroupTargetArrow", sameGroupTargetArrow);
+      map.put("crossGroupLineStyle", crossGroupLineStyle);
+      map.put("sameGroupLineStyle", sameGroupLineStyle);
+      map.values().removeIf(Objects::isNull);
+      return map;
+    }
   }
 }

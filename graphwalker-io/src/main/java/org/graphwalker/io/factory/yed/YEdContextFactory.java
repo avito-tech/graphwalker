@@ -162,6 +162,12 @@ public final class YEdContextFactory implements ContextFactory {
   private static final Set<String> SUPPORTED_TYPE = new HashSet<>(asList("**/*.graphml"));
 
   private boolean linkStyles = true;
+  private String crossGroupSourceArrow = "white_diamond";
+  private String sameGroupSourceArrow = "none";
+  private String crossGroupTargetArrow = "white_delta";
+  private String sameGroupTargetArrow = "standard";
+  private String crossGroupLineStyle = "dashed_dotted";
+  private String sameGroupLineStyle = "line";
 
   @Override
   public Set<String> getSupportedFileTypes() {
@@ -210,8 +216,26 @@ public final class YEdContextFactory implements ContextFactory {
   @Override
   public boolean setOption(String key, Object value) {
     switch (key) {
-      case "linkYEdStyles":
+      case "linkStyles":
         linkStyles = (boolean) value;
+        return true;
+      case "crossGroupSourceArrow":
+        crossGroupSourceArrow = (String) value;
+        return true;
+      case "sameGroupSourceArrow":
+        sameGroupSourceArrow = (String) value;
+        return true;
+      case "crossGroupTargetArrow":
+        crossGroupTargetArrow = (String) value;
+        return true;
+      case "sameGroupTargetArrow":
+        sameGroupTargetArrow = (String) value;
+        return true;
+      case "crossGroupLineStyle":
+        crossGroupLineStyle = (String) value;
+        return true;
+      case "sameGroupLineStyle":
+        sameGroupLineStyle = (String) value;
         return true;
       default:
         logger.info("Option \"" + key + "\" was rejected by YEdContextFactory");
@@ -392,7 +416,7 @@ public final class YEdContextFactory implements ContextFactory {
     str.append("    </node>").append(newLine);
   }
 
-  private static void appendEdge(StringBuilder str, String id, String srcId, String destId,
+  private void appendEdge(StringBuilder str, String id, String srcId, String destId,
                                  String name, Argument.List arguments, Guard guard,
                                  List<Action> actions, int dependency, String description,
                                  Double weight, Color col) {
@@ -401,9 +425,9 @@ public final class YEdContextFactory implements ContextFactory {
     boolean crossGroup = !srcId.split("::")[0].equals(destId.split("::")[0]);
     // "PolyLineEdge" seems to be much more readable than "BezierEdge" in large graphs
     final String edgeType = "PolyLineEdge";
-    final String lineStyle = crossGroup ?  "dashed_dotted" : "line";
-    final String sourceArrow = crossGroup ?  "white_diamond" : "none";
-    final String targetArrow = crossGroup ?  "white_delta" : "standard";
+    final String lineStyle = crossGroup ?  crossGroupLineStyle : sameGroupLineStyle;
+    final String sourceArrow = crossGroup ?  crossGroupSourceArrow : sameGroupSourceArrow;
+    final String targetArrow = crossGroup ?  crossGroupTargetArrow : sameGroupTargetArrow;
 
     str.append("    <edge id=\"" + id + "\" source=\"" + srcId + "\" target=\"" + destId + "\">").append(newLine);
     str.append("      <data key=\"d1\" >").append(newLine);

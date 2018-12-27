@@ -45,10 +45,10 @@ public final class GenerateTestMojo extends GenerateMojoBase {
   private File generatedSourcesDirectory;
 
   /**
-   * Set to false if you would like to skip reusing user defined styles in generated yEd file in /link directory and use default styling.
+   * Style properties in generated yEd file in /link directory.
    */
-  @Parameter(defaultValue = "true")
-  private boolean linkYEdStyles;
+  @Parameter
+  private YEd yEd;
 
   @Override
   protected File getGeneratedSourcesDirectory() {
@@ -56,8 +56,8 @@ public final class GenerateTestMojo extends GenerateMojoBase {
   }
 
   @Override
-  public boolean isLinkYEdStyles() {
-    return linkYEdStyles;
+  protected YEd getYEd() {
+    return null;
   }
 
   @Override
