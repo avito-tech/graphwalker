@@ -398,18 +398,24 @@ public final class YEdContextFactory implements ContextFactory {
                                  Double weight, Color col) {
     String newLine = System.lineSeparator();
     String colorCode = format("#%02x%02x%02x", col.getRed(), col.getGreen(), col.getBlue());
+    boolean crossGroup = !srcId.split("::")[0].equals(destId.split("::")[0]);
+    // "PolyLineEdge" seems to be much more readable than "BezierEdge" in large graphs
+    final String edgeType = "PolyLineEdge";
+    final String lineStyle = crossGroup ?  "dashed_dotted" : "line";
+    final String sourceArrow = crossGroup ?  "white_diamond" : "none";
+    final String targetArrow = crossGroup ?  "white_delta" : "standard";
 
     str.append("    <edge id=\"" + id + "\" source=\"" + srcId + "\" target=\"" + destId + "\">").append(newLine);
     str.append("      <data key=\"d1\" >").append(newLine);
-    str.append("        <y:BezierEdge >").append(newLine);
+    str.append("        <y:" + edgeType + " >").append(newLine);
     str.append("          <y:Path sx=\"-23.75\" sy=\"15.0\" tx=\"-23.75\" ty=\"-15.0\">").append(newLine);
     str.append("            <y:Point x=\"273.0\" y=\"95.0\"/>").append(newLine);
     str.append("            <y:Point x=\"209.0\" y=\"95.0\"/>").append(newLine);
     str.append("            <y:Point x=\"209.0\" y=\"143.7\"/>").append(newLine);
     str.append("            <y:Point x=\"265.0\" y=\"143.7\"/>").append(newLine);
     str.append("          </y:Path>").append(newLine);
-    str.append("          <y:LineStyle type=\"line\" width=\"1.0\" color=\"" + colorCode + "\" />").append(newLine);
-    str.append("          <y:Arrows source=\"none\" target=\"standard\"/>").append(newLine);
+    str.append("          <y:LineStyle type=\"" + lineStyle + "\" width=\"1.0\" color=\"" + colorCode + "\" />").append(newLine);
+    str.append("          <y:Arrows source=\"" + sourceArrow + "\" target=\"" + targetArrow + "\"/>").append(newLine);
 
     if (name == null) {
       throw new IllegalStateException("Edge @id=\"" + id + "\" has no name");
@@ -453,7 +459,7 @@ public final class YEdContextFactory implements ContextFactory {
     }
 
     str.append("          <y:BendStyle smoothed=\"true\"/>").append(newLine);
-    str.append("        </y:BezierEdge>").append(newLine);
+    str.append("        </y:" + edgeType + ">").append(newLine);
     str.append("      </data>").append(newLine);
     str.append("    </edge>").append(newLine);
   }
