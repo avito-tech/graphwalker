@@ -30,6 +30,7 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.ListIterator;
 
 /**
  * <h1>Path</h1>
@@ -48,6 +49,30 @@ public class Path<E extends Element> extends ArrayDeque<E> {
 
   public Path(Collection<E> collection) {
     super(collection);
+  }
+
+  public Path<E> before(E element) {
+    Path<E> subPath = new Path<>();
+    for (E e : new ArrayList<>(this)) {
+      if (e.equals(element)) {
+        break;
+      }
+      subPath.offerLast(e);
+    }
+    return subPath;
+  }
+
+  public Path<E> after(E element) {
+    Path<E> subPath = new Path<>();
+    ListIterator<E> iterator = new ArrayList<>(this).listIterator(size());
+    while(iterator.hasPrevious()) {
+      E e = iterator.previous();
+      if (e.equals(element)) {
+        break;
+      }
+      subPath.offerFirst(e);
+    }
+    return subPath;
   }
 
   @Override

@@ -34,14 +34,17 @@ import org.graphwalker.core.machine.MachineException;
 import org.graphwalker.core.model.Action;
 import org.graphwalker.core.model.Edge;
 import org.graphwalker.core.model.Element;
+import org.graphwalker.core.model.Guard;
 import org.graphwalker.core.model.Path;
 import org.graphwalker.core.model.Vertex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import javax.script.Bindings;
 import javax.script.ScriptException;
@@ -49,8 +52,13 @@ import javax.script.ScriptException;
 import jdk.nashorn.api.scripting.ScriptObjectMirror;
 
 import static java.lang.Integer.MAX_VALUE;
+import static java.util.stream.Collectors.joining;
+import static java.util.stream.Collectors.toList;
 import static javax.script.ScriptContext.ENGINE_SCOPE;
 import static jdk.nashorn.api.scripting.NashornScriptEngine.NASHORN_GLOBAL;
+import static org.graphwalker.core.generator.ShortestPath.Statistics.Reason.ACTION_ERROR;
+import static org.graphwalker.core.generator.ShortestPath.Statistics.Reason.GUARD_CONDITION;
+import static org.graphwalker.core.generator.ShortestPath.Statistics.Reason.GUARD_ERROR;
 
 /**
  * @author Ivan Bonkin
@@ -108,6 +116,8 @@ public class ShortestPath extends PathGeneratorBase<ReachedStopCondition> {
         globalCopy.put(e.getKey(), e.getValue());
       }
 
+      Statistics statistics = new Statistics();
+
       next:
       while (iterator.hasNext()) {
         try {
@@ -118,20 +128,27 @@ public class ShortestPath extends PathGeneratorBase<ReachedStopCondition> {
 
             if (element instanceof Edge.RuntimeEdge) {
               if (actions != null) {
-                try {
-                  for (Action action : actions) {
+                for (Action action : actions) {
+                  try {
                     context.getScriptEngine().eval(action.getScript());
+                  } catch (ScriptException e) {
+                    LOG.error(e.getMessage());
+                    statistics.actionError(path, element, action);
+                    throw new PathGenerationException(statistics, context, e);
+                  } finally {
+                    actions = null;
                   }
-                } catch (ScriptException e) {
-                  LOG.error(e.getMessage());
-                  throw new MachineException(context, e);
-                } finally {
-                  actions = null;
                 }
               }
-              if (!context.isAvailable((Edge.RuntimeEdge) element)) {
-                iterator.remove();
-                continue next;
+              try {
+                if (!context.isAvailable((Edge.RuntimeEdge) element)) {
+                  statistics.guarded(path, element, ((Edge.RuntimeEdge) element).getGuard());
+                  iterator.remove();
+                  continue next;
+                }
+              } catch (MachineException e) {
+                statistics.guardError(path, element, ((Edge.RuntimeEdge) element).getGuard());
+                throw new PathGenerationException(statistics, context, e);
               }
             }
 
@@ -169,6 +186,137 @@ public class ShortestPath extends PathGeneratorBase<ReachedStopCondition> {
   @Override
   public boolean hasNextStep() {
     return !getStopCondition().isFulfilled();
+  }
+
+  public static class Statistics {
+
+    private final List<Attempt> attempts = new ArrayList<>();
+    private int skipped = 0;
+
+    public static class Attempt {
+      private final String element;
+      private final List<String> elementsBefore, elementsAfter;
+      Reason reason;
+      String script;
+
+      public Attempt(Path<Element> path, Element element, Reason reason, String script) {
+        this.element = element.getName();
+        this.elementsBefore = path.before(element).stream().map(Element::getName).collect(toList());
+        this.elementsAfter = path.after(element).stream().map(Element::getName).collect(toList());
+        this.reason = reason;
+        this.script = script;
+      }
+
+      public String getElement() {
+        return element;
+      }
+
+      public List<String> getElementsBefore() {
+        return elementsBefore;
+      }
+
+      public List<String> getElementsAfter() {
+        return elementsAfter;
+      }
+
+      public Reason getReason() {
+        return reason;
+      }
+
+      public String getScript() {
+        return script;
+      }
+
+      @Override
+      public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Attempt attempt = (Attempt) o;
+        return element.equals(attempt.element) &&
+          elementsBefore.equals(attempt.elementsBefore) &&
+          reason == attempt.reason &&
+          script.equals(attempt.script);
+      }
+
+      @Override
+      public int hashCode() {
+        return Objects.hash(element, elementsBefore, reason, script);
+      }
+    }
+
+    public enum Reason {
+      ACTION_ERROR, GUARD_ERROR, GUARD_CONDITION
+    }
+
+    public void actionError(Path<Element> path, Element element, Action action) {
+      Attempt attempt = new Attempt(path, element, ACTION_ERROR, action.getScript());
+      if (!attempts.contains(attempt)) {
+        attempts.add(attempt);
+      } else {
+        skipped++;
+      }
+    }
+
+    public void guardError(Path<Element> path, Element element, Guard guard) {
+      Attempt attempt = new Attempt(path, element, GUARD_ERROR, guard.getScript());
+      if (!attempts.contains(attempt)) {
+        attempts.add(attempt);
+      } else {
+        skipped++;
+      }
+    }
+
+    public void guarded(Path<Element> path, Element element, Guard guard) {
+      Attempt attempt = new Attempt(path, element, GUARD_CONDITION, guard.getScript());
+      if (!attempts.contains(attempt)) {
+        attempts.add(attempt);
+      } else {
+        skipped++;
+      }
+    }
+
+    public List<Attempt> getAttempts() {
+      return attempts;
+    }
+
+    public int getSkipped() {
+      return skipped;
+    }
+  }
+
+  public static class PathGenerationException extends MachineException {
+
+    private final Statistics statistics;
+
+    public Statistics getStatistics() {
+      return statistics;
+    }
+
+    @Override
+    public String getMessage() {
+      String msg = "Error finding ShortestPath by following attempts " + (statistics.skipped > 0 ? "(skipped " + statistics.skipped + " similar paths):\n" : ":\n");
+      for (int i = 1; i <= statistics.attempts.size(); i++) {
+        Statistics.Attempt a = statistics.attempts.get(i-1);
+        msg += i + ". "
+          + String.join("→", a.getElementsBefore())
+          + "⇛[" + a.getElement() + ", " + a.reason + ": " + a.script + "]"
+          + a.getElementsAfter().stream().collect(joining("⇨", "⇨", ""));
+        if (i < statistics.attempts.size()) {
+          msg += "\n";
+        }
+      }
+      return msg;
+    }
+
+    @Override
+    public String getLocalizedMessage() {
+      return getMessage();
+    }
+
+    public PathGenerationException(Statistics statistics, Context context, Throwable e) {
+      super(context, e);
+      this.statistics = statistics;
+    }
   }
 
 }

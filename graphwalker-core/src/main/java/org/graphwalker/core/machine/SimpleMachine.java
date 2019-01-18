@@ -144,7 +144,7 @@ public class SimpleMachine extends MachineBase {
       }
     } catch (Throwable t) {
       LOG.error(t.getMessage());
-      getExceptionStrategy().handle(this, new MachineException(context, t));
+      getExceptionStrategy().handle(this, t instanceof MachineException ? (MachineException) t : new MachineException(context, t));
     }
   }
 

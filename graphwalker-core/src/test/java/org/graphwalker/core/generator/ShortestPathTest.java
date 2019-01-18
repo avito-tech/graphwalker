@@ -35,6 +35,7 @@ import org.graphwalker.core.model.Guard;
 import org.graphwalker.core.model.Model;
 import org.junit.Test;
 
+import static org.graphwalker.core.generator.ShortestPath.PathGenerationException;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 
@@ -44,7 +45,7 @@ import static org.hamcrest.Matchers.equalTo;
 public class ShortestPathTest {
 
   @Test
-  public void testSimpleRoute() throws Exception {
+  public void testSimpleRoute() {
     Model model = new ModelBuilder()
       .connect("start", "v2")
       .connect("start", new Action("var closed = 0;"), "v5")
@@ -60,7 +61,7 @@ public class ShortestPathTest {
   }
 
   @Test
-  public void testMediumRoute() throws Exception {
+  public void testMediumRoute() {
     Model model = new ModelBuilder()
       .connect("v0", new Action("var e5 = false, e6 = false, e7 = false;"), "v01", "v02", "v03", "v04", "v05", "v06", "v07")
       .connect("v01", "v1")
@@ -81,6 +82,30 @@ public class ShortestPathTest {
     Context context = new TestExecutionContext(model, new ShortestPath(new ReachedVertex("v7")));
     context.setCurrentElement(context.getModel().getElementById("v0"));
     assertThat(context.getPathGenerator().getNextStep().getCurrentElement().getId(), equalTo("v0$v01"));
+  }
+
+  @Test(expected = PathGenerationException.class)
+  public void testErrorInGuard() {
+    Model model = new ModelBuilder()
+      .connect("start", new Action("var g1=false;"), "v0")
+      .connect("v0", new Guard("g1==true"), "v10")
+      .connect("v10", "v30")
+      .connect("v0", "v11")
+      .connect("v11", new Guard("g2==true"), "v20")
+      .connect("v20", "v30")
+      .getModel();
+
+    Context context = new TestExecutionContext(model, new ShortestPath(new ReachedVertex("v30")));
+    context.setCurrentElement(context.getModel().getElementById("start"));
+    try {
+      context.getPathGenerator().getNextStep();
+    } catch (PathGenerationException e) {
+      System.out.println(e.getMessage());
+      assertThat(e.getMessage(), equalTo("Error finding ShortestPath by following attempts :\n" +
+        "1. start→start$v0→v0⇛[v0$v10, GUARD_CONDITION: g1==true]⇨v10⇨v10$v30⇨v30\n" +
+        "2. start→start$v0→v0→v0$v11→v11⇛[v11$v20, GUARD_ERROR: g2==true]⇨v20⇨v20$v30⇨v30"));
+      throw e;
+    }
   }
 
 }
