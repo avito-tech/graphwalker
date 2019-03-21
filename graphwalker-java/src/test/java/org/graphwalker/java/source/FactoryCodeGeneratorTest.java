@@ -3,6 +3,7 @@ package org.graphwalker.java.source;
 import com.github.javaparser.ast.body.MethodDeclaration;
 
 import org.junit.Test;
+import org.mockito.Mockito;
 
 import java.nio.file.Paths;
 
@@ -15,7 +16,10 @@ public class FactoryCodeGeneratorTest {
 
   @Test
   public void getMethodDeclarationTest() {
-    MethodDeclaration methodDeclaration = FactoryCodeGenerator.getMethodDeclaration(Paths.get("My  model.graphml"));
+    SourceFile sourceFile = Mockito.mock(SourceFile.class);
+    Mockito.doReturn(Paths.get("")).when(sourceFile).getBasePath();
+
+    MethodDeclaration methodDeclaration = FactoryCodeGenerator.getMethodDeclaration(sourceFile, Paths.get("My  model.graphml"));
 
     assertThat("File with whitespace should be parsable",
       methodDeclaration, is(not(equalTo(null))));

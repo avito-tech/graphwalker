@@ -35,10 +35,11 @@ import java.nio.file.Paths;
 /**
  * @author Nils Olsson
  */
-public final class SourceFile {
+public class SourceFile {
 
   private static final Path DEFAULT_PATH = Paths.get("/");
   private final Path inputPath;
+  private final Path basePath;
   private final Path relativePath;
   private final Path outputPath;
   private final String packageName;
@@ -55,6 +56,7 @@ public final class SourceFile {
   public SourceFile(ClassName className, Path inputPath, Path basePath, Path outputPath) {
     this.className = className;
     this.inputPath = inputPath;
+    this.basePath = basePath;
     this.relativePath = basePath.relativize(inputPath);
     if (null != this.relativePath.getParent()) {
       this.packageName = this.relativePath.getParent().toString()
@@ -67,6 +69,10 @@ public final class SourceFile {
 
   public Path getInputPath() {
     return inputPath;
+  }
+
+  public Path getBasePath() {
+    return basePath;
   }
 
   public Path getRelativePath() {

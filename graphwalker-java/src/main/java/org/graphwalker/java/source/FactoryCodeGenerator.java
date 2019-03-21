@@ -40,6 +40,7 @@ import com.github.javaparser.ast.type.Type;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
@@ -75,7 +76,7 @@ public final class FactoryCodeGenerator {
 
   public String generate(SourceFile sourceFile, List<Path> linkedFiles) {
     CompilationUnit compilationUnit = getCompilationUnit(sourceFile);
-    generateMethods(compilationUnit, linkedFiles);
+    generateMethods(sourceFile, compilationUnit, linkedFiles);
     return compilationUnit.toString();
   }
 
@@ -94,25 +95,32 @@ public final class FactoryCodeGenerator {
     return compilationUnit;
   }
 
-  private void generateMethods(CompilationUnit compilationUnit, List<Path> linkedFiles) {
+  private void generateMethods(SourceFile sourceFile, CompilationUnit compilationUnit, List<Path> linkedFiles) {
     ClassOrInterfaceDeclaration body = (ClassOrInterfaceDeclaration) compilationUnit.getTypes().get(0);
 
     for (Path filePath : linkedFiles) {
-      MethodDeclaration methodDeclaration = getMethodDeclaration(filePath);
+      MethodDeclaration methodDeclaration = getMethodDeclaration(sourceFile, filePath);
       if (null != methodDeclaration) {
         body.addMember(methodDeclaration);
       }
     }
   }
 
-  static MethodDeclaration getMethodDeclaration(Path filePath) {
+  static MethodDeclaration getMethodDeclaration(SourceFile sourceFile, Path filePath) {
     String filename = filePath.getFileName().toString();
     String className = toValidMethodOrClassName(removeExtension(filename));
     if (!className.isEmpty()) {
       String methodName = isLowerCase(className.charAt(0)) || className.contains("_")
         ? "get_" + className
         : "get" + className;
-      Type type = JavaParser.parseClassOrInterfaceType(className);
+      Type type;
+      Path parentDir = sourceFile.getBasePath().relativize(filePath).getParent();
+      if (parentDir != null) {
+        String packageName = parentDir.toString().replace(File.separator, ".").replaceAll(" ", "_");
+        type = JavaParser.parseClassOrInterfaceType(packageName + "." + className);
+      } else {
+        type = JavaParser.parseClassOrInterfaceType(className);
+      }
       return new MethodDeclaration(noneOf(Modifier.class), type, methodName)
         .setJavadocComment(new JavadocComment(
           "Implementation of " + filename + " model file.\n\n@return partial model implementation"))
