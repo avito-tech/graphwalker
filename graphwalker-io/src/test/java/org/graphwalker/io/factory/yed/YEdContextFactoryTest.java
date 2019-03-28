@@ -57,6 +57,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
+import static java.util.Arrays.asList;
 import static java.util.Collections.singleton;
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
@@ -747,8 +748,9 @@ public class YEdContextFactoryTest {
       both(hasItem(both(hasProperty("name", equalTo("username"))).and(hasProperty("value", equalTo("root")))))
         .and(hasItem(both(hasProperty("name", equalTo("password"))).and(hasProperty("value", equalTo("secret")))))
     )));
-    assertThat("Edges should be correctly initialized", edges, allOf(
-      hasItem(hasProperty("codeTag", hasToString("@code fill(username, password);")))));
+    assertThat("Edges should be correctly initialized", edges,
+      hasItem(hasProperty("codeTag", hasToString("@code fill(username, password);")))
+    );
   }
 
   @Test
@@ -770,9 +772,9 @@ public class YEdContextFactoryTest {
       hasItem(hasProperty("codeTag", hasToString("@code fillUser(username);"))),
       hasItem(hasProperty("codeTag", hasToString("@code fillPass(password);")))
     ));
-    assertThat("Vertices should be correctly initialized", vertices, allOf(
+    assertThat("Vertices should be correctly initialized", vertices,
       hasItem(hasProperty("codeTag", hasToString("@code (Boolean)isAlert(username);")))
-    ));
+    );
   }
 
   @Test
@@ -788,5 +790,23 @@ public class YEdContextFactoryTest {
       )),
       hasProperty("configuration", equalTo(new Configuration("BevelNode2"))
     )))));
+  }
+
+  @Test
+  public void readOvergrouped() {
+    Context context = new YEdContextFactory().create(asList(
+      Paths.get("graphml/overgrouped/a/modelGrouped.graphml"),
+      Paths.get("graphml/overgrouped/a/modelLinked.graphml"),
+      Paths.get("graphml/overgrouped/b/outerLinked.graphml")
+    ));
+    RuntimeModel model = context.getModel();
+
+    List<RuntimeVertex> vertices = model.getVertices();
+
+    assertThat(vertices, allOf(
+      hasItem(both(hasProperty("groupName", equalTo("modelGrouped"))).and(hasProperty("overGroup", equalTo("a")))),
+      hasItem(both(hasProperty("groupName", equalTo("modelLinked"))).and(hasProperty("overGroup", equalTo("a")))),
+      hasItem(both(hasProperty("groupName", equalTo("outerLinked"))).and(hasProperty("overGroup", equalTo("b"))))
+    ));
   }
 }

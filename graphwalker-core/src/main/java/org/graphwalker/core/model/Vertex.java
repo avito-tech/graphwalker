@@ -52,6 +52,7 @@ public class Vertex extends CachedBuilder<Vertex, Vertex.RuntimeVertex> {
 
   private String sharedState;
   private String groupName;
+  private String overGroup;
   private List<Action> setActions = new ArrayList<>();
   private CodeTag codeTag;
   private List<Argument.List> arguments = new ArrayList<>();
@@ -60,9 +61,10 @@ public class Vertex extends CachedBuilder<Vertex, Vertex.RuntimeVertex> {
   public Vertex() {
   }
 
-  private Vertex(String sharedState, String groupName, List<Action> setActions, CodeTag codeTag, VertexStyle style) {
+  private Vertex(String sharedState, String groupName, String overGroup, List<Action> setActions, CodeTag codeTag, VertexStyle style) {
     this.sharedState = sharedState;
     this.groupName = groupName;
+    this.overGroup = overGroup;
     this.setActions = setActions;
     this.codeTag = codeTag;
     this.style = style;
@@ -106,6 +108,12 @@ public class Vertex extends CachedBuilder<Vertex, Vertex.RuntimeVertex> {
     return this;
   }
 
+  public Vertex setOverGroup(String overGroup) {
+    this.overGroup = overGroup;
+    invalidateCache();
+    return this;
+  }
+
   public List<Action> getSetActions() {
     return unmodifiableList(setActions);
   }
@@ -131,7 +139,7 @@ public class Vertex extends CachedBuilder<Vertex, Vertex.RuntimeVertex> {
       actionsCopy.add(new Action(action.getScript()));
     }
     CodeTag codeTagCopy = codeTag != null ? new CodeTag((CodeTag.Expression) codeTag.getMethod().copy()) : null;
-    return new Vertex(sharedState, groupName, actionsCopy, codeTagCopy, style)
+    return new Vertex(sharedState, groupName, overGroup, actionsCopy, codeTagCopy, style)
       .setName(getName())
       .setDescription(getDescription())
       .setRequirements(getRequirements())
@@ -181,6 +189,7 @@ public class Vertex extends CachedBuilder<Vertex, Vertex.RuntimeVertex> {
     private final boolean outdegrees;
 
     private final String groupName;
+    private final String overGroup;
     private final CodeTag codeTag;
     private final List<Argument.List> arguments;
     private final VertexStyle vertexStyle;
@@ -191,6 +200,7 @@ public class Vertex extends CachedBuilder<Vertex, Vertex.RuntimeVertex> {
       this.indegrees = vertex.hasIndegrees();
       this.outdegrees = vertex.hasOutdegrees();
       this.groupName = vertex.groupName;
+      this.overGroup = vertex.overGroup;
       this.codeTag = vertex.getCodeTag();
       this.arguments = vertex.arguments;
       this.vertexStyle = vertex.style;
@@ -206,6 +216,10 @@ public class Vertex extends CachedBuilder<Vertex, Vertex.RuntimeVertex> {
 
     public String getGroupName() {
       return groupName;
+    }
+
+    public String getOverGroup() {
+      return overGroup;
     }
 
     /**

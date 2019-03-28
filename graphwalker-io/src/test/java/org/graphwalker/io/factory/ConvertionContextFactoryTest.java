@@ -121,7 +121,7 @@ public class ConvertionContextFactoryTest {
     assertNotNull(yedReadContexts);
     assertThat(yEdContexts.size(), is(1));
     // Since edges without source vertex is not allowed in yed/graphml, the yedReadContext will be one edge short
-    assertThat(yEdContexts.get(0).getModel().getEdges().size(), is(yedReadContexts.get(0).getModel().getEdges().size() + 1));
+    assertThat(yEdContexts.get(0).getModel().getEdges().size(), is(yedReadContexts.get(0).getModel().getEdges().size()));
     assertThat(yEdContexts.get(0).getModel().getVertices().size(), is(yedReadContexts.get(0).getModel().getVertices().size()));
   }
 
@@ -197,7 +197,7 @@ public class ConvertionContextFactoryTest {
     assertNotNull(yedReadContexts);
     assertThat(dotContexts.size(), is(1));
     // Since edges without source vertex is not allowed in yed/graphml, the yedReadContext will be one edge short
-    assertThat(dotContexts.get(0).getModel().getEdges().size(), is(yedReadContexts.get(0).getModel().getEdges().size() + 1));
+    assertThat(dotContexts.get(0).getModel().getEdges().size(), is(yedReadContexts.get(0).getModel().getEdges().size()));
     assertThat(dotContexts.get(0).getModel().getVertices().size(), is(yedReadContexts.get(0).getModel().getVertices().size()));
   }
 
