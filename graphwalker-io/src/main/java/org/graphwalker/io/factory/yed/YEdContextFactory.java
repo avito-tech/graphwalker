@@ -54,6 +54,7 @@ import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTree;
+import org.apache.commons.collections4.map.ListOrderedMap;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
@@ -129,6 +130,7 @@ import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toMap;
+import static org.apache.commons.collections4.map.ListOrderedMap.listOrderedMap;
 import static org.apache.commons.lang3.StringEscapeUtils.escapeXml10;
 import static org.graphwalker.core.model.TypePrefix.BOOLEAN;
 import static org.graphwalker.core.model.TypePrefix.NUMBER;
@@ -1068,7 +1070,7 @@ public final class YEdContextFactory implements ContextFactory {
     Multimap<String, Vertex> outdegrees) throws XmlException {
 
     AddResult<Vertex> addResult = new AddResult<>();
-    LinkedHashMap<String, Deque<XmlObject>> groupedWorkQueue = new LinkedHashMap<>();
+    ListOrderedMap<String, Deque<XmlObject>> groupedWorkQueue = listOrderedMap(new HashMap<>());
     groupedWorkQueue.put(
       null,
       new ArrayDeque<>(asList(document.selectPath(NAMESPACE + "$this/xq:graphml/xq:graph/xq:node"))));
@@ -1081,8 +1083,10 @@ public final class YEdContextFactory implements ContextFactory {
       }
     }
 
-    final String sourceName = (String) document.documentProperties().get(GROUP_NAME);
-    final String sourceOverGroup = (String) document.documentProperties().get(OVER_GROUP);
+    String overGroupName = (String) document.documentProperties().get(OVER_GROUP);
+    String groupName = (String) document.documentProperties().get(GROUP_NAME);
+    final String specifiedGroupName = groupName;
+    final String specifiedOverGroup = overGroupName;
 
     while (!groupedWorkQueue.isEmpty()) {
       Deque<XmlObject> workQueue = groupedWorkQueue.values().iterator().next();
@@ -1091,38 +1095,50 @@ public final class YEdContextFactory implements ContextFactory {
         if (object instanceof NodeType) {
           NodeType node = (NodeType) object;
           if (0 < node.getGraphArray().length) {
-            String groupName = sourceName;
-            if (groupName == null && groupedWorkQueue.keySet().iterator().next() == null) {
-              data:
-              for (DataType data : node.getDataArray()) {
-                XmlObject[] objects = data.selectPath(Y + "$this//y:NodeLabel");
-                if (objects instanceof NodeLabelType[]) {
-                  NodeLabelType[] labels = (NodeLabelType[]) objects;
-                  for (NodeLabelType label : labels) {
-                    String g = ((NodeLabelTypeImpl) label).getStringValue();
-                    if (g != null && !g.isEmpty()) {
-                      for (String part : g.split("[\r\n]")) {
-                        if (!part.trim().isEmpty()) {
-                          groupName = part;
-                          break data;
+            data:
+            for (DataType data : node.getDataArray()) {
+              XmlObject[] objects = data.selectPath(Y + "$this//y:NodeLabel");
+              if (objects instanceof NodeLabelType[]) {
+                NodeLabelType[] labels = (NodeLabelType[]) objects;
+                for (NodeLabelType label : labels) {
+                  String g = ((NodeLabelTypeImpl) label).getStringValue();
+                  if (g != null && !g.isEmpty()) {
+                    for (String part : g.split("[\r\n]")) {
+                      if (!part.trim().isEmpty()) {
+                        if (null != groupedWorkQueue.keySet().iterator().next()) {
+                          overGroupName = groupedWorkQueue.keySet().iterator().next();
                         }
+                        groupName = part;
+                        break data;
                       }
                     }
                   }
                 }
               }
             }
-            groupedWorkQueue.compute(groupName, (g, prev) -> {
-              Deque<XmlObject> queue = prev != null ? prev : new ArrayDeque<>();
-              for (GraphType subgraph : node.getGraphArray()) {
-                queue.addAll(asList(subgraph.getNodeArray()));
-              }
-              return queue;
-            });
+            Deque<XmlObject> oldValue = groupedWorkQueue.get(groupName);
+            Deque<XmlObject> queue;
+            if (oldValue != null) {
+              queue = oldValue;
+            } else {
+              queue = new ArrayDeque<>();
+            }
+            for (GraphType subGraph : node.getGraphArray()) {
+              queue.addAll(asList(subGraph.getNodeArray()));
+            }
+            if (null == overGroupName) {
+              groupedWorkQueue.put(groupName, queue);
+            } else {
+              groupedWorkQueue.put(1, groupName, queue);
+            }
           } else {
+            String group = groupedWorkQueue.keySet().iterator().next();
+            if (group != null && Objects.equals(group, overGroupName)) {
+              group = null;
+            }
             Vertex vertex = new Vertex()
-              .setGroupName(sourceName != null ? sourceName : groupedWorkQueue.keySet().iterator().next())
-              .setOverGroup(sourceOverGroup);
+              .setGroupName(specifiedGroupName != null ? specifiedGroupName : group)
+              .setOverGroup(specifiedOverGroup != null ? specifiedOverGroup : overGroupName);
             for (Map.Entry<String, KeyType> entry : propKeys.entrySet()) {
               KeyType value = entry.getValue();
               if (value.isSetDefault()) {
@@ -1274,6 +1290,7 @@ public final class YEdContextFactory implements ContextFactory {
         }
       }
       groupedWorkQueue.remove(groupedWorkQueue.keySet().iterator().next());
+      groupName = null;
     }
     return addResult;
   }

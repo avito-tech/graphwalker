@@ -70,6 +70,7 @@ import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.hasProperty;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.hasToString;
+import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -808,5 +809,79 @@ public class YEdContextFactoryTest {
       hasItem(both(hasProperty("groupName", equalTo("modelLinked"))).and(hasProperty("overGroup", equalTo("a")))),
       hasItem(both(hasProperty("groupName", equalTo("outerLinked"))).and(hasProperty("overGroup", equalTo("b"))))
     ));
+  }
+
+  @Test
+  public void readOverGrouped() throws IOException {
+    List<Context> contexts = new YEdContextFactory().create(Paths.get("graphml/grouped/modelOvergrouped.graphml"));
+    Context context = contexts.get(0);
+    RuntimeModel model = context.getModel();
+
+    List<RuntimeVertex> vertices = model.getVertices();
+
+    assertThat(vertices, hasSize(1));
+    assertThat(vertices.get(0), hasProperty("name", equalTo("v_Started")));
+    assertThat(vertices.get(0), hasProperty("groupName", equalTo("group")));
+    assertThat(vertices.get(0), hasProperty("overGroup", equalTo("overgroup")));
+  }
+
+  @Test
+  public void readHeavyOverGrouped() throws IOException {
+    List<Context> contexts = new YEdContextFactory().create(Paths.get("graphml/grouped/modelHeavyOvergrouped.graphml"));
+    Context context = contexts.get(0);
+    RuntimeModel model = context.getModel();
+
+    List<RuntimeVertex> vertices = model.getVertices();
+    for (int i = 0; i < vertices.size(); i++) {
+      RuntimeVertex v = vertices.get(i);
+      System.out.format("%d. %s :: %s :: %s\n", i+1, v.getOverGroup(), v.getGroupName(), v.getName());
+    }
+
+    assertThat(vertices, hasSize(9));
+    assertThat(vertices, hasItem(allOf(
+      hasProperty("name", equalTo("v_AA1")),
+      hasProperty("groupName", equalTo("A")),
+      hasProperty("overGroup", equalTo("overgroup"))
+    )));
+    assertThat(vertices, hasItem(allOf(
+      hasProperty("name", equalTo("v_AA2")),
+      hasProperty("groupName", equalTo("A")),
+      hasProperty("overGroup", equalTo("overgroup"))
+    )));
+    assertThat(vertices, hasItem(allOf(
+      hasProperty("name", equalTo("v_AB1")),
+      hasProperty("groupName", equalTo("B")),
+      hasProperty("overGroup", equalTo("overgroup"))
+    )));
+    assertThat(vertices, hasItem(allOf(
+      hasProperty("name", equalTo("v_AB2")),
+      hasProperty("groupName", equalTo("B")),
+      hasProperty("overGroup", equalTo("overgroup"))
+    )));
+    assertThat(vertices, hasItem(allOf(
+      hasProperty("name", equalTo("v_BC1")),
+      hasProperty("groupName", equalTo("C")),
+      hasProperty("overGroup", equalTo("another"))
+    )));
+    assertThat(vertices, hasItem(allOf(
+      hasProperty("name", equalTo("v_BC2")),
+      hasProperty("groupName", equalTo("C")),
+      hasProperty("overGroup", equalTo("another"))
+    )));
+    assertThat(vertices, hasItem(allOf(
+      hasProperty("name", equalTo("v_Started")),
+      hasProperty("groupName", nullValue()),
+      hasProperty("overGroup", nullValue())
+    )));
+    assertThat(vertices, hasItem(allOf(
+      hasProperty("name", equalTo("v_XX1")),
+      hasProperty("groupName", nullValue()),
+      hasProperty("overGroup", nullValue())
+    )));
+    assertThat(vertices, hasItem(allOf(
+      hasProperty("name", equalTo("v_BX1")),
+      hasProperty("groupName", nullValue()),
+      hasProperty("overGroup", equalTo("another"))
+    )));
   }
 }
