@@ -880,7 +880,7 @@ public class YEdContextFactoryTest {
     )));
     assertThat(vertices, hasItem(allOf(
       hasProperty("name", equalTo("v_BX1")),
-      hasProperty("groupName", nullValue()),
+      hasProperty("groupName", equalTo("another")),
       hasProperty("overGroup", equalTo("another"))
     )));
   }

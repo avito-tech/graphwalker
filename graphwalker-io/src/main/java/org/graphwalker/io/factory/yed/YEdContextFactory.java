@@ -1133,9 +1133,6 @@ public final class YEdContextFactory implements ContextFactory {
             }
           } else {
             String group = groupedWorkQueue.keySet().iterator().next();
-            if (group != null && Objects.equals(group, overGroupName)) {
-              group = null;
-            }
             Vertex vertex = new Vertex()
               .setGroupName(specifiedGroupName != null ? specifiedGroupName : group)
               .setOverGroup(specifiedOverGroup != null ? specifiedOverGroup : overGroupName);
