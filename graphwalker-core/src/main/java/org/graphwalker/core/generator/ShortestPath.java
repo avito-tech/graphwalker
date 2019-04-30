@@ -44,7 +44,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Consumer;
 
 import javax.script.Bindings;
 import javax.script.ScriptException;
@@ -52,6 +53,8 @@ import javax.script.ScriptException;
 import jdk.nashorn.api.scripting.ScriptObjectMirror;
 
 import static java.lang.Integer.MAX_VALUE;
+import static java.util.Objects.hash;
+import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
 import static javax.script.ScriptContext.ENGINE_SCOPE;
@@ -68,6 +71,7 @@ public class ShortestPath extends PathGeneratorBase<ReachedStopCondition> {
   private static final Logger LOG = LoggerFactory.getLogger(ShortestPath.class);
 
   private Action[] actionsToBeExecutedBefore;
+  private AtomicReference<Consumer<Long>> generationMillisStats = new AtomicReference<>(aLong -> {});
 
   public ShortestPath(ReachedStopCondition stopCondition) {
     setStopCondition(stopCondition);
@@ -87,6 +91,15 @@ public class ShortestPath extends PathGeneratorBase<ReachedStopCondition> {
     this.actionsToBeExecutedBefore = dataset.selectPathActions();
   }
 
+  public Consumer<Long> getGenerationMillisStats() {
+    return generationMillisStats.get();
+  }
+
+  public void setGenerationMillisStats(Consumer<Long> generationMillisStats) {
+    requireNonNull(generationMillisStats);
+    this.generationMillisStats.set(generationMillisStats);
+  }
+
   @Override
   public Context getNextStep() {
     Context context = super.getNextStep();
@@ -98,6 +111,9 @@ public class ShortestPath extends PathGeneratorBase<ReachedStopCondition> {
       }
       Element target = null;
       int distance = MAX_VALUE;
+
+      long startTime = System.currentTimeMillis();
+
       FloydWarshall floydWarshall = context.getAlgorithm(FloydWarshall.class);
       for (Element element : context.filter(getStopCondition().getTargetElements())) {
         int edgeDistance = floydWarshall.getShortestDistance(context.getCurrentElement(), element);
@@ -160,6 +176,7 @@ public class ShortestPath extends PathGeneratorBase<ReachedStopCondition> {
           path.pollFirst();
 
           LOG.info("Found shortest path: \"{}\"", path);
+          generationMillisStats.get().accept(System.currentTimeMillis() - startTime);
 
           Element nextElement = path.pollFirst();
           if (null != actionsToBeExecutedBefore
@@ -240,7 +257,7 @@ public class ShortestPath extends PathGeneratorBase<ReachedStopCondition> {
 
       @Override
       public int hashCode() {
-        return Objects.hash(element, elementsBefore, reason, script);
+        return hash(element, elementsBefore, reason, script);
       }
     }
 

@@ -26,11 +26,6 @@ package org.graphwalker.core.condition;
  * #L%
  */
 
-import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-
 import org.graphwalker.core.generator.RandomPath;
 import org.graphwalker.core.machine.Context;
 import org.graphwalker.core.machine.TestExecutionContext;
@@ -39,13 +34,18 @@ import org.graphwalker.core.model.Model;
 import org.graphwalker.core.model.Vertex;
 import org.junit.Test;
 
+import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
+
 /**
  * @author Nils Olsson
  */
 public class ReachedVertexTest {
 
   @Test(expected = StopConditionException.class)
-  public void testMissingVertex() throws Exception {
+  public void testMissingVertex() {
     Vertex v1 = new Vertex().setName("v1");
     Vertex v2 = new Vertex().setName("v2");
     Edge e1 = new Edge().setSourceVertex(v1).setTargetVertex(v2);
@@ -55,7 +55,7 @@ public class ReachedVertexTest {
   }
 
   @Test(expected = StopConditionException.class)
-  public void testWrongVertexName() throws Exception {
+  public void testWrongVertexName() {
     Vertex v1 = new Vertex().setName("v1");
     Vertex v2 = new Vertex().setName("v2");
     Edge e1 = new Edge().setSourceVertex(v1).setTargetVertex(v2).setName("A_EDGE");
@@ -65,7 +65,7 @@ public class ReachedVertexTest {
   }
 
   @Test
-  public void testFulfilment() throws Exception {
+  public void testFulfilment() {
     Vertex v1 = new Vertex().setName("v1");
     Vertex v2 = new Vertex().setName("v2");
     Edge e1 = new Edge().setSourceVertex(v1).setTargetVertex(v2);
@@ -81,7 +81,7 @@ public class ReachedVertexTest {
   }
 
   @Test
-  public void testIsFulfilled() throws Exception {
+  public void testIsFulfilled() {
     Vertex v1 = new Vertex().setName("v1");
     Vertex v2 = new Vertex().setName("v2");
     Edge e1 = new Edge().setSourceVertex(v1).setTargetVertex(v2);

@@ -26,15 +26,15 @@ package org.graphwalker.core.model;
  * #L%
  */
 
-import org.graphwalker.core.common.Objects;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 import static org.graphwalker.core.common.Objects.isNotNull;
 import static org.graphwalker.core.common.Objects.unmodifiableList;
@@ -346,12 +346,22 @@ public class Model extends BuilderBase<Model, Model.RuntimeModel> {
     /**
      * Searches the model vertices that matches search string.
      *
-     * @param name The name of the vertex as a string.
+     * @param name The name of the vertex as a string. Optionally could be prefixed with
+     * {@code groupName$} to avoid name collisions.
      * @return The list of matching vertices.
      * @see Vertex#setName
      */
     public List<RuntimeVertex> findVertices(String name) {
-      return verticesByNameCache.get(name);
+      List<RuntimeVertex> vertices = verticesByNameCache.get(name);
+      if (vertices == null && name.indexOf('$') > 0) {
+        String[] split = name.split(Pattern.quote("$"), 2);
+        vertices = verticesByNameCache.get(split[1]);
+        if (vertices != null) {
+          vertices = new ArrayList<>(vertices);
+          vertices.removeIf(v -> !Objects.equals(v.getGroupName(), split[0]));
+        }
+      }
+      return vertices;
     }
 
     /**

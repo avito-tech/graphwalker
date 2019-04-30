@@ -33,7 +33,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static org.graphwalker.core.common.Objects.*;
+import static org.graphwalker.core.common.Objects.isNotNull;
+import static org.graphwalker.core.common.Objects.isNotNullOrEmpty;
+import static org.graphwalker.core.common.Objects.isNull;
 import static org.graphwalker.core.model.Vertex.RuntimeVertex;
 
 /**
@@ -47,6 +49,12 @@ public class ReachedVertex extends ReachedStopConditionBase {
 
   public ReachedVertex(String target) {
     super(target);
+  }
+
+  public ReachedVertex(String groupName, String target) {
+    super(isNotNullOrEmpty(groupName)
+      ? groupName + "$" + target
+      : target);
   }
 
   public Set<Element> getTargetElements() {
