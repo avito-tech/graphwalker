@@ -357,8 +357,12 @@ public class Model extends BuilderBase<Model, Model.RuntimeModel> {
         String[] split = name.split(Pattern.quote("$"), 2);
         vertices = verticesByNameCache.get(split[1]);
         if (vertices != null) {
-          vertices = new ArrayList<>(vertices);
-          vertices.removeIf(v -> !Objects.equals(v.getGroupName(), split[0]));
+          if (vertices.isEmpty()) {
+            throw new IllegalStateException("There are no vertices with name '" + split[1] + "' (full name - '" + name + "') were found");
+          } else if (vertices.size() > 1) {
+            vertices = new ArrayList<>(vertices);
+            vertices.removeIf(v -> !Objects.equals(v.getGroupName(), split[0]));
+          }
         }
       }
       return vertices;
