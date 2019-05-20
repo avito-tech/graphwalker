@@ -96,6 +96,16 @@ public abstract class ExecutionContext extends SimpleScriptContext implements Co
 
   private final Map<Requirement, RequirementStatus> requirements = new HashMap<>();
 
+  private boolean attributeSet = false;
+
+  public boolean wasAttributeSet() {
+    return attributeSet;
+  }
+
+  public void resetAttributeSet() {
+    attributeSet = false;
+  }
+
   public void wait(Callable<Boolean> condition) throws Exception {
     if (!condition.call()) {
       throw new VertexConditionException();
@@ -477,6 +487,7 @@ public abstract class ExecutionContext extends SimpleScriptContext implements Co
     if (getBindings(ENGINE_SCOPE).containsKey("nashorn.global")) {
       Map<String, Object> attributes = (Map<String, Object>) getBindings(ENGINE_SCOPE).get("nashorn.global");
       attributes.put(name, value);
+      attributeSet = true;
     } else {
       super.setAttribute(name, value, ENGINE_SCOPE);
     }

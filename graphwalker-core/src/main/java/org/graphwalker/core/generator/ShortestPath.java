@@ -30,6 +30,7 @@ import org.graphwalker.core.algorithm.FloydWarshall;
 import org.graphwalker.core.algorithm.Yen;
 import org.graphwalker.core.condition.ReachedStopCondition;
 import org.graphwalker.core.machine.Context;
+import org.graphwalker.core.machine.ExecutionContext;
 import org.graphwalker.core.machine.MachineException;
 import org.graphwalker.core.model.Action;
 import org.graphwalker.core.model.Edge;
@@ -72,6 +73,8 @@ public class ShortestPath extends PathGeneratorBase<ReachedStopCondition> {
 
   private Action[] actionsToBeExecutedBefore;
   private AtomicReference<Consumer<Long>> generationMillisStats = new AtomicReference<>(aLong -> {});
+  private final Path<Element> cachedPath = new Path<>();
+  private boolean cacheEnabled = true;
 
   public ShortestPath(ReachedStopCondition stopCondition) {
     setStopCondition(stopCondition);
@@ -100,8 +103,16 @@ public class ShortestPath extends PathGeneratorBase<ReachedStopCondition> {
     this.generationMillisStats.set(generationMillisStats);
   }
 
+  public boolean isCacheEnabled() {
+    return cacheEnabled;
+  }
+
+  public void disableCache() {
+    cacheEnabled = false;
+  }
+
   @Override
-  public Context getNextStep() {
+  synchronized public Context getNextStep() {
     Context context = super.getNextStep();
 
     if (context.getCurrentElement() instanceof Vertex.RuntimeVertex) {
@@ -114,87 +125,118 @@ public class ShortestPath extends PathGeneratorBase<ReachedStopCondition> {
 
       long startTime = System.currentTimeMillis();
 
-      FloydWarshall floydWarshall = context.getAlgorithm(FloydWarshall.class);
-      for (Element element : context.filter(getStopCondition().getTargetElements())) {
-        int edgeDistance = floydWarshall.getShortestDistance(context.getCurrentElement(), element);
-        if (edgeDistance < distance) {
-          distance = edgeDistance;
-          target = element;
-        }
-      }
-
-      Yen yen = context.getAlgorithm(Yen.class);
-      Yen.NextShortestPath iterator = yen.nextShortestPath((Vertex.RuntimeVertex) context.getCurrentElement(), (Vertex.RuntimeVertex) target);
-
       Bindings engineBindings = (Bindings) context.getScriptEngine().getBindings(ENGINE_SCOPE).get(NASHORN_GLOBAL);
       Map<String, Object> globalCopy = new HashMap<>();
       for (Map.Entry<String, Object> e : engineBindings.entrySet()) {
         globalCopy.put(e.getKey(), e.getValue());
       }
 
-      Statistics statistics = new Statistics();
+      if (cacheEnabled && context instanceof ExecutionContext) {
+        if (!((ExecutionContext)context).wasAttributeSet()) {
+          LOG.debug("No context changes were detected");
+        } else {
+          LOG.debug("Some context changes were detected");
+          cachedPath.clear();
+        }
+      } else {
+        // Caching is disabled
+        cachedPath.clear();
+      }
 
-      next:
-      while (iterator.hasNext()) {
-        try {
-          Path<Element> path = iterator.next();
-          Action[] actions = actionsToBeExecutedBefore;
+      if (cachedPath.size() >= 2) {
+        Element vertexElement = cachedPath.pollFirst();
+        if (!(vertexElement instanceof Vertex.RuntimeVertex)) {
+          requireNonNull(vertexElement, "Should be polled an instance of RuntimeVertex, but got null");
+          throw new IllegalStateException("Should be polled an instance of RuntimeVertex, but got " + vertexElement.getClass().getSimpleName());
+        }
+        return context.setCurrentElement(cachedPath.pollFirst());
 
-          for (Element element : path) {
+      } else {
+        FloydWarshall floydWarshall = context.getAlgorithm(FloydWarshall.class);
+        for (Element element : context.filter(getStopCondition().getTargetElements())) {
+          int edgeDistance = floydWarshall.getShortestDistance(context.getCurrentElement(), element);
+          if (edgeDistance < distance) {
+            distance = edgeDistance;
+            target = element;
+          }
+        }
 
-            if (element instanceof Edge.RuntimeEdge) {
-              if (actions != null) {
-                for (Action action : actions) {
-                  try {
-                    context.getScriptEngine().eval(action.getScript());
-                  } catch (ScriptException e) {
-                    LOG.error(e.getMessage());
-                    statistics.actionError(path, element, action);
-                    throw new PathGenerationException(statistics, context, e);
-                  } finally {
-                    actions = null;
+        Yen yen = context.getAlgorithm(Yen.class);
+        Yen.NextShortestPath iterator = yen.nextShortestPath((Vertex.RuntimeVertex) context.getCurrentElement(), (Vertex.RuntimeVertex) target);
+
+        Statistics statistics = new Statistics();
+
+        next:
+        while (iterator.hasNext()) {
+          try {
+            Path<Element> path = iterator.next();
+            Action[] actions = actionsToBeExecutedBefore;
+
+            for (Element element : path) {
+
+              if (element instanceof Edge.RuntimeEdge) {
+                if (actions != null) {
+                  for (Action action : actions) {
+                    try {
+                      context.getScriptEngine().eval(action.getScript());
+                    } catch (ScriptException e) {
+                      LOG.error(e.getMessage());
+                      statistics.actionError(path, element, action);
+                      throw new PathGenerationException(statistics, context, e);
+                    } finally {
+                      actions = null;
+                    }
                   }
                 }
-              }
-              try {
-                if (!context.isAvailable((Edge.RuntimeEdge) element)) {
-                  statistics.guarded(path, element, ((Edge.RuntimeEdge) element).getGuard());
-                  iterator.remove();
-                  continue next;
+                try {
+                  if (!context.isAvailable((Edge.RuntimeEdge) element)) {
+                    statistics.guarded(path, element, ((Edge.RuntimeEdge) element).getGuard());
+                    iterator.remove();
+                    continue next;
+                  }
+                } catch (MachineException e) {
+                  statistics.guardError(path, element, ((Edge.RuntimeEdge) element).getGuard());
+                  throw new PathGenerationException(statistics, context, e);
                 }
-              } catch (MachineException e) {
-                statistics.guardError(path, element, ((Edge.RuntimeEdge) element).getGuard());
-                throw new PathGenerationException(statistics, context, e);
+              }
+
+              for (Action action : element.getActions()) {
+                context.execute(action);
               }
             }
 
-            for (Action action : element.getActions()) {
-              context.execute(action);
+            path.pollFirst();
+
+            LOG.info("Found shortest path: \"{}\"", path);
+            generationMillisStats.get().accept(System.currentTimeMillis() - startTime);
+
+            Element nextElement = path.pollFirst();
+            if (null != actionsToBeExecutedBefore
+              && nextElement instanceof Edge.RuntimeEdge
+              && null != ((Edge.RuntimeEdge) nextElement).getArguments()
+              && !((Edge.RuntimeEdge) nextElement).getArguments().isEmpty()) {
+              actionsToBeExecutedBefore = null;
             }
+
+            if (cacheEnabled) {
+              cachedPath.clear();
+              cachedPath.addAll(path);
+              if (context instanceof ExecutionContext) {
+                ((ExecutionContext)context).resetAttributeSet();
+              }
+            }
+
+            return context.setCurrentElement(nextElement);
+
+          } finally {
+            Bindings localBindings = context.getScriptEngine().createBindings();
+            localBindings.putAll(globalCopy);
+            ScriptObjectMirror mirror = (ScriptObjectMirror) localBindings;
+            context.getScriptEngine().getBindings(ENGINE_SCOPE).put(NASHORN_GLOBAL, mirror);
           }
-
-          path.pollFirst();
-
-          LOG.info("Found shortest path: \"{}\"", path);
-          generationMillisStats.get().accept(System.currentTimeMillis() - startTime);
-
-          Element nextElement = path.pollFirst();
-          if (null != actionsToBeExecutedBefore
-            && nextElement instanceof Edge.RuntimeEdge
-            && null != ((Edge.RuntimeEdge) nextElement).getArguments()
-            && !((Edge.RuntimeEdge) nextElement).getArguments().isEmpty()) {
-            actionsToBeExecutedBefore = null;
-          }
-          return context.setCurrentElement(nextElement);
-
-        } finally {
-          Bindings localBindings = context.getScriptEngine().createBindings();
-          localBindings.putAll(globalCopy);
-          ScriptObjectMirror mirror = (ScriptObjectMirror)localBindings;
-          context.getScriptEngine().getBindings(ENGINE_SCOPE).put(NASHORN_GLOBAL, mirror);
         }
+        throw new NoPathFoundException(context.getCurrentElement());
       }
-      throw new NoPathFoundException(context.getCurrentElement());
     } else {
       return context.setCurrentElement(((Edge.RuntimeEdge) context.getCurrentElement()).getTargetVertex());
     }
