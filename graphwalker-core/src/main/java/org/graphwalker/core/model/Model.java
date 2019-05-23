@@ -360,8 +360,11 @@ public class Model extends BuilderBase<Model, Model.RuntimeModel> {
           if (vertices.isEmpty()) {
             throw new IllegalStateException("There are no vertices with name '" + split[1] + "' (full name - '" + name + "') were found");
           } else if (vertices.size() > 1) {
-            vertices = new ArrayList<>(vertices);
-            vertices.removeIf(v -> !Objects.equals(v.getGroupName(), split[0]));
+            List<RuntimeVertex> copy = new ArrayList<>(vertices);
+            copy.removeIf(v -> !Objects.equals(v.getGroupName(), split[0]));
+            if (!copy.isEmpty()) {
+              return copy;
+            }
           }
         }
       }
