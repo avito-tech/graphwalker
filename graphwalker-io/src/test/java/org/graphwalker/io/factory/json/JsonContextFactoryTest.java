@@ -51,7 +51,6 @@ import org.graphwalker.core.model.Vertex;
 import org.graphwalker.io.TestExecutionContext;
 import org.graphwalker.io.factory.ContextFactory;
 import org.graphwalker.io.factory.ContextFactoryException;
-import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;

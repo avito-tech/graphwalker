@@ -50,9 +50,7 @@ public class ReachedSharedState extends ReachedStopConditionBase {
   }
 
   public Set<Element> getTargetElements() {
-    Set<Element> elements = new HashSet<>();
-    elements.addAll(getContext().getModel().getSharedStates(getValue()));
-    return elements;
+    return new HashSet<>(getContext().getModel().getSharedStates(getValue()));
   }
 
   @Override

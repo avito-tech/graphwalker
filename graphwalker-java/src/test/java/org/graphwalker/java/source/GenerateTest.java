@@ -301,7 +301,7 @@ public class GenerateTest {
   public void incorrectGraphml() throws IOException {
     Path tmpFolder = testFolder.getRoot().toPath();
 
-    new CodeGenerator().generate(
+    CodeGenerator.generate(
       ResourceUtils.getResourceAsFile("/CodeGenerator/incorrect_graphml/").toPath(), tmpFolder, emptyMap()
     );
 
@@ -336,7 +336,7 @@ public class GenerateTest {
   public void generateDefaultMethods() throws IOException {
     Path tmpFolder = testFolder.getRoot().toPath();
 
-    new CodeGenerator().generate(
+    CodeGenerator.generate(
       ResourceUtils.getResourceAsFile("/CodeGenerator/code_tag/").toPath(), tmpFolder, emptyMap()
     );
 
@@ -387,7 +387,7 @@ public class GenerateTest {
   public void generateSimpleDatasetSingleEdgeMethods() throws IOException {
     Path tmpFolder = testFolder.getRoot().toPath();
 
-    new CodeGenerator().generate(
+    CodeGenerator.generate(
       ResourceUtils.getResourceAsFile("/CodeGenerator/dataset_simple/").toPath(), tmpFolder, emptyMap()
     );
 
@@ -434,7 +434,7 @@ public class GenerateTest {
   public void generateDatasetSingleEdgeMethods() throws IOException {
     Path tmpFolder = testFolder.getRoot().toPath();
 
-    new CodeGenerator().generate(
+    CodeGenerator.generate(
       ResourceUtils.getResourceAsFile("/CodeGenerator/dataset_edge/").toPath(), tmpFolder, emptyMap()
     );
 
@@ -481,7 +481,7 @@ public class GenerateTest {
   public void generateDatasetSingleEdgeDefaultMethods() throws IOException {
     Path tmpFolder = testFolder.getRoot().toPath();
 
-    new CodeGenerator().generate(
+    CodeGenerator.generate(
       ResourceUtils.getResourceAsFile("/CodeGenerator/dataset_default/").toPath(), tmpFolder, emptyMap()
     );
 
@@ -532,7 +532,7 @@ public class GenerateTest {
   public void generateParametrizedSingleEdgeDefaultMethods() throws IOException {
     Path tmpFolder = testFolder.getRoot().toPath();
 
-    new CodeGenerator().generate(
+    CodeGenerator.generate(
       ResourceUtils.getResourceAsFile("/CodeGenerator/parametrized_default/").toPath(), tmpFolder, emptyMap()
     );
 

@@ -32,7 +32,6 @@ import static org.junit.Assert.assertThat;
 import java.io.IOException;
 import org.apache.xmlbeans.XmlException;
 import org.graphdrawing.graphml.xmlns.GraphmlDocument;
-import org.junit.Assert;
 import org.junit.Test;
 
 /**

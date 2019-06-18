@@ -27,7 +27,6 @@ package org.graphwalker.core.generator;
  */
 
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
@@ -44,7 +43,6 @@ import org.graphwalker.core.statistics.SimpleProfiler;
 import org.junit.Test;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 

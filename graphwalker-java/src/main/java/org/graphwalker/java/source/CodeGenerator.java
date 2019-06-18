@@ -544,8 +544,8 @@ public final class CodeGenerator extends VoidVisitorAdapter<ChangeContext> {
   }
 
   public void visit(MethodDeclaration methodDeclaration, ChangeContext changeContext) {
-    if (changeContext.getMethodNames().contains(methodDeclaration.getName())) {
-      changeContext.getMethodNames().remove(methodDeclaration.getName());
+    if (changeContext.getMethodNames().contains(methodDeclaration.getName().asString())) {
+      changeContext.getMethodNames().remove(methodDeclaration.getName().asString());
     } else {
       changeContext.addMethodDeclaration(methodDeclaration);
     }

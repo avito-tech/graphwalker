@@ -33,9 +33,6 @@ import org.graphwalker.core.condition.EdgeCoverage;
 import org.graphwalker.core.condition.ReachedVertex;
 import org.graphwalker.core.generator.AStarPath;
 import org.graphwalker.core.generator.RandomPath;
-import org.graphwalker.core.machine.Context;
-import org.graphwalker.io.factory.ContextFactoryScanner;
-import org.junit.Assert;
 import org.junit.Test;
 
 import static org.junit.Assert.assertTrue;

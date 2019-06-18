@@ -161,7 +161,8 @@ public final class DotContextFactory implements ContextFactory {
       String newLine = System.lineSeparator();
       StringBuilder str = new StringBuilder();
 
-      str.append("digraph " + FilenameUtils.getBaseName(context.getModel().getName())).append(" {").append(newLine);
+      str.append("digraph ").append(FilenameUtils.getBaseName(context.getModel().getName()));
+      str.append(" {").append(newLine);
       for (Edge.RuntimeEdge edge : context.getModel().getEdges()) {
         if (edge.getSourceVertex() != null) {
           str.append(edge.getSourceVertex().getName());

@@ -28,7 +28,6 @@ package org.graphwalker.core.machine;
 
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
@@ -36,7 +35,6 @@ import static org.junit.Assert.assertThat;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -52,7 +50,6 @@ import org.graphwalker.core.model.Edge;
 import org.graphwalker.core.model.Element;
 import org.graphwalker.core.model.Guard;
 import org.graphwalker.core.model.Model;
-import org.graphwalker.core.model.Path;
 import org.graphwalker.core.model.Vertex;
 import org.graphwalker.core.statistics.Execution;
 import org.junit.Test;

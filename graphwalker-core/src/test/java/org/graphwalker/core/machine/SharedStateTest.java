@@ -30,7 +30,6 @@ import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertThat;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -40,11 +39,9 @@ import org.graphwalker.core.condition.VertexCoverage;
 import org.graphwalker.core.generator.RandomPath;
 import org.graphwalker.core.model.Action;
 import org.graphwalker.core.model.Edge;
-import org.graphwalker.core.model.Element;
 import org.graphwalker.core.model.Guard;
 import org.graphwalker.core.model.Model;
 import org.graphwalker.core.model.Vertex;
-import org.graphwalker.core.statistics.Execution;
 import org.junit.Test;
 
 /**

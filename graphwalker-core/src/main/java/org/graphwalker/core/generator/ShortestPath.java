@@ -353,18 +353,17 @@ public class ShortestPath extends PathGeneratorBase<ReachedStopCondition> {
 
     @Override
     public String getMessage() {
-      String msg = "Error finding ShortestPath by following attempts " + (statistics.skipped > 0 ? "(skipped " + statistics.skipped + " similar paths):\n" : ":\n");
+      StringBuilder msg = new StringBuilder("Error finding ShortestPath by following attempts " + (statistics.skipped > 0 ? "(skipped " + statistics.skipped + " similar paths):\n" : ":\n"));
       for (int i = 1; i <= statistics.attempts.size(); i++) {
         Statistics.Attempt a = statistics.attempts.get(i-1);
-        msg += i + ". "
-          + String.join("→", a.getElementsBefore())
-          + "⇛[" + a.getElement() + ", " + a.reason + ": " + a.script + "]"
-          + a.getElementsAfter().stream().collect(joining("⇨", "⇨", ""));
+        msg.append(i).append(". ").append(String.join("→", a.getElementsBefore()));
+        msg.append("⇛[").append(a.getElement()).append(", ").append(a.reason).append(": ").append(a.script).append("]");
+        msg.append(a.getElementsAfter().stream().collect(joining("⇨", "⇨", "")));
         if (i < statistics.attempts.size()) {
-          msg += "\n";
+          msg.append("\n");
         }
       }
-      return msg;
+      return msg.toString();
     }
 
     @Override

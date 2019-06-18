@@ -37,7 +37,6 @@ import org.graphwalker.core.machine.TestExecutionContext;
 import org.graphwalker.core.model.Edge;
 import org.graphwalker.core.model.Model;
 import org.graphwalker.core.model.Vertex;
-import org.graphwalker.core.statistics.Profiler;
 import org.graphwalker.core.statistics.SimpleProfiler;
 import org.junit.Test;
 

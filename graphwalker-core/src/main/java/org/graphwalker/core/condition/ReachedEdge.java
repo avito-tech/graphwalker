@@ -49,9 +49,7 @@ public class ReachedEdge extends ReachedStopConditionBase {
   }
 
   public Set<Element> getTargetElements() {
-    Set<Element> elements = new HashSet<>();
-    elements.addAll(getContext().getModel().findEdges(getValue()));
-    return elements;
+    return new HashSet<>(getContext().getModel().findEdges(getValue()));
   }
 
   @Override

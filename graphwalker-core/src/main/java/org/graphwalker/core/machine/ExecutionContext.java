@@ -115,7 +115,7 @@ public abstract class ExecutionContext extends SimpleScriptContext implements Co
   public ExecutionContext() {
     ScriptEngine engine = getEngineByName();
     engine.setContext(this);
-    String script = "var Callable = Java.type(\"java.util.concurrent.Callable\");";
+    StringBuilder script = new StringBuilder("var Callable = Java.type(\"java.util.concurrent.Callable\");");
     Compilable compiler = (Compilable) engine;
     Map<String, Object> groups = new HashMap<>(groups());
     groups.put(null, this);
@@ -124,31 +124,29 @@ public abstract class ExecutionContext extends SimpleScriptContext implements Co
       Object groupImpl = group.getValue();
       String bindingName = groupName != null ? groupName : "impl";
       for (Method method : groupImpl.getClass().getMethods()) {
-        String arguments = "";
+        StringBuilder arguments = new StringBuilder();
         for (int i = 0; i < method.getParameterTypes().length; i++) {
           if (i > 0) {
-            arguments += ",";
+            arguments.append(",");
           }
-          arguments += Character.toChars(65 + i)[0];
+          arguments.append(Character.toChars(65 + i)[0]);
         }
 
         String functionName = getFunctionName(method.getName(), groupName);
         if (method.getName().startsWith("v_")) {
-          script += "var " + functionName + "Callable = Java.extend(Callable, {" +
-            "  call: function() {" +
-            "    return " + bindingName + "." + method.getName() + "(" + arguments + ");" +
-            "  }" +
-            "});";
-          script += "function " + functionName + "(" + arguments;
-          script += ") { return impl.wait(new " + functionName + "Callable()); };";
+          script.append("var ").append(functionName).append("Callable = Java.extend(Callable, {").append("  call: function() {");
+          script.append("    return ").append(bindingName).append(".").append(method.getName()).append("(").append(arguments).append(");");
+          script.append("  }").append("});");
+          script.append("function ").append(functionName).append("(").append(arguments);
+          script.append(") { return impl.wait(new ").append(functionName).append("Callable()); };");
         } else {
-          script += "function " + functionName + "(" + arguments;
-          script += ") { return " + bindingName + "." + method.getName() + "(" + arguments + ");};";
+          script.append("function ").append(functionName).append("(").append(arguments);
+          script.append(") { return ").append(bindingName).append(".").append(method.getName()).append("(").append(arguments).append(");};");
         }
       }
     }
     try {
-      CompiledScript compiledScript = compiler.compile(script);
+      CompiledScript compiledScript = compiler.compile(script.toString());
       Bindings bindings = engine.getBindings(ScriptContext.ENGINE_SCOPE);
       bindings.put("impl", this);
       groups.remove(null);

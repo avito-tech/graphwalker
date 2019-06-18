@@ -122,13 +122,13 @@ public final class JavaContextFactory implements ContextFactory {
 
   @Override
   public String getAsString(List<Context> contexts) {
-    String javaStr = "";
+    StringBuilder javaStr = new StringBuilder();
     for (Context context : contexts) {
       String template = StringUtils.join(javaCodeTemplate.toArray(), "\n");
       template = template.replaceAll("\\{CLASS_NAME\\}", context.getModel().getName());
 
       int index = 0;
-      String add_vertices = "";
+      StringBuilder add_vertices = new StringBuilder();
       for (Vertex.RuntimeVertex vertex : context.getModel().getVertices()) {
         String id;
         if (vertex.getId() != null && !vertex.getId().equals("")) {
@@ -137,13 +137,13 @@ public final class JavaContextFactory implements ContextFactory {
           id = "n" + index++;
         }
 
-        add_vertices += "Vertex " + vertex.getName() + " = new Vertex().setName(\"" + vertex.getName() + "\").setId(\"" + id + "\");";
-        add_vertices += "\n";
+        add_vertices.append("Vertex ").append(vertex.getName()).append(" = new Vertex().setName(\"").append(vertex.getName()).append("\").setId(\"").append(id).append("\");");
+        add_vertices.append("\n");
       }
-      template = template.replace("{ADD_VERTICES}", add_vertices);
+      template = template.replace("{ADD_VERTICES}", add_vertices.toString());
 
       index = 0;
-      String add_edges = "";
+      StringBuilder add_edges = new StringBuilder();
       for (Edge.RuntimeEdge edge : context.getModel().getEdges()) {
         String id;
         if (edge.getId() != null && !edge.getId().equals("")) {
@@ -152,29 +152,29 @@ public final class JavaContextFactory implements ContextFactory {
           id = "n" + index++;
         }
 
-        add_edges += "model.addEdge( new Edge()";
+        add_edges.append("model.addEdge( new Edge()");
         if (edge.getSourceVertex() != null) {
-          add_edges += ".setSourceVertex(" + edge.getSourceVertex().getName() + ")";
+          add_edges.append(".setSourceVertex(").append(edge.getSourceVertex().getName()).append(")");
         }
-        add_edges += ".setTargetVertex(" + edge.getTargetVertex().getName() + ")";
-        add_edges += ".setName(\"" + edge.getName() + "\").setId(\"" + id + "\")";
+        add_edges.append(".setTargetVertex(").append(edge.getTargetVertex().getName()).append(")");
+        add_edges.append(".setName(\"").append(edge.getName()).append("\").setId(\"").append(id).append("\")");
 
         if (edge.hasGuard()) {
-          add_edges += ".setGuard(new Guard(\"" + edge.getGuard().getScript() + "\"))";
+          add_edges.append(".setGuard(new Guard(\"").append(edge.getGuard().getScript()).append("\"))");
         }
         if (edge.hasActions()) {
           for (Action action : edge.getActions()) {
-            add_edges += ".addAction(new Action(\"" + action.getScript() + "\"))";
+            add_edges.append(".addAction(new Action(\"").append(action.getScript()).append("\"))");
           }
         }
-        add_edges += ");\n";
+        add_edges.append(");\n");
       }
-      template = template.replace("{ADD_EDGES}", add_edges);
+      template = template.replace("{ADD_EDGES}", add_edges.toString());
       template = template.replace("{START_ELEMENT_NAME}", context.getNextElement().getName());
 
-      javaStr += template;
+      javaStr.append(template);
     }
-    return javaStr;
+    return javaStr.toString();
   }
 
   @Override
