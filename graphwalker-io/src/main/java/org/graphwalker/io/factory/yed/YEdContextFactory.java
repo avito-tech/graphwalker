@@ -379,7 +379,7 @@ public final class YEdContextFactory implements ContextFactory {
     String newLine = System.lineSeparator();
     str.append("    <node id=\"").append(id).append("\">").append(newLine);
     str.append("      <data key=\"d0\">").append(newLine);
-    str.append("        <y:GenericNode ").append(configuration).append(">").append(newLine);
+    str.append("        <y:GenericNode ").append(configuration.toString()).append(">").append(newLine);
     str.append("          <y:Geometry").append(joinWithSpace(geometry.getX(), geometry.getY(), geometry.getWidth(), geometry.getHeight())).append("/>").append(newLine);
     str.append("          <y:Fill transparent=\"false\"").append(joinWithSpace(fill.getColor(), fill.getColor2())).append("/>").append(newLine);
     str.append("          <y:BorderStyle").append(joinWithSpace(border.getLine(), border.getWidth(), border.getColor())).append("/>").append(newLine);
@@ -484,7 +484,8 @@ public final class YEdContextFactory implements ContextFactory {
         label.append("\nweight=").append(weight);
       }
 
-      str.append("          <y:EdgeLabel x=\"-148.25\" y=\"30.0\" width=\"169.0\" height=\"18.0\" " + "visible=\"true\" alignment=\"center\" fontFamily=\"Dialog\" fontSize=\"12\" " + "fontStyle=\"plain\" textColor=\"").append(colorCode).append("\" modelName=\"free\" modelPosition=\"anywhere\" ").append("preferredPlacement=\"on_edge\" distance=\"2.0\" ratio=\"0.5\">").append(escapeXml10(label.toString()));
+      str.append("          <y:EdgeLabel x=\"-148.25\" y=\"30.0\" width=\"169.0\" height=\"18.0\" " + "visible=\"true\" alignment=\"center\" fontFamily=\"Dialog\" fontSize=\"12\" " + "fontStyle=\"plain\" textColor=\"");
+      str.append(colorCode).append("\" modelName=\"free\" modelPosition=\"anywhere\" ").append("preferredPlacement=\"on_edge\" distance=\"2.0\" ratio=\"0.5\">").append(escapeXml10(label.toString()));
       str.append("</y:EdgeLabel>").append(newLine);
     }
 
@@ -675,7 +676,8 @@ public final class YEdContextFactory implements ContextFactory {
           str.append("        <y:Geometry height=\"500.0\" width=\"500.0\" x=\"4000.0\" y=\"3000.0\"/>").append(newLine);
           str.append("        <y:Fill color=\"").append(getColorByHashCode(overGroup.getKey(), (byte) 64)).append("\" color2=\"#FFFFFF80\" transparent=\"false\"/>").append(newLine);
           str.append("        <y:BorderStyle color=\"#000000\" raised=\"false\" type=\"line\" width=\"1.0\"/>").append(newLine);
-          str.append("        <y:NodeLabel alignment=\"center\" autoSizePolicy=\"content\" hasBackgroundColor=\"false\" hasLineColor=\"false\" borderDistance=\"0.0\" fontFamily=\"Dialog\" fontSize=\"64\" fontStyle=\"plain\" height=\"25.0\" horizontalTextPosition=\"center\" iconTextGap=\"4\" modelName=\"internal\" modelPosition=\"tr\" textColor=\"#000000\" verticalTextPosition=\"bottom\" visible=\"true\" width=\"455.0\" x=\"0.0\" y=\"0.0\">").append(overGroup.getKey()).append("</y:NodeLabel>").append(newLine);
+          str.append("        <y:NodeLabel alignment=\"center\" autoSizePolicy=\"content\" hasBackgroundColor=\"false\" hasLineColor=\"false\" borderDistance=\"0.0\" fontFamily=\"Dialog\" fontSize=\"64\" fontStyle=\"plain\" height=\"25.0\" horizontalTextPosition=\"center\" iconTextGap=\"4\" modelName=\"internal\" modelPosition=\"tr\" textColor=\"#000000\" verticalTextPosition=\"bottom\" visible=\"true\" width=\"455.0\" x=\"0.0\" y=\"0.0\">");
+          str.append(overGroup.getKey()).append("</y:NodeLabel>").append(newLine);
           str.append("        <y:Shape type=\"roundrectangle\"/>").append(newLine);
           str.append("        <y:State closed=\"false\" closedHeight=\"50.0\" closedWidth=\"50.0\" innerGraphDisplayEnabled=\"false\"/>").append(newLine);
           str.append("        <y:Insets bottom=\"15\" bottomF=\"15.0\" left=\"15\" leftF=\"15.0\" right=\"15\" rightF=\"15.0\" top=\"15\" topF=\"15.0\"/>").append(newLine);
@@ -685,7 +687,8 @@ public final class YEdContextFactory implements ContextFactory {
           str.append("        <y:Geometry height=\"50.0\" width=\"50.0\" x=\"0.0\" y=\"60.0\"/>").append(newLine);
           str.append("        <y:Fill color=\"#F5F5F5\" transparent=\"false\"/>").append(newLine);
           str.append("        <y:BorderStyle color=\"#000000\" type=\"dashed\" width=\"1.0\"/>").append(newLine);
-          str.append("        <y:NodeLabel alignment=\"right\" autoSizePolicy=\"node_width\" backgroundColor=\"#EBEBEB\" borderDistance=\"0.0\" fontFamily=\"Dialog\" fontSize=\"15\" fontStyle=\"plain\" hasLineColor=\"false\" height=\"24.0\" horizontalTextPosition=\"center\" iconTextGap=\"4\" modelName=\"internal\" modelPosition=\"tr\" textColor=\"#000000\" verticalTextPosition=\"bottom\" visible=\"true\" width=\"60.0\" x=\"-4.0\" y=\"0.0\">").append(overGroup.getKey()).append("</y:NodeLabel>").append(newLine);
+          str.append("        <y:NodeLabel alignment=\"right\" autoSizePolicy=\"node_width\" backgroundColor=\"#EBEBEB\" borderDistance=\"0.0\" fontFamily=\"Dialog\" fontSize=\"15\" fontStyle=\"plain\" hasLineColor=\"false\" height=\"24.0\" horizontalTextPosition=\"center\" iconTextGap=\"4\" modelName=\"internal\" modelPosition=\"tr\" textColor=\"#000000\" verticalTextPosition=\"bottom\" visible=\"true\" width=\"60.0\" x=\"-4.0\" y=\"0.0\">");
+          str.append(overGroup.getKey()).append("</y:NodeLabel>").append(newLine);
           str.append("        <y:Shape type=\"roundrectangle\"/>").append(newLine);
           str.append("        <y:State closed=\"true\" closedHeight=\"50.0\" closedWidth=\"50.0\" innerGraphDisplayEnabled=\"false\"/>").append(newLine);
           str.append("        <y:Insets bottom=\"5\" bottomF=\"5.0\" left=\"5\" leftF=\"5.0\" right=\"5\" rightF=\"5.0\" top=\"5\" topF=\"5.0\"/>").append(newLine);
