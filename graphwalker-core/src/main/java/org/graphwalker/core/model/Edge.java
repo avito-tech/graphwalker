@@ -62,6 +62,7 @@ public class Edge extends CachedBuilder<Edge, Edge.RuntimeEdge> {
   private Integer dependency = 0;
   private CodeTag codeTag;
   private Argument.List arguments;
+  private LineStyle style;
 
   public Edge() {
   }
@@ -73,7 +74,8 @@ public class Edge extends CachedBuilder<Edge, Edge.RuntimeEdge> {
                Double weight,
                Integer dependency,
                CodeTag codeTag,
-               Argument.List arguments) {
+               Argument.List arguments,
+               LineStyle style) {
     this.sourceVertex = sourceVertex;
     this.targetVertex = targetVertex;
     this.guard = guard;
@@ -82,6 +84,7 @@ public class Edge extends CachedBuilder<Edge, Edge.RuntimeEdge> {
     this.dependency = dependency;
     this.codeTag = codeTag;
     this.arguments = arguments;
+    this.style = style;
   }
 
   /**
@@ -274,6 +277,14 @@ public class Edge extends CachedBuilder<Edge, Edge.RuntimeEdge> {
     return arguments;
   }
 
+  public void setStyle(LineStyle lineStyle) {
+    this.style = lineStyle;
+  }
+
+  private LineStyle getStyle() {
+    return style;
+  }
+
   public Edge copy() {
     // deep copy actions but not arguments
     List<Action> actionsCopy = new ArrayList<>();
@@ -282,7 +293,7 @@ public class Edge extends CachedBuilder<Edge, Edge.RuntimeEdge> {
     }
     Guard guardCopy = guard != null ? new Guard(guard.getScript()) : null;
     CodeTag codeTagCopy = codeTag != null ? new CodeTag((CodeTag.Expression) codeTag.getMethod().copy()) : null;
-    return new Edge(sourceVertex, targetVertex, guardCopy, actionsCopy, weight, dependency, codeTagCopy, arguments)
+    return new Edge(sourceVertex, targetVertex, guardCopy, actionsCopy, weight, dependency, codeTagCopy, arguments, style)
       .setName(getName())
       .setDescription(getDescription())
       .setRequirements(getRequirements())
@@ -306,6 +317,7 @@ public class Edge extends CachedBuilder<Edge, Edge.RuntimeEdge> {
     private final Integer dependency;
     private final CodeTag codeTag;
     private final Argument.List arguments;
+    private final LineStyle style;
 
     private RuntimeEdge(Edge edge) {
       super(edge.getId(), edge.getName(), edge.getDescription(), edge.getActions(), edge.getRequirements(), edge.getProperties());
@@ -316,6 +328,7 @@ public class Edge extends CachedBuilder<Edge, Edge.RuntimeEdge> {
       this.dependency = edge.getDependency();
       this.codeTag = edge.getCodeTag();
       this.arguments = edge.getArguments();
+      this.style = edge.getStyle() != null ? edge.getStyle() : LineStyle.DEFAULT_EDGE_STYLE;
     }
 
     private <T> T build(Builder<T> builder) {
@@ -372,6 +385,10 @@ public class Edge extends CachedBuilder<Edge, Edge.RuntimeEdge> {
 
     public Argument.List getArguments() {
       return arguments;
+    }
+
+    public LineStyle getStyle() {
+      return style;
     }
 
     /**

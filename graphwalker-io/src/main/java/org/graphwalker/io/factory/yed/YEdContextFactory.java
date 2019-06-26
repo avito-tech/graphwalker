@@ -34,6 +34,7 @@ import com.google.common.collect.Multimap;
 import com.yworks.xml.graphml.ArcEdgeDocument;
 import com.yworks.xml.graphml.BezierEdgeDocument;
 import com.yworks.xml.graphml.EdgeLabelType;
+import com.yworks.xml.graphml.EdgeType;
 import com.yworks.xml.graphml.GenericEdgeDocument;
 import com.yworks.xml.graphml.GenericGroupNodeDocument;
 import com.yworks.xml.graphml.GenericNodeDocument;
@@ -41,6 +42,7 @@ import com.yworks.xml.graphml.GenericNodeType;
 import com.yworks.xml.graphml.GeometryType;
 import com.yworks.xml.graphml.GroupNodeDocument;
 import com.yworks.xml.graphml.ImageNodeDocument;
+import com.yworks.xml.graphml.LineStyleType;
 import com.yworks.xml.graphml.NodeLabelType;
 import com.yworks.xml.graphml.PolyLineEdgeDocument;
 import com.yworks.xml.graphml.QuadCurveEdgeDocument;
@@ -73,6 +75,7 @@ import org.graphwalker.core.model.CodeTag;
 import org.graphwalker.core.model.Edge;
 import org.graphwalker.core.model.Edge.RuntimeEdge;
 import org.graphwalker.core.model.Guard;
+import org.graphwalker.core.model.LineStyle;
 import org.graphwalker.core.model.Model;
 import org.graphwalker.core.model.Requirement;
 import org.graphwalker.core.model.TypePrefix;
@@ -121,7 +124,6 @@ import static java.awt.Color.MAGENTA;
 import static java.awt.Color.RED;
 import static java.lang.Double.parseDouble;
 import static java.lang.Integer.parseInt;
-import static java.lang.String.format;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
@@ -132,6 +134,9 @@ import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toMap;
 import static org.apache.commons.collections4.map.ListOrderedMap.listOrderedMap;
 import static org.apache.commons.lang3.StringEscapeUtils.escapeXml10;
+import static org.graphwalker.core.model.LineStyle.DEFAULT_EDGE_STYLE;
+import static org.graphwalker.core.model.LineStyle.LineColor;
+import static org.graphwalker.core.model.LineStyle.Property;
 import static org.graphwalker.core.model.TypePrefix.BOOLEAN;
 import static org.graphwalker.core.model.TypePrefix.NUMBER;
 import static org.graphwalker.core.model.TypePrefix.STRING;
@@ -428,26 +433,30 @@ public final class YEdContextFactory implements ContextFactory {
   private void appendEdge(StringBuilder str, String id, String srcId, String destId,
                                  String name, Argument.List arguments, Guard guard,
                                  List<Action> actions, int dependency, String description,
-                                 Double weight, Color col) {
+                                 LineStyle style, Double weight) {
+    LineStyle.LineType type = style.getType();
+    LineColor color = style.getColor();
+    Property<Double> width = style.getWidth();
+
     String newLine = System.lineSeparator();
-    String colorCode = format("#%02x%02x%02x", col.getRed(), col.getGreen(), col.getBlue());
+
     boolean crossGroup = !srcId.split("::")[0].equals(destId.split("::")[0]);
     // "PolyLineEdge" seems to be much more readable than "BezierEdge" in large graphs
     final String edgeType = "PolyLineEdge";
-    final String lineStyle = crossGroup ?  crossGroupLineStyle : sameGroupLineStyle;
+
     final String sourceArrow = crossGroup ?  crossGroupSourceArrow : sameGroupSourceArrow;
     final String targetArrow = crossGroup ?  crossGroupTargetArrow : sameGroupTargetArrow;
 
     str.append("    <edge id=\"").append(id).append("\" source=\"").append(srcId).append("\" target=\"").append(destId).append("\">").append(newLine);
     str.append("      <data key=\"d1\" >").append(newLine);
-    str.append("        <y:" + edgeType + " >").append(newLine);
+    str.append("        <y:").append(edgeType).append(" >").append(newLine);
     str.append("          <y:Path sx=\"-23.75\" sy=\"15.0\" tx=\"-23.75\" ty=\"-15.0\">").append(newLine);
     str.append("            <y:Point x=\"273.0\" y=\"95.0\"/>").append(newLine);
     str.append("            <y:Point x=\"209.0\" y=\"95.0\"/>").append(newLine);
     str.append("            <y:Point x=\"209.0\" y=\"143.7\"/>").append(newLine);
     str.append("            <y:Point x=\"265.0\" y=\"143.7\"/>").append(newLine);
     str.append("          </y:Path>").append(newLine);
-    str.append("          <y:LineStyle type=\"").append(lineStyle).append("\" width=\"1.0\" color=\"").append(colorCode).append("\" />").append(newLine);
+    str.append("          <y:LineStyle ").append(type.toString()).append(width.toString()).append(color.toString()).append("/>").append(newLine);
     str.append("          <y:Arrows source=\"").append(sourceArrow).append("\" target=\"").append(targetArrow).append("\"/>").append(newLine);
 
     if (name == null) {
@@ -485,7 +494,7 @@ public final class YEdContextFactory implements ContextFactory {
       }
 
       str.append("          <y:EdgeLabel x=\"-148.25\" y=\"30.0\" width=\"169.0\" height=\"18.0\" " + "visible=\"true\" alignment=\"center\" fontFamily=\"Dialog\" fontSize=\"12\" " + "fontStyle=\"plain\" textColor=\"");
-      str.append(colorCode).append("\" modelName=\"free\" modelPosition=\"anywhere\" ").append("preferredPlacement=\"on_edge\" distance=\"2.0\" ratio=\"0.5\">").append(escapeXml10(label.toString()));
+      str.append(color.getValue()).append("\" modelName=\"free\" modelPosition=\"anywhere\" ").append("preferredPlacement=\"on_edge\" distance=\"2.0\" ratio=\"0.5\">").append(escapeXml10(label.toString()));
       str.append("</y:EdgeLabel>").append(newLine);
     }
 
@@ -613,8 +622,8 @@ public final class YEdContextFactory implements ContextFactory {
           context.getNextElement().getActions(),
           ((RuntimeEdge) context.getNextElement()).getDependency(),
           context.getNextElement().getDescription(),
-          ((RuntimeEdge) context.getNextElement()).getWeight(),
-          BLACK);
+          DEFAULT_EDGE_STYLE,
+          ((RuntimeEdge) context.getNextElement()).getWeight());
       }
 
       Set<RuntimeVertex> hasNoInput = new HashSet<>(context.getModel().getVertices());
@@ -637,15 +646,12 @@ public final class YEdContextFactory implements ContextFactory {
         hasNoOutput.remove(src);
 
         String edgeName;
-        Color color;
         if (e.getName() == null) {
           logger.warn("Edge between {} and {} (marked with \"red\" color) has no Text property. It invalidates the model!",
             e.getSourceVertex().getId(), e.getTargetVertex());
           edgeName = "(No text specified!)";
-          color = RED;
         } else {
           edgeName = e.getName();
-          color = BLACK;
         }
 
         String id = uniqueEdges.get(e);
@@ -659,8 +665,8 @@ public final class YEdContextFactory implements ContextFactory {
           e.hasActions() ? e.getActions() : emptyList(),
           e.getDependency(),
           e.getDescription(),
-          e.getWeight(),
-          color);
+          e.getStyle(),
+          e.getWeight());
       }
 
       int overGroupIndex = 0, groupIndex;
@@ -881,8 +887,8 @@ public final class YEdContextFactory implements ContextFactory {
           context.getNextElement().getActions(),
           ((RuntimeEdge) context.getNextElement()).getDependency(),
           context.getNextElement().getDescription(),
-          ((RuntimeEdge) context.getNextElement()).getWeight(),
-          BLACK);
+          ((RuntimeEdge) context.getNextElement()).getStyle(),
+          ((RuntimeEdge) context.getNextElement()).getWeight());
       }
 
       Set<RuntimeVertex> hasNoInput = new HashSet<>(context.getModel().getVertices());
@@ -928,8 +934,8 @@ public final class YEdContextFactory implements ContextFactory {
           e.hasActions() ? e.getActions() : emptyList(),
           e.getDependency(),
           e.getDescription(),
-          e.getWeight(),
-          color);
+          e.getStyle(),
+          e.getWeight());
       }
 
       for (RuntimeVertex v : groupedVertices.get(selectOnlyGroup).items) {
@@ -1374,6 +1380,32 @@ public final class YEdContextFactory implements ContextFactory {
             propCurrentValue = ((DataTypeImpl) data).getStringValue().trim();
             edge.setProperty(propName, propCurrentValue);
           }
+
+          if (linkStyles) {
+            XmlObject[] objects = new XmlObject[]{};
+            for (String edgeName : new String[]{"BezierEdge", "PolyLineEdge", "GenericEdge",
+                                                "ArcEdge", "QuadCurveEdge", "SplineEdge"}) {
+              objects = data.selectPath(Y + "$this//y:" + edgeName);
+              if (objects.length > 0) {
+                break;
+              }
+            }
+
+            if (objects instanceof EdgeType[]) {
+              EdgeType[] bezierEdges = (EdgeType[]) objects;
+              for (EdgeType bezierEdge : bezierEdges) {
+                LineStyleType lineStyle = bezierEdge.getLineStyle();
+
+                LineStyle style = new LineStyle(
+                  new LineStyle.LineType(lineStyle.getType().toString()),
+                  new LineStyle.LineColor(lineStyle.getColor()),
+                  lineStyle.getWidth()
+                );
+                edge.setStyle(style);
+              }
+            }
+          }
+
           if (0 < data.getDomNode().getChildNodes().getLength()) {
             if (isSupportedEdge(data.xmlText())) {
               StringBuilder label = new StringBuilder();

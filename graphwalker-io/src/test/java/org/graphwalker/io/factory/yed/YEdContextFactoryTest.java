@@ -884,4 +884,32 @@ public class YEdContextFactoryTest {
       hasProperty("overGroup", equalTo("another"))
     )));
   }
+
+  @Test
+  public void readStyledEdges() throws IOException {
+    Context context = new YEdContextFactory().create(Paths.get("graphml/style/edgeStyle.graphml")).get(0);
+    RuntimeModel model = context.getModel();
+    List<RuntimeEdge> edges = model.getEdges();
+    assertThat("Should be four edges", edges, hasSize(4));
+    assertThat("Should be purple bold edge", edges, hasItem(hasProperty("style", allOf(
+      hasProperty("color", hasProperty("value", equalTo("#FF00FF"))),
+      hasProperty("width", hasProperty("value", equalTo(7.0))),
+      hasProperty("type", hasProperty("value", equalTo("line")))
+    ))));
+    assertThat("Should be black bold edge", edges, hasItem(hasProperty("style", allOf(
+      hasProperty("color", hasProperty("value", equalTo("#000000"))),
+      hasProperty("width", hasProperty("value", equalTo(7.0))),
+      hasProperty("type", hasProperty("value", equalTo("line")))
+    ))));
+    assertThat("Should be black dashed edge", edges, hasItem(hasProperty("style", allOf(
+      hasProperty("color", hasProperty("value", equalTo("#000000"))),
+      hasProperty("width", hasProperty("value", equalTo(5.0))),
+      hasProperty("type", hasProperty("value", equalTo("dashed")))
+    ))));
+    assertThat("Should be red edge", edges, hasItem(hasProperty("style", allOf(
+      hasProperty("color", hasProperty("value", equalTo("#FF0000"))),
+      hasProperty("width", hasProperty("value", equalTo(1.0))),
+      hasProperty("type", hasProperty("value", equalTo("line")))
+    ))));
+  }
 }
