@@ -7,13 +7,7 @@ import org.graphwalker.core.model.Element;
 import org.graphwalker.core.model.Path;
 import org.graphwalker.core.model.Vertex.RuntimeVertex;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.PriorityQueue;
+import java.util.*;
 
 import static java.util.Objects.requireNonNull;
 import static org.graphwalker.core.model.Model.RuntimeModel;
@@ -172,7 +166,8 @@ public class Yen implements Algorithm {
             // If so, eliminate the next edge in the path from the graph (later on, this forces the spur
             // node to connect the root path with an un-found suffix path)
             RuntimeEdge re = getEdges(p).get(edgePos);
-            modifiableEdges.remove(re);
+            //noinspection StatementWithEmptyBody
+            while (modifiableEdges.remove(re));
             removedEdges.add(re);
           }
         }
