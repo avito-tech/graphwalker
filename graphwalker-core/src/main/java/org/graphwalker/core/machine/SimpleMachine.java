@@ -4,7 +4,8 @@ package org.graphwalker.core.machine;
  * #%L
  * GraphWalker Core
  * %%
- * Copyright (C) 2005 - 2014 GraphWalker
+ * Original work Copyright (c) 2005 - 2014 GraphWalker
+ * Modified work Copyright (c) 2018 - 2019 Avito
  * %%
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -35,12 +36,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.Random;
-import java.util.UUID;
+import java.util.*;
 
 import static org.graphwalker.core.common.Objects.isNotNull;
 import static org.graphwalker.core.common.Objects.isNull;

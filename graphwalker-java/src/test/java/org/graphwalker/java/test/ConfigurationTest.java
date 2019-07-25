@@ -4,7 +4,8 @@ package org.graphwalker.java.test;
  * #%L
  * GraphWalker Java
  * %%
- * Copyright (C) 2005 - 2014 GraphWalker
+ * Original work Copyright (c) 2005 - 2014 GraphWalker
+ * Modified work Copyright (c) 2018 - 2019 Avito
  * %%
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -26,10 +27,10 @@ package org.graphwalker.java.test;
  * #L%
  */
 
-import static org.hamcrest.core.Is.is;
-
 import org.junit.Assert;
 import org.junit.Test;
+
+import static org.hamcrest.core.Is.is;
 
 /**
  * @author Nils Olsson

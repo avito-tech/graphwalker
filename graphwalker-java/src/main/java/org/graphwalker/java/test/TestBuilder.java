@@ -4,7 +4,8 @@ package org.graphwalker.java.test;
  * #%L
  * GraphWalker Java
  * %%
- * Copyright (C) 2005 - 2014 GraphWalker
+ * Original work Copyright (c) 2005 - 2014 GraphWalker
+ * Modified work Copyright (c) 2018 - 2019 Avito
  * %%
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -26,12 +27,6 @@ package org.graphwalker.java.test;
  * #L%
  */
 
-import static org.graphwalker.core.common.Objects.isNullOrEmpty;
-
-import java.io.IOException;
-import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.List;
 import org.graphwalker.core.generator.PathGenerator;
 import org.graphwalker.core.machine.Context;
 import org.graphwalker.dsl.antlr.generator.GeneratorFactory;
@@ -39,6 +34,13 @@ import org.graphwalker.io.factory.ContextFactoryException;
 import org.graphwalker.io.factory.ContextFactoryScanner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.graphwalker.core.common.Objects.isNullOrEmpty;
 
 /**
  * @author Nils Olsson

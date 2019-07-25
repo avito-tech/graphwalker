@@ -2,7 +2,8 @@
  * #%L
  * GraphWalker Command Line Interface
  * %%
- * Copyright (C) 2005 - 2014 GraphWalker
+ * Original work Copyright (c) 2005 - 2014 GraphWalker
+ * Modified work Copyright (c) 2018 - 2019 Avito
  * %%
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -26,11 +27,12 @@
 
 package org.graphwalker.cli;
 
-import static org.hamcrest.core.Is.is;
-
-import java.io.IOException;
 import org.junit.Assert;
 import org.junit.Test;
+
+import java.io.IOException;
+
+import static org.hamcrest.core.Is.is;
 
 
 public class ConvertFilesTest extends CLITestRoot {

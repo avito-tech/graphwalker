@@ -2,7 +2,8 @@
  * #%L
  * GraphWalker Command Line Interface
  * %%
- * Copyright (C) 2005 - 2014 GraphWalker
+ * Original work Copyright (c) 2005 - 2014 GraphWalker
+ * Modified work Copyright (c) 2018 - 2019 Avito
  * %%
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -26,9 +27,10 @@
 package org.graphwalker;
 
 
-import java.util.regex.Pattern;
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
+
+import java.util.regex.Pattern;
 
 public class RegexMatcher extends BaseMatcher {
 

@@ -4,7 +4,8 @@ package org.graphwalker.java.annotation;
  * #%L
  * GraphWalker Java
  * %%
- * Copyright (C) 2005 - 2014 GraphWalker
+ * Original work Copyright (c) 2005 - 2014 GraphWalker
+ * Modified work Copyright (c) 2018 - 2019 Avito
  * %%
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -26,14 +27,15 @@ package org.graphwalker.java.annotation;
  * #L%
  */
 
-import static org.hamcrest.core.Is.is;
-
-import java.util.Set;
 import org.graphwalker.core.condition.VertexCoverage;
 import org.graphwalker.core.generator.RandomPath;
 import org.graphwalker.java.annotation.resources.MyTest;
 import org.junit.Assert;
 import org.junit.Test;
+
+import java.util.Set;
+
+import static org.hamcrest.core.Is.is;
 
 /**
  * @author Nils Olsson

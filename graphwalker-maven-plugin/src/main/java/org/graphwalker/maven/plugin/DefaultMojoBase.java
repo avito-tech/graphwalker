@@ -4,7 +4,8 @@ package org.graphwalker.maven.plugin;
  * #%L
  * GraphWalker Maven Plugin
  * %%
- * Copyright (C) 2005 - 2014 GraphWalker
+ * Original work Copyright (c) 2005 - 2014 GraphWalker
+ * Modified work Copyright (c) 2018 - 2019 Avito
  * %%
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -26,15 +27,16 @@ package org.graphwalker.maven.plugin;
  * #L%
  */
 
-import java.io.File;
-import java.util.HashSet;
-import java.util.Set;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.util.FileUtils;
 import org.codehaus.plexus.util.StringUtils;
+
+import java.io.File;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * @author Nils Olsson

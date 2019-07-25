@@ -4,7 +4,8 @@ package org.graphwalker.core.model;
  * #%L
  * GraphWalker Core
  * %%
- * Copyright (C) 2005 - 2014 GraphWalker
+ * Original work Copyright (c) 2005 - 2014 GraphWalker
+ * Modified work Copyright (c) 2018 - 2019 Avito
  * %%
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -28,19 +29,9 @@ package org.graphwalker.core.model;
 
 import org.graphwalker.core.common.Objects;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
-import static org.graphwalker.core.common.Objects.isNotNullOrEmpty;
-import static org.graphwalker.core.common.Objects.isNull;
-import static org.graphwalker.core.common.Objects.unmodifiableList;
-import static org.graphwalker.core.common.Objects.unmodifiableMap;
-import static org.graphwalker.core.common.Objects.unmodifiableSet;
+import static org.graphwalker.core.common.Objects.*;
 
 /**
  * @author Nils Olsson

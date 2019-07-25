@@ -4,7 +4,8 @@ package org.graphwalker.java.source.cache;
  * #%L
  * GraphWalker Java
  * %%
- * Copyright (C) 2005 - 2017 GraphWalker
+ * Original work Copyright (c) 2005 - 2017 GraphWalker
+ * Modified work Copyright (c) 2018 - 2019 Avito
  * %%
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -27,6 +28,7 @@ package org.graphwalker.java.source.cache;
  */
 
 import com.google.gson.annotations.Expose;
+
 import java.nio.file.attribute.FileTime;
 import java.util.concurrent.TimeUnit;
 

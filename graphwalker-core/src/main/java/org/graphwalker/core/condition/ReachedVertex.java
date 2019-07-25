@@ -4,7 +4,8 @@ package org.graphwalker.core.condition;
  * #%L
  * GraphWalker Core
  * %%
- * Copyright (C) 2005 - 2014 GraphWalker
+ * Original work Copyright (c) 2005 - 2014 GraphWalker
+ * Modified work Copyright (c) 2018 - 2019 Avito
  * %%
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -33,9 +34,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static org.graphwalker.core.common.Objects.isNotNull;
-import static org.graphwalker.core.common.Objects.isNotNullOrEmpty;
-import static org.graphwalker.core.common.Objects.isNull;
+import static org.graphwalker.core.common.Objects.*;
 import static org.graphwalker.core.model.Vertex.RuntimeVertex;
 
 /**

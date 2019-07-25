@@ -4,7 +4,8 @@ package org.graphwalker.java.report;
  * #%L
  * GraphWalker Java
  * %%
- * Copyright (C) 2005 - 2014 GraphWalker
+ * Original work Copyright (c) 2005 - 2014 GraphWalker
+ * Modified work Copyright (c) 2018 - 2019 Avito
  * %%
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -26,8 +27,13 @@ package org.graphwalker.java.report;
  * #L%
  */
 
-import static org.junit.Assert.assertThat;
-import static org.xmlunit.matchers.HasXPathMatcher.hasXPath;
+import org.graphwalker.core.machine.Context;
+import org.graphwalker.io.factory.json.JsonContextFactory;
+import org.graphwalker.java.test.Executor;
+import org.graphwalker.java.test.TestExecutor;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -37,13 +43,9 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
-import org.graphwalker.core.machine.Context;
-import org.graphwalker.io.factory.json.JsonContextFactory;
-import org.graphwalker.java.test.Executor;
-import org.graphwalker.java.test.TestExecutor;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+
+import static org.junit.Assert.assertThat;
+import static org.xmlunit.matchers.HasXPathMatcher.hasXPath;
 
 /**
  * @author Nils Olsson

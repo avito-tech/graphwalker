@@ -4,7 +4,8 @@ package org.graphwalker.java.factory;
  * #%L
  * GraphWalker Java
  * %%
- * Copyright (C) 2005 - 2014 GraphWalker
+ * Original work Copyright (c) 2005 - 2014 GraphWalker
+ * Modified work Copyright (c) 2018 - 2019 Avito
  * %%
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -26,7 +27,6 @@ package org.graphwalker.java.factory;
  * #L%
  */
 
-import java.lang.reflect.Constructor;
 import org.graphwalker.core.condition.ReachedStopCondition;
 import org.graphwalker.core.condition.StopCondition;
 import org.graphwalker.core.generator.PathGenerator;
@@ -34,6 +34,8 @@ import org.graphwalker.java.annotation.GraphWalker;
 import org.graphwalker.java.test.TestExecutionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.lang.reflect.Constructor;
 
 /**
  * @author Nils Olsson

@@ -4,7 +4,8 @@ package org.graphwalker.websocket;
  * #%L
  * GraphWalker As A Service
  * %%
- * Copyright (C) 2005 - 2014 GraphWalker
+ * Original work Copyright (c) 2005 - 2014 GraphWalker
+ * Modified work Copyright (c) 2018 - 2019 Avito
  * %%
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -26,12 +27,6 @@ package org.graphwalker.websocket;
  * #L%
  */
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.nio.file.Path;
 import org.graphwalker.io.common.ResourceUtils;
 import org.java_websocket.drafts.Draft_10;
 import org.java_websocket.handshake.ServerHandshake;
@@ -39,6 +34,13 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.nio.file.Path;
 
 public class WebSocketClient {
 

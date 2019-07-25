@@ -4,7 +4,8 @@ package org.graphwalker.io.factory.json;
  * #%L
  * GraphWalker Input/Output
  * %%
- * Copyright (C) 2005 - 2014 GraphWalker
+ * Original work Copyright (c) 2005 - 2014 GraphWalker
+ * Modified work Copyright (c) 2018 - 2019 Avito
  * %%
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -26,28 +27,12 @@ package org.graphwalker.io.factory.json;
  * #L%
  */
 
-import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-
-import java.io.IOException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
 import org.graphwalker.core.condition.EdgeCoverage;
 import org.graphwalker.core.generator.RandomPath;
 import org.graphwalker.core.machine.Context;
 import org.graphwalker.core.machine.SimpleMachine;
-import org.graphwalker.core.model.Action;
-import org.graphwalker.core.model.Edge;
+import org.graphwalker.core.model.*;
 import org.graphwalker.core.model.Edge.RuntimeEdge;
-import org.graphwalker.core.model.Element;
-import org.graphwalker.core.model.Guard;
-import org.graphwalker.core.model.Model;
-import org.graphwalker.core.model.Requirement;
-import org.graphwalker.core.model.Vertex;
 import org.graphwalker.io.TestExecutionContext;
 import org.graphwalker.io.factory.ContextFactory;
 import org.graphwalker.io.factory.ContextFactoryException;
@@ -56,6 +41,15 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.*;
 
 /**
  * @author Kristian Karl

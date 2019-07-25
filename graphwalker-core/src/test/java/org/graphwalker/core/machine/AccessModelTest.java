@@ -4,7 +4,8 @@ package org.graphwalker.core.machine;
  * #%L
  * GraphWalker Core
  * %%
- * Copyright (C) 2005 - 2017 GraphWalker
+ * Original work Copyright (c) 2005 - 2017 GraphWalker
+ * Modified work Copyright (c) 2018 - 2019 Avito
  * %%
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -26,9 +27,6 @@ package org.graphwalker.core.machine;
  * #L%
  */
 
-import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
-
 import org.graphwalker.core.condition.VertexCoverage;
 import org.graphwalker.core.generator.ShortestAllPaths;
 import org.graphwalker.core.model.Action;
@@ -36,6 +34,9 @@ import org.graphwalker.core.model.Edge;
 import org.graphwalker.core.model.Model;
 import org.graphwalker.core.model.Vertex;
 import org.junit.Test;
+
+import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertThat;
 
 /**
  * @author Nils Olsson

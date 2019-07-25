@@ -4,7 +4,8 @@ package org.graphwalker.io.factory;
  * #%L
  * GraphWalker Input/Output
  * %%
- * Copyright (C) 2005 - 2014 GraphWalker
+ * Original work Copyright (c) 2005 - 2014 GraphWalker
+ * Modified work Copyright (c) 2018 - 2019 Avito
  * %%
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -26,13 +27,6 @@ package org.graphwalker.io.factory;
  * #L%
  */
 
-import java.net.URL;
-import java.nio.file.Path;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
 import org.apache.commons.io.FilenameUtils;
 import org.reflections.Reflections;
 import org.reflections.scanners.SubTypesScanner;
@@ -40,6 +34,10 @@ import org.reflections.util.ClasspathHelper;
 import org.reflections.util.ConfigurationBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.net.URL;
+import java.nio.file.Path;
+import java.util.*;
 
 /**
  * @author Nils Olsson

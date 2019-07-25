@@ -4,7 +4,8 @@ package org.graphwalker.core.statistics;
  * #%L
  * GraphWalker Core
  * %%
- * Copyright (C) 2005 - 2014 GraphWalker
+ * Original work Copyright (c) 2005 - 2014 GraphWalker
+ * Modified work Copyright (c) 2018 - 2019 Avito
  * %%
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -26,20 +27,9 @@ package org.graphwalker.core.statistics;
  * #L%
  */
 
-import static org.hamcrest.CoreMatchers.not;
-import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-
 import org.graphwalker.core.condition.EdgeCoverage;
 import org.graphwalker.core.generator.RandomPath;
-import org.graphwalker.core.machine.Context;
-import org.graphwalker.core.machine.ExecutionContext;
-import org.graphwalker.core.machine.Machine;
-import org.graphwalker.core.machine.SimpleMachine;
-import org.graphwalker.core.machine.TestExecutionContext;
+import org.graphwalker.core.machine.*;
 import org.graphwalker.core.model.Action;
 import org.graphwalker.core.model.Edge;
 import org.graphwalker.core.model.Model;
@@ -50,6 +40,10 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
 import java.util.HashSet;
+
+import static org.hamcrest.CoreMatchers.not;
+import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.*;
 
 /**
  * @author Nils Olsson

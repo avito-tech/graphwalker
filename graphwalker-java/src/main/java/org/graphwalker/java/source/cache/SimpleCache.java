@@ -4,7 +4,8 @@ package org.graphwalker.java.source.cache;
  * #%L
  * GraphWalker Java
  * %%
- * Copyright (C) 2005 - 2017 GraphWalker
+ * Original work Copyright (c) 2005 - 2017 GraphWalker
+ * Modified work Copyright (c) 2018 - 2019 Avito
  * %%
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -29,6 +30,9 @@ package org.graphwalker.java.source.cache;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.nio.charset.Charset;
@@ -37,8 +41,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * @author Nils Olsson

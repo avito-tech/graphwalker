@@ -4,7 +4,8 @@ package org.graphwalker.core.generator;
  * #%L
  * GraphWalker Core
  * %%
- * Copyright (C) 2005 - 2014 GraphWalker
+ * Original work Copyright (c) 2005 - 2014 GraphWalker
+ * Modified work Copyright (c) 2018 - 2019 Avito
  * %%
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -26,13 +27,6 @@ package org.graphwalker.core.generator;
  * #L%
  */
 
-import static org.graphwalker.core.Models.findEdge;
-import static org.graphwalker.core.Models.findVertex;
-import static org.graphwalker.core.Models.simpleModel;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
 import org.graphwalker.core.condition.EdgeCoverage;
 import org.graphwalker.core.condition.VertexCoverage;
 import org.graphwalker.core.machine.Context;
@@ -41,6 +35,9 @@ import org.graphwalker.core.model.Edge.RuntimeEdge;
 import org.graphwalker.core.model.Model.RuntimeModel;
 import org.graphwalker.core.model.Vertex.RuntimeVertex;
 import org.junit.Test;
+
+import static org.graphwalker.core.Models.*;
+import static org.junit.Assert.*;
 
 /**
  * @author Nils Olsson

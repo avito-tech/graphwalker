@@ -4,7 +4,8 @@ package org.graphwalker.io.common;
  * #%L
  * GraphWalker Input/Output
  * %%
- * Copyright (C) 2005 - 2015 GraphWalker
+ * Original work Copyright (c) 2005 - 2015 GraphWalker
+ * Modified work Copyright (c) 2018 - 2019 Avito
  * %%
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -26,12 +27,6 @@ package org.graphwalker.io.common;
  * #L%
  */
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.List;
-import java.util.ListIterator;
-import java.util.Properties;
-
 import org.apache.commons.io.IOUtils;
 import org.graphwalker.core.machine.Context;
 import org.graphwalker.core.model.Edge;
@@ -39,6 +34,12 @@ import org.graphwalker.core.model.Model;
 import org.graphwalker.core.model.Vertex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.List;
+import java.util.ListIterator;
+import java.util.Properties;
 
 /**
  * Created by krikar on 2015-11-04.

@@ -1,10 +1,11 @@
 package org.graphwalker.io.factory.yed;
 
-/*-
+/*
  * #%L
- * GraphWalker Input/Output
+ * GraphWalker Core
  * %%
- * Copyright (C) 2005 - 2018 Avito
+ * Original work Copyright (c) 2005 - 2018 GraphWalker
+ * Modified work Copyright (c) 2018 - 2019 Avito
  * %%
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal

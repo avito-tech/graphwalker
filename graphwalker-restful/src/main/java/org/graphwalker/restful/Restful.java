@@ -4,7 +4,8 @@ package org.graphwalker.restful;
  * #%L
  * GraphWalker Command Line Interface
  * %%
- * Copyright (C) 2005 - 2014 GraphWalker
+ * Original work Copyright (c) 2005 - 2014 GraphWalker
+ * Modified work Copyright (c) 2018 - 2019 Avito
  * %%
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -26,26 +27,17 @@ package org.graphwalker.restful;
  * #L%
  */
 
-import java.util.List;
-import java.util.Map;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import org.graphwalker.core.machine.Context;
-import org.graphwalker.core.machine.FailFastStrategy;
-import org.graphwalker.core.machine.Machine;
-import org.graphwalker.core.machine.MachineException;
-import org.graphwalker.core.machine.SimpleMachine;
+import org.graphwalker.core.machine.*;
 import org.graphwalker.core.model.Action;
 import org.graphwalker.io.factory.json.JsonContextFactory;
 import org.graphwalker.java.test.Result;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.ws.rs.*;
+import java.util.List;
+import java.util.Map;
 
 /**
  * JAX-RS (Java API for RESTful Services (JAX-RS)) service implementation.

@@ -4,7 +4,8 @@ package org.graphwalker.core.generator;
  * #%L
  * GraphWalker Core
  * %%
- * Copyright (C) 2005 - 2018 GraphWalker
+ * Original work Copyright (c) 2005 - 2018 GraphWalker
+ * Modified work Copyright (c) 2018 - 2019 Avito
  * %%
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -26,32 +27,25 @@ package org.graphwalker.core.generator;
  * #L%
  */
 
+import jdk.nashorn.api.scripting.ScriptObjectMirror;
 import org.graphwalker.core.algorithm.FloydWarshall;
 import org.graphwalker.core.algorithm.Yen;
 import org.graphwalker.core.condition.ReachedStopCondition;
 import org.graphwalker.core.machine.Context;
 import org.graphwalker.core.machine.ExecutionContext;
 import org.graphwalker.core.machine.MachineException;
-import org.graphwalker.core.model.Action;
-import org.graphwalker.core.model.Edge;
-import org.graphwalker.core.model.Element;
-import org.graphwalker.core.model.Guard;
-import org.graphwalker.core.model.Path;
-import org.graphwalker.core.model.Vertex;
+import org.graphwalker.core.model.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.script.Bindings;
+import javax.script.ScriptException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
-
-import javax.script.Bindings;
-import javax.script.ScriptException;
-
-import jdk.nashorn.api.scripting.ScriptObjectMirror;
 
 import static java.lang.Integer.MAX_VALUE;
 import static java.util.Objects.hash;
@@ -60,9 +54,7 @@ import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
 import static javax.script.ScriptContext.ENGINE_SCOPE;
 import static jdk.nashorn.api.scripting.NashornScriptEngine.NASHORN_GLOBAL;
-import static org.graphwalker.core.generator.ShortestPath.Statistics.Reason.ACTION_ERROR;
-import static org.graphwalker.core.generator.ShortestPath.Statistics.Reason.GUARD_CONDITION;
-import static org.graphwalker.core.generator.ShortestPath.Statistics.Reason.GUARD_ERROR;
+import static org.graphwalker.core.generator.ShortestPath.Statistics.Reason.*;
 
 /**
  * @author Ivan Bonkin

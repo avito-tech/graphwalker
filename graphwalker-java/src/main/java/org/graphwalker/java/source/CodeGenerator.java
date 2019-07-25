@@ -4,7 +4,8 @@ package org.graphwalker.java.source;
  * #%L
  * GraphWalker Java
  * %%
- * Copyright (C) 2005 - 2014 GraphWalker
+ * Original work Copyright (c) 2005 - 2014 GraphWalker
+ * Modified work Copyright (c) 2018 - 2019 Avito
  * %%
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -27,29 +28,17 @@ package org.graphwalker.java.source;
  */
 
 import com.github.javaparser.JavaParser;
-import com.github.javaparser.ast.CompilationUnit;
-import com.github.javaparser.ast.ImportDeclaration;
-import com.github.javaparser.ast.Modifier;
-import com.github.javaparser.ast.NodeList;
-import com.github.javaparser.ast.PackageDeclaration;
+import com.github.javaparser.ast.*;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.body.Parameter;
 import com.github.javaparser.ast.comments.LineComment;
-import com.github.javaparser.ast.expr.AnnotationExpr;
-import com.github.javaparser.ast.expr.ArrayInitializerExpr;
-import com.github.javaparser.ast.expr.Expression;
-import com.github.javaparser.ast.expr.MemberValuePair;
-import com.github.javaparser.ast.expr.Name;
-import com.github.javaparser.ast.expr.NormalAnnotationExpr;
-import com.github.javaparser.ast.expr.SimpleName;
-import com.github.javaparser.ast.expr.StringLiteralExpr;
+import com.github.javaparser.ast.expr.*;
 import com.github.javaparser.ast.stmt.BlockStmt;
 import com.github.javaparser.ast.stmt.Statement;
 import com.github.javaparser.ast.type.Type;
 import com.github.javaparser.ast.type.VoidType;
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
-
 import org.apache.commons.collections4.set.ListOrderedSet;
 import org.graphwalker.core.machine.Context;
 import org.graphwalker.core.model.Argument;
@@ -68,20 +57,9 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
-import java.nio.file.FileVisitResult;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.SimpleFileVisitor;
+import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 import java.util.function.Function;
 
 import static com.github.javaparser.ast.Modifier.DEFAULT;
@@ -98,10 +76,7 @@ import static java.util.EnumSet.noneOf;
 import static java.util.EnumSet.of;
 import static java.util.stream.Collectors.toList;
 import static org.graphwalker.core.model.Model.RuntimeModel;
-import static org.graphwalker.core.model.TypePrefix.BOOLEAN;
-import static org.graphwalker.core.model.TypePrefix.NUMBER;
-import static org.graphwalker.core.model.TypePrefix.STRING;
-import static org.graphwalker.core.model.TypePrefix.VOID;
+import static org.graphwalker.core.model.TypePrefix.*;
 
 /**
  * @author Nils Olsson

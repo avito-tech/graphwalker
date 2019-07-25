@@ -4,7 +4,8 @@ package org.graphwalker.core.model;
  * #%L
  * GraphWalker Core
  * %%
- * Copyright (C) 2005 - 2014 GraphWalker
+ * Original work Copyright (c) 2005 - 2014 GraphWalker
+ * Modified work Copyright (c) 2018 - 2019 Avito
  * %%
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -26,17 +27,16 @@ package org.graphwalker.core.model;
  * #L%
  */
 
+import org.junit.Test;
+
+import java.util.HashSet;
+import java.util.Set;
+
 import static org.graphwalker.core.model.Edge.RuntimeEdge;
 import static org.graphwalker.core.model.Model.RuntimeModel;
 import static org.graphwalker.core.model.Vertex.RuntimeVertex;
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertThat;
-
-import java.util.HashSet;
-import java.util.Set;
-import org.junit.Test;
+import static org.junit.Assert.*;
 
 /**
  * @author Nils Olsson

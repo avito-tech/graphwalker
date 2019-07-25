@@ -5,7 +5,8 @@ package org.graphwalker.core.generator;
  * * GraphWalker Core
  * *
  * %%
- * Copyright (C) 2005 - 2014 GraphWalker
+ * Original work Copyright (c) 2005 - 2014 GraphWalker
+ * Modified work Copyright (c) 2018 - 2019 Avito
  * *
  * %%
  * Permission is hereby granted, free of charge, to any person obtaining a copy

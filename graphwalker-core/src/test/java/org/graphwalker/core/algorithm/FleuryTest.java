@@ -4,7 +4,8 @@ package org.graphwalker.core.algorithm;
  * #%L
  * GraphWalker Core
  * %%
- * Copyright (C) 2005 - 2014 GraphWalker
+ * Original work Copyright (c) 2005 - 2014 GraphWalker
+ * Modified work Copyright (c) 2018 - 2019 Avito
  * %%
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -26,17 +27,14 @@ package org.graphwalker.core.algorithm;
  * #L%
  */
 
-import static org.junit.Assert.assertArrayEquals;
-
-import java.util.Arrays;
 import org.graphwalker.core.machine.Context;
 import org.graphwalker.core.machine.TestExecutionContext;
-import org.graphwalker.core.model.Edge;
-import org.graphwalker.core.model.Element;
-import org.graphwalker.core.model.Model;
-import org.graphwalker.core.model.Path;
-import org.graphwalker.core.model.Vertex;
+import org.graphwalker.core.model.*;
 import org.junit.Test;
+
+import java.util.Arrays;
+
+import static org.junit.Assert.assertArrayEquals;
 
 /**
  * @author Nils Olsson

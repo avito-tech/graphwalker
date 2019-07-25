@@ -4,7 +4,8 @@ package org.graphwalker.java.annotation;
  * #%L
  * GraphWalker Java
  * %%
- * Copyright (C) 2005 - 2014 GraphWalker
+ * Original work Copyright (c) 2005 - 2014 GraphWalker
+ * Modified work Copyright (c) 2018 - 2019 Avito
  * %%
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -26,14 +27,15 @@ package org.graphwalker.java.annotation;
  * #L%
  */
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
 import org.graphwalker.core.condition.StopCondition;
 import org.graphwalker.core.condition.VertexCoverage;
 import org.graphwalker.core.generator.PathGenerator;
 import org.graphwalker.core.generator.RandomPath;
+
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
  * @author Nils Olsson

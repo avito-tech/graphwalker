@@ -4,7 +4,8 @@ package org.graphwalker.core.example;
  * #%L
  * GraphWalker Core
  * %%
- * Copyright (C) 2005 - 2014 GraphWalker
+ * Original work Copyright (c) 2005 - 2014 GraphWalker
+ * Modified work Copyright (c) 2018 - 2019 Avito
  * %%
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -26,23 +27,15 @@ package org.graphwalker.core.example;
  * #L%
  */
 
+import org.graphwalker.core.condition.VertexCoverage;
+import org.graphwalker.core.generator.RandomPath;
+import org.graphwalker.core.machine.*;
+import org.graphwalker.core.model.*;
+import org.junit.Test;
+
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
-
-import org.graphwalker.core.condition.VertexCoverage;
-import org.graphwalker.core.generator.RandomPath;
-import org.graphwalker.core.machine.ExecutionContext;
-import org.graphwalker.core.machine.ExecutionStatus;
-import org.graphwalker.core.machine.Machine;
-import org.graphwalker.core.machine.MachineException;
-import org.graphwalker.core.machine.SimpleMachine;
-import org.graphwalker.core.model.Action;
-import org.graphwalker.core.model.Edge;
-import org.graphwalker.core.model.Guard;
-import org.graphwalker.core.model.Model;
-import org.graphwalker.core.model.Vertex;
-import org.junit.Test;
 
 /**
  * @author Nils Olsson

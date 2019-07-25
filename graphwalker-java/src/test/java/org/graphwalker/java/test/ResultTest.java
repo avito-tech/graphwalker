@@ -4,7 +4,8 @@ package org.graphwalker.java.test;
  * #%L
  * GraphWalker Java
  * %%
- * Copyright (C) 2005 - 2017 GraphWalker
+ * Original work Copyright (c) 2005 - 2017 GraphWalker
+ * Modified work Copyright (c) 2018 - 2019 Avito
  * %%
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -26,7 +27,12 @@ package org.graphwalker.java.test;
  * #L%
  */
 
-import static org.hamcrest.core.Is.is;
+import org.graphwalker.core.machine.Context;
+import org.graphwalker.io.factory.json.JsonContextFactory;
+import org.hamcrest.core.StringStartsWith;
+import org.json.JSONObject;
+import org.junit.Assert;
+import org.junit.Test;
 
 import java.io.IOException;
 import java.nio.file.Paths;
@@ -34,12 +40,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import org.graphwalker.core.machine.Context;
-import org.graphwalker.io.factory.json.JsonContextFactory;
-import org.hamcrest.core.StringStartsWith;
-import org.json.JSONObject;
-import org.junit.Assert;
-import org.junit.Test;
+
+import static org.hamcrest.core.Is.is;
 
 
 /**

@@ -2,7 +2,8 @@
  * #%L
  * GraphWalker Command Line Interface
  * %%
- * Copyright (C) 2005 - 2014 GraphWalker
+ * Original work Copyright (c) 2005 - 2014 GraphWalker
+ * Modified work Copyright (c) 2018 - 2019 Avito
  * %%
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -26,12 +27,13 @@
 
 package org.graphwalker.cli;
 
+import org.junit.Test;
+
 import java.io.IOException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
-import org.junit.Test;
 
 
 public class OnlineTest extends CLITestRoot {

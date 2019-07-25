@@ -4,7 +4,8 @@ package org.graphwalker.java.source;
  * #%L
  * GraphWalker Java
  * %%
- * Copyright (C) 2005 - 2018 GraphWalker
+ * Original work Copyright (c) 2005 - 2018 GraphWalker
+ * Modified work Copyright (c) 2018 - 2019 Avito
  * %%
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -36,7 +37,6 @@ import com.github.javaparser.ast.comments.JavadocComment;
 import com.github.javaparser.ast.comments.LineComment;
 import com.github.javaparser.ast.expr.Name;
 import com.github.javaparser.ast.type.Type;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

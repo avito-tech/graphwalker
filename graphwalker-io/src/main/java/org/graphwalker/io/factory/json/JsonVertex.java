@@ -4,7 +4,8 @@ package org.graphwalker.io.factory.json;
  * #%L
  * GraphWalker Input/Output
  * %%
- * Copyright (C) 2005 - 2014 GraphWalker
+ * Original work Copyright (c) 2005 - 2014 GraphWalker
+ * Modified work Copyright (c) 2018 - 2019 Avito
  * %%
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -26,12 +27,13 @@ package org.graphwalker.io.factory.json;
  * #L%
  */
 
+import org.graphwalker.core.model.Requirement;
+import org.graphwalker.core.model.Vertex;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.graphwalker.core.model.Requirement;
-import org.graphwalker.core.model.Vertex;
 
 /**
  * @author Nils Olsson

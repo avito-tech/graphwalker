@@ -4,7 +4,8 @@ package org.graphwalker.dsl.antlr.generator;
  * #%L
  * GraphWalker Command Line Interface
  * %%
- * Copyright (C) 2005 - 2017 GraphWalker
+ * Original work Copyright (c) 2005 - 2017 GraphWalker
+ * Modified work Copyright (c) 2018 - 2019 Avito
  * %%
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -26,20 +27,14 @@ package org.graphwalker.dsl.antlr.generator;
  * #L%
  */
 
+import org.graphwalker.core.condition.*;
+import org.graphwalker.core.generator.*;
+import org.graphwalker.dsl.generator.GeneratorParser;
+import org.graphwalker.dsl.generator.GeneratorParserBaseListener;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-
-import org.graphwalker.core.condition.*;
-import org.graphwalker.core.generator.AStarPath;
-import org.graphwalker.core.generator.CombinedPath;
-import org.graphwalker.core.generator.PathGenerator;
-import org.graphwalker.core.generator.QuickRandomPath;
-import org.graphwalker.core.generator.RandomPath;
-import org.graphwalker.core.generator.ShortestAllPaths;
-import org.graphwalker.core.generator.WeightedRandomPath;
-import org.graphwalker.dsl.generator.GeneratorParser;
-import org.graphwalker.dsl.generator.GeneratorParserBaseListener;
 
 /**
  * Created by krikar on 5/14/14.

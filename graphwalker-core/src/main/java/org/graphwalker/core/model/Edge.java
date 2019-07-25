@@ -4,7 +4,8 @@ package org.graphwalker.core.model;
  * #%L
  * GraphWalker Core
  * %%
- * Copyright (C) 2005 - 2017 GraphWalker
+ * Original work Copyright (c) 2005 - 2017 GraphWalker
+ * Modified work Copyright (c) 2018 - 2019 Avito
  * %%
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -34,9 +35,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import static java.math.BigDecimal.ROUND_HALF_DOWN;
-import static org.graphwalker.core.common.Objects.isNotNull;
-import static org.graphwalker.core.common.Objects.isNotNullOrEmpty;
-import static org.graphwalker.core.common.Objects.unmodifiableList;
+import static org.graphwalker.core.common.Objects.*;
 import static org.graphwalker.core.model.Vertex.RuntimeVertex;
 
 /**

@@ -4,7 +4,8 @@ package org.graphwalker.java.test;
  * #%L
  * GraphWalker Java
  * %%
- * Copyright (C) 2005 - 2014 GraphWalker
+ * Original work Copyright (c) 2005 - 2014 GraphWalker
+ * Modified work Copyright (c) 2018 - 2019 Avito
  * %%
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -26,15 +27,6 @@ package org.graphwalker.java.test;
  * #L%
  */
 
-import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
-
-import java.io.IOException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.ArrayDeque;
-import java.util.Arrays;
-import java.util.Deque;
 import org.graphwalker.core.condition.VertexCoverage;
 import org.graphwalker.core.generator.RandomPath;
 import org.graphwalker.core.machine.ExecutionContext;
@@ -44,6 +36,16 @@ import org.graphwalker.java.annotation.AfterExecution;
 import org.graphwalker.java.annotation.BeforeElement;
 import org.graphwalker.java.annotation.BeforeExecution;
 import org.junit.Test;
+
+import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayDeque;
+import java.util.Arrays;
+import java.util.Deque;
+
+import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertThat;
 
 /**
  * @author Nils Olsson

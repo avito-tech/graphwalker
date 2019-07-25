@@ -4,7 +4,8 @@ package org.graphwalker.io.factory.yed;
  * #%L
  * GraphWalker Input/Output
  * %%
- * Copyright (C) 2005 - 2014 GraphWalker
+ * Original work Copyright (c) 2005 - 2014 GraphWalker
+ * Modified work Copyright (c) 2018 - 2019 Avito
  * %%
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -32,13 +33,9 @@ import org.graphwalker.core.generator.RandomPath;
 import org.graphwalker.core.machine.Context;
 import org.graphwalker.core.machine.Machine;
 import org.graphwalker.core.machine.SimpleMachine;
-import org.graphwalker.core.model.Action;
-import org.graphwalker.core.model.Edge;
+import org.graphwalker.core.model.*;
 import org.graphwalker.core.model.Edge.RuntimeEdge;
-import org.graphwalker.core.model.Guard;
-import org.graphwalker.core.model.Model;
 import org.graphwalker.core.model.Model.RuntimeModel;
-import org.graphwalker.core.model.Vertex;
 import org.graphwalker.core.model.Vertex.RuntimeVertex;
 import org.graphwalker.io.TestExecutionContext;
 import org.graphwalker.io.common.ResourceUtils;
@@ -63,20 +60,9 @@ import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
 import static org.graphwalker.core.model.VertexStyle.Configuration;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.allOf;
-import static org.hamcrest.Matchers.both;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.hasItem;
-import static org.hamcrest.Matchers.hasProperty;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.hasToString;
-import static org.hamcrest.Matchers.nullValue;
+import static org.hamcrest.Matchers.*;
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 
 /**

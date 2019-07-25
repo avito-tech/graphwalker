@@ -2,7 +2,8 @@
  * #%L
  * GraphWalker Command Line Interface
  * %%
- * Copyright (C) 2005 - 2014 GraphWalker
+ * Original work Copyright (c) 2005 - 2014 GraphWalker
+ * Modified work Copyright (c) 2018 - 2019 Avito
  * %%
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -48,13 +49,14 @@
 
 package org.graphwalker.cli;
 
+import org.junit.Assert;
+import org.junit.Test;
+
+import java.util.Arrays;
+
 import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.core.Is.is;
-
-import java.util.Arrays;
-import org.junit.Assert;
-import org.junit.Test;
 
 
 public class CorrectModelsTest extends CLITestRoot {

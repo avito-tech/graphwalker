@@ -4,7 +4,8 @@ package org.graphwalker.websocket;
  * #%L
  * GraphWalker As A Service
  * %%
- * Copyright (C) 2005 - 2014 GraphWalker
+ * Original work Copyright (c) 2005 - 2014 GraphWalker
+ * Modified work Copyright (c) 2018 - 2019 Avito
  * %%
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -26,16 +27,6 @@ package org.graphwalker.websocket;
  * #L%
  */
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.InetSocketAddress;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
 import org.apache.commons.io.IOUtils;
 import org.graphwalker.core.event.EventType;
 import org.graphwalker.core.event.Observer;
@@ -53,6 +44,11 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.InetSocketAddress;
+import java.util.*;
 
 /**
  * A WebSocketServer with an API for working with GraphWalker as a service.

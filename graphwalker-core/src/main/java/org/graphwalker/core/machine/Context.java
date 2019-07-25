@@ -4,7 +4,8 @@ package org.graphwalker.core.machine;
  * #%L
  * GraphWalker Core
  * %%
- * Copyright (C) 2005 - 2014 GraphWalker
+ * Original work Copyright (c) 2005 - 2014 GraphWalker
+ * Modified work Copyright (c) 2018 - 2019 Avito
  * %%
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -28,18 +29,13 @@ package org.graphwalker.core.machine;
 
 import org.graphwalker.core.algorithm.Algorithm;
 import org.graphwalker.core.generator.PathGenerator;
-import org.graphwalker.core.model.Action;
-import org.graphwalker.core.model.Argument;
-import org.graphwalker.core.model.Builder;
-import org.graphwalker.core.model.Element;
-import org.graphwalker.core.model.Requirement;
+import org.graphwalker.core.model.*;
 import org.graphwalker.core.statistics.Profiler;
 
+import javax.script.ScriptEngine;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-
-import javax.script.ScriptEngine;
 
 import static org.graphwalker.core.model.Edge.RuntimeEdge;
 import static org.graphwalker.core.model.Model.RuntimeModel;

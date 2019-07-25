@@ -4,7 +4,8 @@ package org.graphwalker.core.statistics;
  * #%L
  * GraphWalker Core
  * %%
- * Copyright (C) 2005 - 2014 GraphWalker
+ * Original work Copyright (c) 2005 - 2014 GraphWalker
+ * Modified work Copyright (c) 2018 - 2019 Avito
  * %%
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -26,17 +27,17 @@ package org.graphwalker.core.statistics;
  * #L%
  */
 
-import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThat;
-
-import java.util.concurrent.TimeUnit;
-
 import org.graphwalker.core.machine.ExecutionContext;
 import org.graphwalker.core.machine.TestExecutionContext;
 import org.graphwalker.core.model.Vertex;
 import org.hamcrest.CoreMatchers;
 import org.junit.Test;
+
+import java.util.concurrent.TimeUnit;
+
+import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThat;
 
 /**
  * @author Nils Olsson

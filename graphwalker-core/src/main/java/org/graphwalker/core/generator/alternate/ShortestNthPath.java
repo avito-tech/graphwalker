@@ -4,7 +4,8 @@ package org.graphwalker.core.generator.alternate;
  * #%L
  * GraphWalker Core
  * %%
- * Copyright (C) 2005 - 2018 GraphWalker
+ * Original work Copyright (c) 2005 - 2018 GraphWalker
+ * Modified work Copyright (c) 2018 - 2019 Avito
  * %%
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -26,6 +27,15 @@ package org.graphwalker.core.generator.alternate;
  * #L%
  */
 
+import io.jenetics.*;
+import io.jenetics.engine.Engine;
+import io.jenetics.engine.EvolutionResult;
+import io.jenetics.engine.EvolutionStatistics;
+import io.jenetics.stat.DoubleMomentStatistics;
+import io.jenetics.util.ISeq;
+import io.jenetics.util.RandomRegistry;
+import jdk.nashorn.api.scripting.ScriptObjectMirror;
+import jdk.nashorn.api.scripting.ScriptUtils;
 import org.graphwalker.core.algorithm.FloydWarshall;
 import org.graphwalker.core.algorithm.Yen;
 import org.graphwalker.core.condition.ReachedStopCondition;
@@ -38,27 +48,8 @@ import org.graphwalker.core.model.Element;
 import org.graphwalker.core.model.Path;
 import org.graphwalker.core.model.Vertex.RuntimeVertex;
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-
 import javax.script.Bindings;
-
-import io.jenetics.EnumGene;
-import io.jenetics.Optimize;
-import io.jenetics.PartiallyMatchedCrossover;
-import io.jenetics.PermutationChromosome;
-import io.jenetics.SwapMutator;
-import io.jenetics.engine.Engine;
-import io.jenetics.engine.EvolutionResult;
-import io.jenetics.engine.EvolutionStatistics;
-import io.jenetics.stat.DoubleMomentStatistics;
-import io.jenetics.util.ISeq;
-import io.jenetics.util.RandomRegistry;
-import jdk.nashorn.api.scripting.ScriptObjectMirror;
-import jdk.nashorn.api.scripting.ScriptUtils;
+import java.util.*;
 
 import static io.jenetics.engine.Limits.bySteadyFitness;
 import static java.lang.Integer.MAX_VALUE;

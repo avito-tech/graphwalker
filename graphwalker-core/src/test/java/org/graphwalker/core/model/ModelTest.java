@@ -4,7 +4,8 @@ package org.graphwalker.core.model;
  * #%L
  * GraphWalker Core
  * %%
- * Copyright (C) 2005 - 2014 GraphWalker
+ * Original work Copyright (c) 2005 - 2014 GraphWalker
+ * Modified work Copyright (c) 2018 - 2019 Avito
  * %%
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -26,17 +27,17 @@ package org.graphwalker.core.model;
  * #L%
  */
 
-import static org.hamcrest.core.Is.is;
-import static org.hamcrest.core.IsNot.not;
-import static org.hamcrest.core.IsNull.notNullValue;
-import static org.junit.Assert.*;
+import org.graphwalker.core.model.Model.RuntimeModel;
+import org.junit.Test;
 
 import java.util.Arrays;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
-import org.graphwalker.core.model.Model.RuntimeModel;
-import org.junit.Test;
+import static org.hamcrest.core.Is.is;
+import static org.hamcrest.core.IsNot.not;
+import static org.hamcrest.core.IsNull.notNullValue;
+import static org.junit.Assert.*;
 
 /**
  * @author Nils Olsson

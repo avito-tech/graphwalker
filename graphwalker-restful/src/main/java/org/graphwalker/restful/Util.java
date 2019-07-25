@@ -4,7 +4,8 @@ package org.graphwalker.restful;
  * #%L
  * GraphWalker Command Line Interface
  * %%
- * Copyright (C) 2005 - 2014 GraphWalker
+ * Original work Copyright (c) 2005 - 2014 GraphWalker
+ * Modified work Copyright (c) 2018 - 2019 Avito
  * %%
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -26,7 +27,6 @@ package org.graphwalker.restful;
  * #L%
  */
 
-import java.util.Map;
 import org.apache.commons.io.FilenameUtils;
 import org.graphwalker.core.machine.Context;
 import org.graphwalker.core.machine.Machine;
@@ -35,6 +35,8 @@ import org.graphwalker.core.model.Element;
 import org.graphwalker.core.model.RuntimeBase;
 import org.json.JSONArray;
 import org.json.JSONObject;
+
+import java.util.Map;
 
 /**
  * Helper class to create output in different formats, like JSON or plain text.

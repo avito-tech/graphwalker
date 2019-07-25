@@ -4,7 +4,8 @@ package org.graphwalker.io.xmlbeans.yed;
  * #%L
  * GraphWalker Input/Output
  * %%
- * Copyright (C) 2005 - 2014 GraphWalker
+ * Original work Copyright (c) 2005 - 2014 GraphWalker
+ * Modified work Copyright (c) 2018 - 2019 Avito
  * %%
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -26,13 +27,14 @@ package org.graphwalker.io.xmlbeans.yed;
  * #L%
  */
 
-import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
-
-import java.io.IOException;
 import org.apache.xmlbeans.XmlException;
 import org.graphdrawing.graphml.xmlns.GraphmlDocument;
 import org.junit.Test;
+
+import java.io.IOException;
+
+import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertThat;
 
 /**
  * @author Nils Olsson

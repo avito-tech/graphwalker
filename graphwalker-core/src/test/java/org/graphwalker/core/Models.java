@@ -4,7 +4,8 @@ package org.graphwalker.core;
  * #%L
  * GraphWalker Core
  * %%
- * Copyright (C) 2005 - 2017 GraphWalker
+ * Original work Copyright (c) 2005 - 2017 GraphWalker
+ * Modified work Copyright (c) 2018 - 2019 Avito
  * %%
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -26,13 +27,13 @@ package org.graphwalker.core;
  * #L%
  */
 
-import static org.graphwalker.core.model.Edge.RuntimeEdge;
-import static org.graphwalker.core.model.Model.RuntimeModel;
-import static org.graphwalker.core.model.Vertex.RuntimeVertex;
-
 import org.graphwalker.core.model.Edge;
 import org.graphwalker.core.model.Model;
 import org.graphwalker.core.model.Vertex;
+
+import static org.graphwalker.core.model.Edge.RuntimeEdge;
+import static org.graphwalker.core.model.Model.RuntimeModel;
+import static org.graphwalker.core.model.Vertex.RuntimeVertex;
 
 public abstract class Models {
 

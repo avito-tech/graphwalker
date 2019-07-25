@@ -4,7 +4,8 @@ package org.graphwalker.io.factory.java;
  * #%L
  * GraphWalker Input/Output
  * %%
- * Copyright (C) 2005 - 2014 GraphWalker
+ * Original work Copyright (c) 2005 - 2014 GraphWalker
+ * Modified work Copyright (c) 2018 - 2019 Avito
  * %%
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -27,7 +28,6 @@ package org.graphwalker.io.factory.java;
  */
 
 import com.google.common.collect.ImmutableList;
-
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.NotImplementedException;
 import org.apache.commons.lang3.StringUtils;

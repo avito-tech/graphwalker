@@ -4,7 +4,8 @@ package org.graphwalker.io.factory.yed;
  * #%L
  * GraphWalker Input/Output
  * %%
- * Copyright (C) 2005 - 2014 GraphWalker
+ * Original work Copyright (c) 2005 - 2014 GraphWalker
+ * Modified work Copyright (c) 2018 - 2019 Avito
  * %%
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -26,32 +27,11 @@ package org.graphwalker.io.factory.yed;
  * #L%
  */
 
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.BiMap;
-import com.google.common.collect.HashBiMap;
-import com.google.common.collect.LinkedHashMultimap;
-import com.google.common.collect.Multimap;
-import com.yworks.xml.graphml.ArcEdgeDocument;
-import com.yworks.xml.graphml.BezierEdgeDocument;
-import com.yworks.xml.graphml.EdgeLabelType;
+import com.google.common.collect.*;
 import com.yworks.xml.graphml.EdgeType;
-import com.yworks.xml.graphml.GenericEdgeDocument;
-import com.yworks.xml.graphml.GenericGroupNodeDocument;
-import com.yworks.xml.graphml.GenericNodeDocument;
-import com.yworks.xml.graphml.GenericNodeType;
-import com.yworks.xml.graphml.GeometryType;
-import com.yworks.xml.graphml.GroupNodeDocument;
-import com.yworks.xml.graphml.ImageNodeDocument;
-import com.yworks.xml.graphml.LineStyleType;
-import com.yworks.xml.graphml.NodeLabelType;
-import com.yworks.xml.graphml.PolyLineEdgeDocument;
-import com.yworks.xml.graphml.QuadCurveEdgeDocument;
-import com.yworks.xml.graphml.ShapeNodeDocument;
-import com.yworks.xml.graphml.SplineEdgeDocument;
-import com.yworks.xml.graphml.TableNodeDocument;
+import com.yworks.xml.graphml.*;
 import com.yworks.xml.graphml.impl.EdgeLabelTypeImpl;
 import com.yworks.xml.graphml.impl.NodeLabelTypeImpl;
-
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
@@ -60,28 +40,15 @@ import org.apache.commons.collections4.map.ListOrderedMap;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
-import org.graphdrawing.graphml.xmlns.DataType;
-import org.graphdrawing.graphml.xmlns.GraphType;
-import org.graphdrawing.graphml.xmlns.GraphmlDocument;
-import org.graphdrawing.graphml.xmlns.KeyType;
 import org.graphdrawing.graphml.xmlns.NodeType;
+import org.graphdrawing.graphml.xmlns.*;
 import org.graphdrawing.graphml.xmlns.impl.DataTypeImpl;
 import org.graphdrawing.graphml.xmlns.impl.KeyForTypeImpl;
 import org.graphdrawing.graphml.xmlns.impl.KeyTypeImpl;
 import org.graphwalker.core.machine.Context;
-import org.graphwalker.core.model.Action;
-import org.graphwalker.core.model.Argument;
-import org.graphwalker.core.model.CodeTag;
-import org.graphwalker.core.model.Edge;
+import org.graphwalker.core.model.*;
 import org.graphwalker.core.model.Edge.RuntimeEdge;
-import org.graphwalker.core.model.Guard;
-import org.graphwalker.core.model.LineStyle;
-import org.graphwalker.core.model.Model;
-import org.graphwalker.core.model.Requirement;
-import org.graphwalker.core.model.TypePrefix;
-import org.graphwalker.core.model.Vertex;
 import org.graphwalker.core.model.Vertex.RuntimeVertex;
-import org.graphwalker.core.model.VertexStyle;
 import org.graphwalker.dsl.antlr.yed.YEdDescriptiveErrorListener;
 import org.graphwalker.dsl.yed.YEdEdgeParser;
 import org.graphwalker.dsl.yed.YEdLabelLexer;
@@ -93,7 +60,7 @@ import org.graphwalker.io.factory.ContextFactoryException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.awt.Color;
+import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -101,61 +68,29 @@ import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Deque;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.ListIterator;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
-import static java.awt.Color.BLACK;
-import static java.awt.Color.GREEN;
-import static java.awt.Color.MAGENTA;
-import static java.awt.Color.RED;
+import static java.awt.Color.*;
 import static java.lang.Double.parseDouble;
 import static java.lang.Integer.parseInt;
 import static java.util.Arrays.asList;
-import static java.util.Collections.emptyList;
-import static java.util.Collections.emptyMap;
-import static java.util.Collections.singletonList;
+import static java.util.Collections.*;
 import static java.util.function.Function.identity;
-import static java.util.stream.Collectors.groupingBy;
-import static java.util.stream.Collectors.joining;
-import static java.util.stream.Collectors.toMap;
+import static java.util.stream.Collectors.*;
 import static org.apache.commons.collections4.map.ListOrderedMap.listOrderedMap;
 import static org.apache.commons.lang3.StringEscapeUtils.escapeXml10;
-import static org.graphwalker.core.model.LineStyle.DEFAULT_EDGE_STYLE;
-import static org.graphwalker.core.model.LineStyle.LineColor;
 import static org.graphwalker.core.model.LineStyle.Property;
+import static org.graphwalker.core.model.LineStyle.*;
 import static org.graphwalker.core.model.TypePrefix.BOOLEAN;
-import static org.graphwalker.core.model.TypePrefix.NUMBER;
-import static org.graphwalker.core.model.TypePrefix.STRING;
-import static org.graphwalker.core.model.VertexStyle.Alignment;
-import static org.graphwalker.core.model.VertexStyle.Border;
-import static org.graphwalker.core.model.VertexStyle.Configuration;
-import static org.graphwalker.core.model.VertexStyle.DEFAULT_VERTEX_STYLE;
-import static org.graphwalker.core.model.VertexStyle.Fill;
-import static org.graphwalker.core.model.VertexStyle.FontFamily;
-import static org.graphwalker.core.model.VertexStyle.FontStyle;
-import static org.graphwalker.core.model.VertexStyle.Geometry;
+import static org.graphwalker.core.model.TypePrefix.*;
 import static org.graphwalker.core.model.VertexStyle.Label;
 import static org.graphwalker.core.model.VertexStyle.LineType;
-import static org.graphwalker.core.model.VertexStyle.SCALED_VERTEX_STYLE;
-import static org.graphwalker.core.model.VertexStyle.TextColor;
-import static org.graphwalker.dsl.yed.YEdEdgeParser.ActionContext;
-import static org.graphwalker.dsl.yed.YEdEdgeParser.FieldContext;
-import static org.graphwalker.dsl.yed.YEdEdgeParser.ParseContext;
-import static org.graphwalker.dsl.yed.YEdEdgeParser.ReqtagContext;
+import static org.graphwalker.core.model.VertexStyle.*;
+import static org.graphwalker.dsl.yed.YEdEdgeParser.*;
 
 
 /**

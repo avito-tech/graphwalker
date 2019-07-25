@@ -4,7 +4,8 @@ package org.graphwalker.core.generator.alternate;
  * #%L
  * GraphWalker Core
  * %%
- * Copyright (C) 2005 - 2018 GraphWalker
+ * Original work Copyright (c) 2005 - 2018 GraphWalker
+ * Modified work Copyright (c) 2018 - 2019 Avito
  * %%
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -29,21 +30,15 @@ package org.graphwalker.core.generator.alternate;
 import org.graphwalker.core.condition.ReachedVertex;
 import org.graphwalker.core.machine.Context;
 import org.graphwalker.core.machine.TestExecutionContext;
-import org.graphwalker.core.model.Action;
-import org.graphwalker.core.model.Edge;
-import org.graphwalker.core.model.Element;
-import org.graphwalker.core.model.Guard;
-import org.graphwalker.core.model.Model;
-import org.graphwalker.core.model.Vertex;
+import org.graphwalker.core.model.*;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameter;
 import org.junit.runners.Parameterized.Parameters;
 
-import java.util.Arrays;
-
 import javax.script.ScriptException;
+import java.util.Arrays;
 
 import static org.graphwalker.core.generator.alternate.ShortestNthPath.useTop;
 import static org.hamcrest.Matchers.equalTo;

@@ -4,7 +4,8 @@ package org.graphwalker.core.generator;
  * #%L
  * GraphWalker Core
  * %%
- * Copyright (C) 2005 - 2014 GraphWalker
+ * Original work Copyright (c) 2005 - 2014 GraphWalker
+ * Modified work Copyright (c) 2018 - 2019 Avito
  * %%
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -26,10 +27,6 @@ package org.graphwalker.core.generator;
  * #L%
  */
 
-import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
-
 import org.graphwalker.core.condition.EdgeCoverage;
 import org.graphwalker.core.condition.ReachedEdge;
 import org.graphwalker.core.condition.ReachedVertex;
@@ -45,6 +42,10 @@ import org.junit.Test;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
 
 /**
  * @author Nils Olsson

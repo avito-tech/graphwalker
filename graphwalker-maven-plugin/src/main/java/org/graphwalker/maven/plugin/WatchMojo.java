@@ -4,7 +4,8 @@ package org.graphwalker.maven.plugin;
  * #%L
  * GraphWalker Maven Plugin
  * %%
- * Copyright (C) 2005 - 2014 GraphWalker
+ * Original work Copyright (c) 2005 - 2014 GraphWalker
+ * Modified work Copyright (c) 2018 - 2019 Avito
  * %%
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -26,29 +27,6 @@ package org.graphwalker.maven.plugin;
  * #L%
  */
 
-import static com.sun.nio.file.SensitivityWatchEventModifier.HIGH;
-import static java.nio.file.StandardWatchEventKinds.ENTRY_CREATE;
-import static java.nio.file.StandardWatchEventKinds.ENTRY_DELETE;
-import static java.nio.file.StandardWatchEventKinds.ENTRY_MODIFY;
-import static java.nio.file.StandardWatchEventKinds.OVERFLOW;
-import static org.graphwalker.core.model.Model.RuntimeModel;
-
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.FileSystems;
-import java.nio.file.FileVisitResult;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.SimpleFileVisitor;
-import java.nio.file.WatchEvent;
-import java.nio.file.WatchKey;
-import java.nio.file.WatchService;
-import java.nio.file.attribute.BasicFileAttributes;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.TimeUnit;
 import org.apache.maven.model.Resource;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -65,6 +43,20 @@ import org.graphwalker.io.factory.ContextFactory;
 import org.graphwalker.io.factory.ContextFactoryScanner;
 import org.graphwalker.java.source.CodeGenerator;
 import org.graphwalker.java.source.SourceFile;
+
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.*;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
+
+import static com.sun.nio.file.SensitivityWatchEventModifier.HIGH;
+import static java.nio.file.StandardWatchEventKinds.*;
+import static org.graphwalker.core.model.Model.RuntimeModel;
 
 /**
  * @author Nils Olsson

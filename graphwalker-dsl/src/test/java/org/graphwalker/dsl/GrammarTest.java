@@ -4,7 +4,8 @@ package org.graphwalker.dsl;
  * #%L
  * GraphWalker Input/Output
  * %%
- * Copyright (C) 2005 - 2014 GraphWalker
+ * Original work Copyright (c) 2005 - 2014 GraphWalker
+ * Modified work Copyright (c) 2018 - 2019 Avito
  * %%
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -26,10 +27,6 @@ package org.graphwalker.dsl;
  * #L%
  */
 
-import static org.hamcrest.core.Is.is;
-
-import java.util.Arrays;
-import java.util.List;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
@@ -37,6 +34,11 @@ import org.graphwalker.dsl.generator.GeneratorParser;
 import org.graphwalker.dsl.generator.LogicalLexer;
 import org.junit.Assert;
 import org.junit.Test;
+
+import java.util.Arrays;
+import java.util.List;
+
+import static org.hamcrest.core.Is.is;
 
 /**
  * @author Nils Olsson

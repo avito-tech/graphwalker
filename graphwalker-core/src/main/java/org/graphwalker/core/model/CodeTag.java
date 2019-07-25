@@ -4,7 +4,8 @@ package org.graphwalker.core.model;
  * #%L
  * GraphWalker Core
  * %%
- * Copyright (C) 2005 - 2018 GraphWalker
+ * Original work Copyright (c) 2005 - 2018 GraphWalker
+ * Modified work Copyright (c) 2018 - 2019 Avito
  * %%
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -31,11 +32,7 @@ import java.util.Objects;
 
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
-import static org.graphwalker.core.model.TypePrefix.BOOLEAN;
-import static org.graphwalker.core.model.TypePrefix.NUMBER;
-import static org.graphwalker.core.model.TypePrefix.STRING;
-import static org.graphwalker.core.model.TypePrefix.VOID;
-import static org.graphwalker.core.model.TypePrefix.values;
+import static org.graphwalker.core.model.TypePrefix.*;
 
 /**
  * <code>@code</code> tag in description block.

@@ -4,7 +4,8 @@ package org.graphwalker.java.annotation.resources;
  * #%L
  * GraphWalker Java
  * %%
- * Copyright (C) 2005 - 2014 GraphWalker
+ * Original work Copyright (c) 2005 - 2014 GraphWalker
+ * Modified work Copyright (c) 2018 - 2019 Avito
  * %%
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -29,13 +30,7 @@ package org.graphwalker.java.annotation.resources;
 import org.graphwalker.core.condition.VertexCoverage;
 import org.graphwalker.core.generator.RandomPath;
 import org.graphwalker.core.machine.ExecutionContext;
-import org.graphwalker.java.annotation.AfterElement;
-import org.graphwalker.java.annotation.AfterExecution;
-import org.graphwalker.java.annotation.BeforeElement;
-import org.graphwalker.java.annotation.BeforeExecution;
-import org.graphwalker.java.annotation.Edge;
-import org.graphwalker.java.annotation.GraphWalker;
-import org.graphwalker.java.annotation.Vertex;
+import org.graphwalker.java.annotation.*;
 
 /**
  * @author Nils Olsson
