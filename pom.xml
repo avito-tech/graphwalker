@@ -50,19 +50,6 @@
     </developer>
   </developers>
 
-  <distributionManagement>
-    <repository>
-      <id>central</id>
-      <name>artifactory.msk.avito.ru-releases</name>
-      <url>http://artifactory.msk.avito.ru/artifactory/graphwalker-local</url>
-    </repository>
-    <snapshotRepository>
-      <id>snapshots</id>
-      <name>artifactory.msk.avito.ru-snapshots</name>
-      <url>http://artifactory.msk.avito.ru/artifactory/graphwalker-local</url>
-    </snapshotRepository>
-  </distributionManagement>
-
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
