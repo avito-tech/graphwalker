@@ -43,22 +43,22 @@
 
   <dependencies>
     <dependency>
-      <groupId>org.graphwalker</groupId>
+      <groupId>com.avito.graphwalker</groupId>
       <artifactId>graphwalker-core</artifactId>
       <version>${graphwalker.version}</version>
     </dependency>
     <dependency>
-      <groupId>org.graphwalker</groupId>
+      <groupId>com.avito.graphwalker</groupId>
       <artifactId>graphwalker-io</artifactId>
       <version>${graphwalker.version}</version>
     </dependency>
     <dependency>
-      <groupId>org.graphwalker</groupId>
+      <groupId>com.avito.graphwalker</groupId>
       <artifactId>graphwalker-java</artifactId>
       <version>${graphwalker.version}</version>
     </dependency>
     <dependency>
-      <groupId>org.graphwalker</groupId>
+      <groupId>com.avito.graphwalker</groupId>
       <artifactId>graphwalker-maven-plugin</artifactId>
       <version>${graphwalker.version}</version>
     </dependency>
@@ -76,7 +76,7 @@
         </configuration>
       </plugin>
       <plugin>
-        <groupId>org.graphwalker</groupId>
+        <groupId>com.avito.graphwalker</groupId>
         <artifactId>graphwalker-maven-plugin</artifactId>
         <version>${graphwalker.version}</version>
         <!-- Bind goals to the default lifecycle -->

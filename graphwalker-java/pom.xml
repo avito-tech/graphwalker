@@ -5,7 +5,7 @@
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <groupId>org.graphwalker</groupId>
+    <groupId>com.avito.graphwalker</groupId>
     <artifactId>graphwalker-project</artifactId>
     <version>4.2.4.1</version>
   </parent>
@@ -13,20 +13,13 @@
   <artifactId>graphwalker-java</artifactId>
   <name>GraphWalker Java</name>
 
-  <scm>
-    <url>https://github.com/GraphWalker/graphwalker-project</url>
-    <connection>scm:git:git://github.com:GraphWalker/graphwalker-project.git</connection>
-    <developerConnection>scm:git:git@github.com:GraphWalker/graphwalker-project.git
-    </developerConnection>
-  </scm>
-
   <dependencies>
     <dependency>
-      <groupId>org.graphwalker</groupId>
+      <groupId>com.avito.graphwalker</groupId>
       <artifactId>graphwalker-dsl</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.graphwalker</groupId>
+      <groupId>com.avito.graphwalker</groupId>
       <artifactId>graphwalker-io</artifactId>
     </dependency>
     <dependency>

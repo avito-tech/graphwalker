@@ -5,48 +5,41 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.graphwalker</groupId>
+        <groupId>com.avito.graphwalker</groupId>
         <artifactId>graphwalker-project</artifactId>
-      <version>4.2.4.1</version>
+        <version>4.2.4.1</version>
     </parent>
 
     <artifactId>graphwalker-cli</artifactId>
     <name>GraphWalker Command Line Interface</name>
 
-    <scm>
-        <url>https://github.com/GraphWalker/graphwalker-project</url>
-        <connection>scm:git:git://github.com:GraphWalker/graphwalker-project.git</connection>
-        <developerConnection>scm:git:git@github.com:GraphWalker/graphwalker-project.git
-        </developerConnection>
-    </scm>
-
     <dependencies>
         <dependency>
-            <groupId>org.graphwalker</groupId>
+            <groupId>com.avito.graphwalker</groupId>
             <artifactId>graphwalker-core</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.graphwalker</groupId>
+            <groupId>com.avito.graphwalker</groupId>
             <artifactId>graphwalker-io</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.graphwalker</groupId>
+            <groupId>com.avito.graphwalker</groupId>
             <artifactId>graphwalker-dsl</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.graphwalker</groupId>
+            <groupId>com.avito.graphwalker</groupId>
             <artifactId>graphwalker-java</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.graphwalker</groupId>
+            <groupId>com.avito.graphwalker</groupId>
             <artifactId>graphwalker-restful</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.graphwalker</groupId>
+            <groupId>com.avito.graphwalker</groupId>
             <artifactId>graphwalker-websocket</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.graphwalker</groupId>
+            <groupId>com.avito.graphwalker</groupId>
             <artifactId>graphwalker-model-checker</artifactId>
         </dependency>
         <dependency>
@@ -113,7 +106,7 @@
                 </configuration>
             </plugin>
             <plugin>
-                <groupId>org.graphwalker</groupId>
+                <groupId>com.avito.graphwalker</groupId>
                 <artifactId>graphwalker-maven-plugin</artifactId>
                 <executions>
                     <execution>
