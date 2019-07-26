@@ -1,4 +1,3 @@
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.graphwalker/graphwalker-core/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.graphwalker/graphwalker-core)
 GraphWalker Core
 ===================
 

@@ -1,4 +1,3 @@
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.graphwalker/graphwalker-maven-archetype/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.graphwalker/graphwalker-maven-archetype)
 GraphWalker Maven Archetype
 ================
 
