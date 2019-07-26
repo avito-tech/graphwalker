@@ -4,37 +4,39 @@ Original documentation on http://graphwalker.org/
 
 ### Added features
 
-Here are descriptions of some added features.
+Here is description of added features.
 
-#### Split to multiple graphs with the same context
+#### Split into multiple graphs with the same context
 
 The prehistory of this feature is as follows - in the library itself, 
 it is already possible to split the test model into separate files, 
 linking them together using the `SHARED` mechanism of steps. 
 More information about this feature can be found 
-[on the site](http://graphwalker.github.io/yed_model_syntax/#multiple-models) of developers.
-However, there are some drawbacks in `SHARED`. For instance, it is difficult to control 
-consistency of SHARED tags. If, by mistake, a transition to nowhere will be declared, 
+[on developers site](http://graphwalker.github.io/yed_model_syntax/#multiple-models).
+However, there are some drawbacks of using `SHARED`. For example, it is difficult to control `SHARED` tags 
+consistency. If, by mistake, a transition to nowhere will be declared, 
 it will be hard to debug such a model.
 
-As a compromise solution that added to the library's capabilities 
-while maintaining backward compatibility, new keywords were added 
-to the syntax of model description - `OUTDEGREE` and `INDEGREE`. 
-Adding `OUTDEGREE` to the vertex means that there is a transition (edge) with the specified name 
-from this vertex to some other vertex beyond the graph. 
-Adding the `INDEGREE` named label to the vertex means the opposite, namely 
-the existence of a transition (edge) to the current vertex from somewhere else. 
-The graph itself with the test model can be split into subgraphs.
-Then, when executing `mvn graphwalker: generate-sources`, a temporary .graphml file appears in the 
-_/link_ resources subdirectory. This file is a union of all the subgraphs into one.
-Then it can be used in code generation or test model debugging.
+As a solution that added to the library's capabilities - new keywords were added 
+to the syntax of model description - `INDEGREE` and `OUTDEGREE`. What does it mean:
+- Adding `OUTDEGREE` to the vertex means that there is a transition (edge) with the specified name 
+from this vertex to some other vertex beyond the graph.
+- Adding the `INDEGREE` label to the vertex means the opposite, namely 
+the existence of a transition (edge) to the current vertex from some external graph. 
 
-The test model, split into subgraphs, has advantages over the "monolithic" 
-in the form of better maintainability. For example, in the case of a merge conflict, 
-it will be much easier to resolve it in one small file, rather than 
-in the file with the entire test model.
+`INDEGREE` and `OUTDEGREE` functionality provides us an ability to split huge test model graph into small, clear sub-graphs.
+When executing `mvn graphwalker: generate-sources` - it builds, a union of all the sub-graphs into one temporary *.graphml file and put it into the 
+_/link_ (resources) subdirectory. The union graph can be used:
+- to generate code interfaces to be implemented;
+- to check test model consistency;
+- to debug tests.
 
-Also, additional code could be used with `INDEGREE`. Like this
+Test model, split into sub-graphs (vs the "monolithic" test model) 
+has better maintainability. For example, in the case of a merge conflict, 
+it will be much easier to resolve it in one small sub-graph file, rather than 
+in one, huge, monolithic test model file.
+
+Using `INDEGREE` we can implement some editional logics like:
 ```
 INDEGREE: e_ClickHome /* Navigate home page */ [authorized==false], e_ClosePreview /* Close preview popup */;
 ```
@@ -49,8 +51,8 @@ connections, the keyword SET was introduced.
 
 The template of the generated Java file has been changed. 
 Generated interface methods based on vertices now return boolean value.
-Thus, any vertex-based method will run until returns `true` 
-or time limit will not be exceeded. 
+Thus, any vertex-based method will run until the interface logic returns `true` 
+or timed out. 
 
 ![Wait under the hood](docs/Wait.png?raw=true "Wait under the hood")
 
@@ -58,8 +60,8 @@ or time limit will not be exceeded.
 
 ![@code annotation](docs/code annotation.png?raw=true "@code annotation") 
 
-In some cases, information about the generated element, be it edge or vertex, 
-is enough to generate not just an abstract method, but its implementation code. 
+In some cases, information about the generated element (edge or vertex), 
+is enough to generate interface implementation code. 
 Here's what the generated code will look like for the example above.
 
 ```java
@@ -100,7 +102,7 @@ public interface CodeExample {
 }
 ```
 
- However, it should be noted that, first of all, this feature is intended 
+ However, we should note that this feature is intended 
  for generated models, not manually created.
  
  | Rule                                       | Right syntax                                                                        | Wrong syntax                                                                        |
@@ -119,9 +121,9 @@ public interface CodeExample {
 
 In the model above in order to get into `v7`, you need 
 to set the necessary values of the guard variables `e5`, `e6`, `e7`. 
-The only legal route to `v7` is shown in green. To set such a route using _AStarPath_, 
-we would have to describe an intermediate point `v1`, otherwise the wrong 
-route `start → v07 → v7` would be generated, which will cause runtime exception occurrence.
+The only legal route to `v7` is green colored. To set such a route using _AStarPath_, 
+we would have to describe an additional point `v1`, otherwise the wrong 
+route `start → v07 → v7` would be generated, and will cause runtime exception.
 
 ```kotlin
 val combinedPathGenerator = CombinedPath()
@@ -129,18 +131,18 @@ combinedPathGenerator.addPathGenerator(AStarPath(ReachedVertex("v1")))
 combinedPathGenerator.addPathGenerator(AStarPath(ReachedVertex("v7")))
 ```
 
-Using the added `org.graphwalker.core.generator.ShortestPath`, 
-it will be enough to specify only the end point.
+Using the `org.graphwalker.core.generator.ShortestPath` in path generation, 
+it will be enough to specify only the final vertex.
 
 ```kotlin
 val pathGenerator = ShortestPath(ReachedVertex("v7"))
 ```
 It is important to note that generated paths can only contain unique vertices and edges, 
-so a route like A → B → A → C will never be generated.
+so a route like `A → B → A → C` (cycles or loops) will not be generated.
 
 #### Factory method pattern to decouple implementation
 
-Let's say there is a model made up of many individual subgraphs.
+Let's say there is a model made up of many individual sub-graphs.
 
 ```kotlin
 class Model : ExecutionContext(),
@@ -176,10 +178,10 @@ class Model : ExecutionContext(),
 { /* implementation goes here */ }
 ```
 With implementations of that scale, it becomes more difficult to deal 
-with name collisions, as well as to modify individual parts.
+with name collisions as well as change individual parts.
 As an alternative to this solution, the ContextFactory interface will 
-be generated in target / generated-sources, by implementing which, 
-you can decouple subgraph implementations.
+be generated in target / generated-sources, by implementing it, 
+you can decouple sub-graph implementations.
 ```kotlin
 class Model : ExecutionContext(), ContextFactory {
 
@@ -191,15 +193,15 @@ class Model : ExecutionContext(), ContextFactory {
 
 #### Parametrized tests
 
-Parameterized tests can significantly reduce the size of the test model, 
+Parameterized tests can significantly reduce test model size 
 and also make it much more readable. The area between two specially marked 
-states will be replicated on as many separate automated tests as there 
-are records in the dataset. The parameterized autotests themselves can be 
+states will be replicated on as many separate automated tests as many 
+records are in dataset. The parameterized automated tests themselves can be 
 run in parallel with each other, thereby reducing the overall time.
 
 ##### Different types of parametrization
 
-For parametrization both separate edges and parts of the graph consisting 
+For parametrization both separate edges and parts of the graph built 
 of several edges and vertices are available.
 
 ![Parametrized test example](docs/Parametrized.png?raw=true "examples of different approaches to parametrize tests")
@@ -213,7 +215,7 @@ convenient ways to create such kind of tables, so you have to edit the HTML code
 in the editor itself. Read more about the features of yEd 
 [here](https://yed.yworks.com/support/qa/16) and 
 [here](https://yed.yworks.com/support/qa/10884/how-can-i-enter-text-in-a-row-of-a-swimlane-table?show=10913#c10913). 
-Samples of tables can be taken from here and copy-pasted via the clipboard.
+Table example can be taken from here and copy-pasted via the clipboard.
 
 - Dataset with two rows with `label` and `s_trg` parameters
 
@@ -282,17 +284,21 @@ Navigate Transport */
 </html>
 ```
 
-String, Boolean, Numeric (int / double) data types are supported. Only one 
-type of data can be declared per column. The parameter of the String type 
-can be declared as a single word or, if it consists of several words, quoted.
+Warning - String, Boolean, Numeric (int / double) data types are only supported. 
+Only one type of data can be declared per column. The parameter of the String type 
+can be declared as a single word or, if it consists of several words, quoted like - 
+`"example test string with spaces"`.
 
-For the declaration of a parametrized linear section of the graph, it is 
+In order to parametrize graph linear section (like octopus tentacle), it is 
 necessary to connect two points of the section of the graph with the new edge. 
 The starting point or root dataset is a vertex that will not be parameterized. 
 The final is the vertex that will be parameterized. But at the same time, all 
 transitions from that edge will no longer be parameterized.
+
+![Parametrized test example](docs/Parametrized2.png?raw=true "the second example")
+
 The only difference between such a connecting edge and the previous version is 
-that nothing is declared in it except for the HTML table code. It contains neither 
+that nothing is declared in it, except for the HTML table code. It contains neither 
 the name of the edge, nor the text description, nor the weight or other parameters.
 
 - Dual-row dataset with `label` and `s_trg` parameters
@@ -354,8 +360,8 @@ val shortestPath = ShortestPath(ReachedVertex(groupName, vertexName), dataset)
 
 ##### Known restrictions
 
-- datasets nested in each other are prohibited
-- the parameterized part of the graph must not have branches, incl. 
+- datasets nested into each other are prohibited
+- the parameterized part of the graph must not contain branches, including 
 `INDEGREE` / `OUTDEGREE` labels.
 - the parameterized part of the graph should fit into one file, 
 while there may be several such sections on one file, as well as 
