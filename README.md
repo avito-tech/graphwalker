@@ -366,3 +366,18 @@ val shortestPath = ShortestPath(ReachedVertex(groupName, vertexName), dataset)
 - the parameterized part of the graph should fit into one file, 
 while there may be several such sections on one file, as well as 
 several files with (different) datasets
+
+#### Original authors
+
+- Nils Olsson
+- Kristian Karl
+
+#### Modified code authors
+
+- Ivan Bonkin (inbonkin@avito.ru)
+- Andrey Petukhov (anpetukhov@avito.ru)
+- Mikhail Lavrik (myulavrik@avito.ru)
+
+#### Licence
+
+MIT
